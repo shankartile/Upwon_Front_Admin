@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root { height: 100%; }
+  body {
+    @apply bg-cream-200 text-charcoal font-sans antialiased;
+    @apply dark:bg-navy-975 dark:text-cream-100;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  h1, h2, h3, h4 { @apply font-display tracking-tight; }
+  *:focus-visible { @apply outline-none ring-2 ring-orange-500/60 ring-offset-2 ring-offset-cream-100 dark:ring-offset-navy-975 rounded; }
+}
+
+@layer components {
+  .card {
+    @apply bg-cream-50 border border-cream-300 rounded-2xl shadow-card;
+    @apply dark:bg-navy-900 dark:border-navy-800 dark:shadow-none;
+  }
+  .hairline { @apply border-cream-300 dark:border-navy-800; }
+  .stat-num { @apply font-display font-semibold tracking-tight; }
+  .sidebar-link {
+    @apply relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-navy-100/80
+      hover:text-white hover:bg-navy-800/60 transition-colors;
+  }
+  .sidebar-link.active { @apply bg-navy-800 text-white; }
+  .sidebar-link.active::before {
+    content: ''; @apply absolute -left-3 top-1.5 bottom-1.5 w-1 bg-orange-500 rounded-r;
+  }
+  .group-label {
+    @apply px-3 pt-5 pb-1 text-[10px] font-semibold tracking-[0.12em] uppercase text-navy-300;
+  }
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #CBD0D6; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: #A8AEB6; background-clip: padding-box; }
+.dark ::-webkit-scrollbar-thumb { background: #23295e; background-clip: padding-box; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #2d3870; background-clip: padding-box; }
