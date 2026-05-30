@@ -36,7 +36,7 @@ export interface Paginated<T> {
   pageSize: number;
 }
 
-export interface FaqItem { id: ID; question: string; answer: string; tags?: string[] }
+export interface FaqItem { id: ID; question: string; answer: string; tags?: string[]; active?: boolean }
 export interface Metric { label: string; value: string; delta?: string }
 
 export interface CmsPage extends Audit {
@@ -100,10 +100,12 @@ export interface Testimonial extends Audit {
 
 export interface ModuleItem extends Audit {
   id: ID; name: string; slug: string; description: string; category: string; iconKey: string;
+  active?: boolean;
 }
 
 export interface Integration extends Audit {
   id: ID; name: string; slug: string; description: string; category: string; logoUrl?: string;
+  active?: boolean;
 }
 
 export interface ComparisonRow {

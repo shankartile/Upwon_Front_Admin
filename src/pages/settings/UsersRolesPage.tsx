@@ -1,62 +1,108 @@
 import { useEffect, useState } from 'react';
-import { Plus, MoreVertical, Trash2, Pencil } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { DataTable } from '../../components/table/DataTable';
 import { TableToolbar } from '../../components/table/TableToolbar';
+import { RowActions } from '../../components/table/RowActions';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
-import { Dropdown } from '../../components/ui/Dropdown';
 import { Badge, StatusBadge } from '../../components/ui/Badge';
 import { Avatar } from '../../components/ui/Avatar';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Switch } from '../../components/ui/Switch';
 import { Field, FieldGrid } from '../../components/forms/Field';
+import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { useTable } from '../../hooks/useTable';
 import { useToast } from '../../context/ToastContext';
 import { usersService } from '../../services';
 import type { AdminUser, Role } from '../../types';
 import { fmtDate } from '../../lib/formatters';
 
+type DraftState =
+  | { mode: 'create'; record: Omit<AdminUser, 'id' | 'createdAt' | 'updatedAt'> }
+  | { mode: 'edit'; record: AdminUser }
+  | { mode: 'view'; record: AdminUser };
+
+const EMPTY: Omit<AdminUser, 'id' | 'createdAt' | 'updatedAt'> = {
+  name: '', email: '', role: 'editor', active: true,
+};
+
 export default function UsersRolesPage() {
   const [data, setData] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [draft, setDraft] = useState<AdminUser | (Omit<AdminUser, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }) | null>(null);
+  const [draft, setDraft] = useState<DraftState | null>(null);
+  const [pending, setPending] = useState<
+    | { kind: 'delete'; record: AdminUser }
+    | { kind: 'toggle'; record: AdminUser; nextActive: boolean }
+    | null
+  >(null);
   const toast = useToast();
   const t = useTable<AdminUser>(data, { searchKeys: ['name', 'email'], initialSortKey: 'name' });
 
   const reload = () => { setLoading(true); usersService.list().then((d) => { setData(d); setLoading(false); }); };
   useEffect(reload, []);
 
-  const save = async () => {
+  const patch = (p: Partial<AdminUser>) => {
     if (!draft) return;
-    if (!draft.name || !draft.email) return toast.error('Name and email required');
-    if ('id' in draft && draft.id) { await usersService.update(draft.id, draft as Partial<AdminUser>); toast.success('Updated'); }
-    else { await usersService.create(draft as Omit<AdminUser, 'id' | 'createdAt' | 'updatedAt'>); toast.success('Invited'); }
+    setDraft({ ...draft, record: { ...draft.record, ...p } } as DraftState);
+  };
+
+  const save = async () => {
+    if (!draft || draft.mode === 'view') return;
+    if (!draft.record.name || !draft.record.email) return toast.error('Name and email required');
+    if (draft.mode === 'edit') {
+      await usersService.update(draft.record.id, draft.record);
+      toast.success('Updated');
+    } else {
+      await usersService.create(draft.record);
+      toast.success('Invited');
+    }
     setDraft(null); reload();
   };
+
+  const runPending = async () => {
+    if (!pending) return;
+    if (pending.kind === 'delete') {
+      await usersService.remove(pending.record.id);
+      toast.success('Deleted');
+    } else {
+      await usersService.update(pending.record.id, { active: pending.nextActive });
+      toast.success(pending.nextActive ? 'Activated' : 'Deactivated');
+    }
+    reload();
+  };
+
+  const readonly = draft?.mode === 'view';
+  const title = draft?.mode === 'view' ? 'View user' : draft?.mode === 'edit' ? 'Edit user' : 'Invite user';
 
   return (
     <>
       <PageHeader
         title="Users & Roles"
         description="Who can sign in to the admin and what they can do."
-        actions={<Button leftIcon={<Plus className="w-4 h-4" />} variant="orange"
-          onClick={() => setDraft({ name: '', email: '', role: 'editor', active: true })}>Invite user</Button>}
+        actions={
+          <Button leftIcon={<Plus className="w-4 h-4" />} variant="orange"
+            onClick={() => setDraft({ mode: 'create', record: { ...EMPTY } })}>
+            Invite user
+          </Button>
+        }
       />
       <DataTable<AdminUser>
         data={t.rows} loading={loading}
         toolbar={<TableToolbar search={t.state.search} onSearchChange={t.setSearch} placeholder="Search users…" />}
         pagination={{ page: t.state.page, pageSize: t.state.pageSize, total: t.total, onPageChange: t.setPage }}
         sort={{ key: t.state.sortKey, dir: t.state.sortDir, onChange: t.setSort }}
-        onRowClick={(r) => setDraft(r)}
+        onRowClick={(r) => setDraft({ mode: 'view', record: r })}
+        actionsHeader="Actions"
+        actionsWidth="180px"
         columns={[
           { key: 'name', header: 'User', sortable: true, render: (r) => (
             <div className="flex items-center gap-3 min-w-0">
               <Avatar name={r.name} size={32} />
               <div className="min-w-0">
-                <p className="font-medium text-charcoal truncate">{r.name}</p>
-                <p className="text-xs text-charcoal-light truncate">{r.email}</p>
+                <p className="font-medium text-charcoal dark:text-cream-100 truncate">{r.name}</p>
+                <p className="text-xs text-charcoal-light dark:text-navy-300 truncate">{r.email}</p>
               </div>
             </div>
           )},
@@ -68,42 +114,100 @@ export default function UsersRolesPage() {
             render: (r) => fmtDate(r.lastLoginAt) },
         ]}
         rowActions={(r) => (
-          <Dropdown
-            trigger={<button className="p-1.5 rounded hover:bg-cream-200"><MoreVertical className="w-4 h-4 text-charcoal-light" /></button>}
-            items={[
-              { label: 'Edit', icon: <Pencil className="w-4 h-4" />, onClick: () => setDraft(r) },
-              { label: 'Delete', icon: <Trash2 className="w-4 h-4" />, destructive: true,
-                onClick: async () => { await usersService.remove(r.id); toast.success('Deleted'); reload(); } },
-            ]}
+          <RowActions
+            onView={() => setDraft({ mode: 'view', record: r })}
+            onEdit={() => setDraft({ mode: 'edit', record: r })}
+            onDelete={() => setPending({ kind: 'delete', record: r })}
+            toggle={{
+              checked: r.active,
+              onChange: (v) => setPending({ kind: 'toggle', record: r, nextActive: v }),
+              label: r.active ? 'Disable sign-in' : 'Enable sign-in',
+            }}
           />
         )}
       />
+
       <Modal
         open={!!draft}
         onClose={() => setDraft(null)}
         size="lg"
-        title={draft && 'id' in draft && draft.id ? 'Edit user' : 'Invite user'}
-        footer={<><Button variant="secondary" onClick={() => setDraft(null)}>Cancel</Button><Button variant="orange" onClick={save}>Save</Button></>}
+        title={title}
+        footer={
+          readonly ? (
+            <>
+              <Button variant="secondary" onClick={() => setDraft(null)}>Close</Button>
+              <Button variant="orange"
+                onClick={() => draft && setDraft({ mode: 'edit', record: draft.record as AdminUser })}>
+                Edit
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="secondary" onClick={() => setDraft(null)}>Cancel</Button>
+              <Button variant="orange" onClick={save}>Save</Button>
+            </>
+          )
+        }
       >
         {draft && (
           <div className="space-y-4">
             <FieldGrid>
-              <Field label="Name" required><Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} /></Field>
-              <Field label="Email" required><Input type="email" value={draft.email} onChange={(e) => setDraft({ ...draft, email: e.target.value })} /></Field>
+              <Field label="Name" required>
+                <Input value={draft.record.name} readOnly={readonly}
+                  onChange={(e) => patch({ name: e.target.value })} />
+              </Field>
+              <Field label="Email" required>
+                <Input type="email" value={draft.record.email} readOnly={readonly}
+                  onChange={(e) => patch({ email: e.target.value })} />
+              </Field>
             </FieldGrid>
             <FieldGrid>
               <Field label="Role">
-                <Select value={draft.role} onChange={(e) => setDraft({ ...draft, role: e.target.value as Role })}>
+                <Select value={draft.record.role} disabled={readonly}
+                  onChange={(e) => patch({ role: e.target.value as Role })}>
                   <option value="admin">Admin</option>
                   <option value="editor">Editor</option>
                   <option value="viewer">Viewer</option>
                 </Select>
               </Field>
-              <Field label="Active"><Switch checked={draft.active} onChange={(v) => setDraft({ ...draft, active: v })} label="Can sign in" /></Field>
+              <Field label="Active">
+                <Switch checked={draft.record.active} disabled={readonly}
+                  onChange={(v) => patch({ active: v })} label="Can sign in" />
+              </Field>
             </FieldGrid>
           </div>
         )}
       </Modal>
+
+      <ConfirmDialog
+        open={!!pending}
+        onClose={() => setPending(null)}
+        title={pendingTitle(pending)}
+        description={pendingDescription(pending)}
+        confirmLabel="OK"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={runPending}
+      />
     </>
   );
+}
+
+type PendingAction =
+  | { kind: 'delete'; record: AdminUser }
+  | { kind: 'toggle'; record: AdminUser; nextActive: boolean }
+  | null;
+
+function pendingTitle(p: PendingAction): string {
+  if (!p) return '';
+  if (p.kind === 'delete') return 'Delete user';
+  return p.nextActive ? 'Enable sign-in' : 'Disable sign-in';
+}
+
+function pendingDescription(p: PendingAction): string {
+  if (!p) return '';
+  if (p.kind === 'delete') return `Are you sure you want to delete ${p.record.name}?`;
+  return p.nextActive
+    ? `${p.record.name} will be able to sign in to the admin.`
+    : `${p.record.name} will be blocked from signing in.`;
 }

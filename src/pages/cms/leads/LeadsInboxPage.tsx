@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Download, MoreVertical, UserCheck } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { DataTable } from '../../../components/table/DataTable';
 import { TableToolbar } from '../../../components/table/TableToolbar';
+import { RowActions } from '../../../components/table/RowActions';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { StatusBadge, Badge } from '../../../components/ui/Badge';
-import { Dropdown } from '../../../components/ui/Dropdown';
 import { Field, FieldGrid } from '../../../components/forms/Field';
 import { Select } from '../../../components/ui/Select';
 import { Input } from '../../../components/ui/Input';
 import { Textarea } from '../../../components/ui/Textarea';
+import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 import { useTable } from '../../../hooks/useTable';
 import { useToast } from '../../../context/ToastContext';
 import { leadsService } from '../../../services';
@@ -32,6 +33,7 @@ export default function LeadsInboxPage() {
   const [all, setAll] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<Lead | null>(null);
+  const [pending, setPending] = useState<Lead | null>(null);
 
   const data = useMemo(() => all.filter((l) => l.type === (type ?? 'demo')), [all, type]);
   const t = useTable<Lead>(data, { searchKeys: ['name', 'email', 'company'], initialSortKey: 'createdAt' });
@@ -57,6 +59,13 @@ export default function LeadsInboxPage() {
     toast.success(`Marked ${status}`);
   };
 
+  const remove = async () => {
+    if (!pending) return;
+    await leadsService.remove(pending.id);
+    setAll((curr) => curr.filter((x) => x.id !== pending.id));
+    toast.success('Lead deleted');
+  };
+
   return (
     <>
       <PageHeader
@@ -75,11 +84,13 @@ export default function LeadsInboxPage() {
         pagination={{ page: t.state.page, pageSize: t.state.pageSize, total: t.total, onPageChange: t.setPage }}
         sort={{ key: t.state.sortKey, dir: t.state.sortDir, onChange: t.setSort }}
         onRowClick={(l) => setActive(l)}
+        actionsHeader="Actions"
+        actionsWidth="140px"
         columns={[
           { key: 'name', header: 'Lead', sortable: true, render: (l) => (
             <div className="min-w-0">
-              <p className="font-medium text-charcoal truncate">{l.name}</p>
-              <p className="text-xs text-charcoal-light truncate">{l.email}</p>
+              <p className="font-medium text-charcoal dark:text-cream-100 truncate">{l.name}</p>
+              <p className="text-xs text-charcoal-light dark:text-navy-300 truncate">{l.email}</p>
             </div>
           )},
           { key: 'company', header: 'Company', sortable: true, width: '180px',
@@ -89,14 +100,10 @@ export default function LeadsInboxPage() {
           { key: 'createdAt', header: 'Received', sortable: true, width: '150px', render: (l) => relativeTime(l.createdAt) },
         ]}
         rowActions={(l) => (
-          <Dropdown
-            trigger={<button className="p-1.5 rounded hover:bg-cream-200"><MoreVertical className="w-4 h-4 text-charcoal-light" /></button>}
-            items={[
-              { label: 'Mark contacted', icon: <UserCheck className="w-4 h-4" />, onClick: () => updateStatus(l, 'contacted') },
-              { label: 'Mark qualified', onClick: () => updateStatus(l, 'qualified') },
-              { label: 'Mark won', onClick: () => updateStatus(l, 'won') },
-              { label: 'Mark lost', destructive: true, onClick: () => updateStatus(l, 'lost') },
-            ]}
+          <RowActions
+            onView={() => setActive(l)}
+            onEdit={() => setActive(l)}
+            onDelete={() => setPending(l)}
           />
         )}
       />
@@ -113,7 +120,7 @@ export default function LeadsInboxPage() {
             <div className="flex items-center gap-3">
               <StatusBadge status={active.status} />
               <Badge tone="navy">{active.type}</Badge>
-              <span className="text-xs text-charcoal-light">received {fmtDate(active.createdAt)}</span>
+              <span className="text-xs text-charcoal-light dark:text-navy-300">received {fmtDate(active.createdAt)}</span>
             </div>
             <FieldGrid>
               <Field label="Email"><Input value={active.email} readOnly /></Field>
@@ -134,6 +141,17 @@ export default function LeadsInboxPage() {
           </div>
         )}
       </Modal>
+
+      <ConfirmDialog
+        open={!!pending}
+        onClose={() => setPending(null)}
+        title="Delete lead"
+        description={pending ? `Are you sure you want to delete the lead from ${pending.name}?` : ''}
+        confirmLabel="OK"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={remove}
+      />
     </>
   );
 }
