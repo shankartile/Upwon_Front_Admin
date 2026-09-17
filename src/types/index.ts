@@ -49,9 +49,20 @@ export interface CmsPage extends Audit {
   publishedAt?: ISODate;
 }
 
+export interface CtaButton { label: string; link: string }
+
+export interface HeroSection {
+  eyebrow: string;
+  heading: string;
+  subtext: string;
+  primaryCta: CtaButton;
+  secondaryCta: CtaButton;
+}
+
 export interface Product extends Audit {
   id: ID; slug: string; name: string; tagline: string; status: Status;
   category: string;
+  hero: HeroSection;
   moduleIds: ID[]; integrationIds: ID[];
   faqs: FaqItem[]; seo: Seo;
 }

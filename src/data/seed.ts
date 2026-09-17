@@ -42,23 +42,30 @@ export const seedPages: CmsPage[] = PAGES.map(([title, slug], i) => ({
   updatedAt: day(i % 9),
 }));
 
-const PRODUCTS = [
-  ['Upwon ERP Core', 'ERP'],
-  ['Upwon Finance Suite', 'Finance'],
-  ['Upwon HCM', 'People'],
-  ['Upwon Supply Chain', 'SCM'],
-  ['Upwon Manufacturing', 'Operations'],
-  ['Upwon CRM', 'Revenue'],
-  ['Upwon BI & Analytics', 'Insights'],
-] as const;
+const PRODUCTS: Array<[string, string, string]> = [
+  ['UpWon ERP', 'ERP', 'Batch production, recipe BOM, multi-plant control — with FSSAI and GST built in.'],
+  ['UpWon SFA-DMS', 'Sales', 'Beat plans, secondary sales and distributor stock visible on one live dashboard.'],
+  ['UpWon FMS', 'Franchise', 'Franchisee onboarding, royalty, outlet POS and Swiggy / Zomato — every store in sync.'],
+  ['UpWon POS', 'Retail', 'Offline-first counter billing with native Swiggy, Zomato and loyalty in one tablet.'],
+  ['UpWon HREasy', 'People', 'Multi-state payroll, biometric attendance, PF / ESIC / TDS — fully automated.'],
+  ['UpWon WMS', 'Warehouse', 'FEFO putaway, expiry alerts and temperature zones — built for perishable warehouses.'],
+  ['UpWon Vendor Portal', 'Procurement', 'Supplier onboarding, RFQs, PO confirmation and quality self-certification, in one place.'],
+];
 
-export const seedProducts: Product[] = PRODUCTS.map(([name, cat], i) => ({
+export const seedProducts: Product[] = PRODUCTS.map(([name, cat, tagline], i) => ({
   id: `pr_${i + 1}`,
   slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
   name,
-  tagline: `${cat} re-imagined for fast-moving enterprises.`,
-  status: i < 6 ? 'published' : 'draft',
+  tagline,
+  status: 'published',
   category: cat,
+  hero: {
+    eyebrow: cat,
+    heading: name,
+    subtext: tagline,
+    primaryCta: { label: 'Book a demo', link: '/demo' },
+    secondaryCta: { label: 'Talk to sales', link: '/contact' },
+  },
   moduleIds: [],
   integrationIds: [],
   faqs: [],
@@ -246,12 +253,12 @@ export const seedAnnouncements: AnnouncementBar[] = [
   { id: 'an_1', message: 'Q4 Demo Week — book your slot', link: '/demo', cta: 'Book now',
     active: true, variant: 'promo', startsAt: day(2), endsAt: day(-7),
     createdAt: day(10), updatedAt: day(1) },
-  { id: 'an_2', message: 'New: Upwon BI 2.0 is live', link: '/products/upwon-bi-analytics', cta: 'See what’s new',
+  { id: 'an_2', message: 'New: UpWon POS 2.0 is live', link: '/products/upwon-pos', cta: 'See what’s new',
     active: false, variant: 'info', createdAt: day(40), updatedAt: day(40) },
 ];
 
 export const seedRedirects: RedirectRule[] = [
-  { id: 'rd_1', from: '/platform', to: '/products/upwon-erp-core', code: 301 },
+  { id: 'rd_1', from: '/platform', to: '/products/upwon-erp', code: 301 },
   { id: 'rd_2', from: '/case-studies', to: '/clients', code: 301 },
 ];
 

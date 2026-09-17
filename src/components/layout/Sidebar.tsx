@@ -58,9 +58,7 @@ export function Sidebar() {
             </div>
           ))}
         </nav>
-        <div className="p-3 border-t border-navy-800 text-[10px] text-navy-300">
-          {!collapsed && <p>v0.1 · Mock mode</p>}
-        </div>
+     
       </aside>
     </>
   );

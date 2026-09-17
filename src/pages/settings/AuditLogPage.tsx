@@ -12,7 +12,7 @@ const SEED: AuditEntry[] = Array.from({ length: 24 }, (_, i) => ({
   id: `a${i + 1}`,
   actor: ['Aarav Mehta', 'Priya Shah', 'Rahul Iyer', 'Neha Kapoor'][i % 4],
   action: ['login', 'publish', 'create', 'update', 'delete'][i % 5],
-  target: ['Page: Home', 'Product: Upwon ERP Core', 'Industry: Manufacturing', 'Lead: ld_3'][i % 4],
+  target: ['Page: Home', 'Product: UpWon ERP', 'Industry: Manufacturing', 'Lead: ld_3'][i % 4],
   at: new Date(Date.now() - i * 7e6).toISOString(),
 }));
 

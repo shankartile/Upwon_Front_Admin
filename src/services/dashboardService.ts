@@ -19,7 +19,7 @@ export const dashboardService = {
       newLeads: seedLeads.filter((l) => l.status === 'new').length,
       topPages: [
         { path: '/', views: 38_120 },
-        { path: '/products/upwon-erp-core', views: 21_540 },
+        { path: '/products/upwon-erp', views: 21_540 },
         { path: '/industries/manufacturing', views: 14_220 },
         { path: '/pricing', views: 11_460 },
         { path: '/clients', views: 9_830 },
