@@ -84,7 +84,7 @@
 
 import {
   LayoutDashboard, FileText, Boxes, Building2, Trophy, Mail, MessageSquareQuote,
-  HelpCircle, Megaphone, Users, ShieldCheck,
+  HelpCircle, Megaphone, Users, ShieldCheck, Home,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -96,6 +96,7 @@ export const navigation: NavGroup[] = [
   {
     label: 'Content',
     items: [
+      { label: 'Home Page', to: '/cms/home-page', icon: Home },
       { label: 'Pages', to: '/cms/pages', icon: FileText },
       { label: 'Products', to: '/cms/products', icon: Boxes },
       { label: 'Industries', to: '/cms/industries', icon: Building2 },

@@ -8,6 +8,10 @@ import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import NotFoundPage from './pages/NotFoundPage';
 
+import HomePageLayout from './pages/cms/homePage/HomePageLayout';
+import HeroSectionPage from './pages/cms/homePage/HeroSectionPage';
+import HeroSlideEditPage from './pages/cms/homePage/HeroSlideEditPage';
+
 import PagesListPage from './pages/cms/pages/PagesListPage';
 import PageEditPage from './pages/cms/pages/PageEditPage';
 
@@ -64,6 +68,20 @@ export default function App() {
         <Route element={<ProtectedRoute><AdminShell /></ProtectedRoute>}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+
+          {/* Home page content, one tab per section of the marketing home page. */}
+          <Route path="/cms/home-page" element={<HomePageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<HeroSectionPage />} />
+          </Route>
+
+          {/*
+            The slide form is its own page, outside the tab layout - the tabs
+            navigate between sections, and a half-written slide is not a section
+            you want one click away from being abandoned. 'new' is the create
+            sentinel, matching /cms/pages/new and the other CMS edit screens.
+          */}
+          <Route path="/cms/home-page/hero-section/:id" element={<HeroSlideEditPage />} />
 
           <Route path="/cms/pages" element={<PagesListPage />} />
           <Route path="/cms/pages/:id" element={<PageEditPage />} />
