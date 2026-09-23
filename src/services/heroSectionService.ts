@@ -18,18 +18,39 @@ import type {
 
 const BASE = '/home-page/hero-section';
 
+export interface ListHeroSlidesParams extends HeroSlideFilters {
+  /**
+   * Matched server-side against eyebrow, heading and subtext (case-insensitive,
+   * substring). The heading is matched as authored, so its `**` accent markers
+   * are part of the text being searched.
+   */
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
 /**
- * The carousel is a short, ordered list, so the admin table asks for the whole
- * set in display order rather than paging it. MAX_HERO_SLIDES is 12 on the
- * server, so a 100-row limit can never truncate.
+ * One page of slides, filtered and searched by the database.
+ *
+ * Always sorted by display order: the admin list should read like the
+ * carousel it controls.
  */
-export const list = async (
-  filters: HeroSlideFilters = {},
+export const list = async ({
+  status,
+  search,
   page = 1,
-  limit = 100,
-): Promise<{ rows: HeroSlide[]; meta: PaginationMeta }> =>
+  limit = 10,
+}: ListHeroSlidesParams = {}): Promise<{ rows: HeroSlide[]; meta: PaginationMeta }> =>
   requestPaginated<HeroSlide>(BASE, {
-    query: { status: filters.status, page, limit, sortBy: 'displayOrder', sortOrder: 'asc' },
+    query: {
+      status,
+      // Trimmed to empty means "no search"; buildUrl drops empty values.
+      search: search?.trim() || undefined,
+      page,
+      limit,
+      sortBy: 'displayOrder',
+      sortOrder: 'asc',
+    },
   });
 
 export const getById = async (id: string): Promise<HeroSlide> =>

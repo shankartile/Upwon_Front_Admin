@@ -4,15 +4,17 @@ import { ArrowLeft, ImageOff, Save, Upload, X } from 'lucide-react';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
-import { Badge } from '../../../components/ui/Badge';
+import { ActivePill } from '../../../components/ui/Badge';
 import { Input } from '../../../components/ui/Input';
 import { Textarea } from '../../../components/ui/Textarea';
 import { Field, FieldGrid } from '../../../components/forms/Field';
 import { Skeleton } from '../../../components/ui/Skeleton';
+import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 import { useToast } from '../../../context/ToastContext';
 import * as heroSectionService from '../../../services/heroSectionService';
 import * as fileService from '../../../services/fileService';
 import { errorMessage } from '../../../lib/http';
+import { assetUrl } from '../../../lib/assetUrl';
 import { hasBalancedAccentMarkers, parseHeading } from '../../../lib/heading';
 import {
   checkHeroImageDimensions,
@@ -20,7 +22,7 @@ import {
   readImageDimensions,
   type HeroImageVariant,
 } from '../../../lib/heroImageSpec';
-import type { CreateHeroSlideInput, HeroSlide } from '../../../types/homePage';
+import { STATUS_LABELS, type CreateHeroSlideInput, type HeroSlide } from '../../../types/homePage';
 
 /**
  * Create / edit one hero slide, as a full page.
@@ -69,6 +71,9 @@ interface ImageSlot {
 
 const EMPTY_SLOT: ImageSlot = { fileId: null, file: null, preview: null, error: null };
 
+/** The two image slots this form owns. The spec registry also covers others. */
+type HeroSlot = Extract<HeroImageVariant, 'desktop' | 'mobile'>;
+
 interface DraftForm {
   eyebrow: string;
   heading: string;
@@ -89,11 +94,11 @@ const toForm = (slide: HeroSlide): DraftForm => ({
   eyebrow: slide.eyebrow,
   heading: slide.heading,
   subtext: slide.subtext,
-  desktop: { fileId: slide.imageFileId, file: null, preview: slide.image, error: null },
+  desktop: { fileId: slide.imageFileId, file: null, preview: assetUrl(slide.image) ?? null, error: null },
   mobile: {
     fileId: slide.mobileImageFileId,
     file: null,
-    preview: slide.mobileImage,
+    preview: assetUrl(slide.mobileImage) ?? null,
     error: null,
   },
 });
@@ -164,7 +169,7 @@ function ImagePicker({
   onClear,
   disabled,
 }: {
-  variant: HeroImageVariant;
+  variant: HeroSlot;
   slot: ImageSlot;
   onPick: (file: File) => void;
   onClear: () => void;
@@ -251,6 +256,7 @@ export default function HeroSlideEditPage() {
   const [saving, setSaving] = useState(false);
   const [touched, setTouched] = useState<Touched>({});
   const [submitted, setSubmitted] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   // Object URLs for picked files are revoked on replace and on unmount, so a
   // long editing session does not pin every image it previewed in memory.
@@ -320,12 +326,12 @@ export default function HeroSlideEditPage() {
   const patch = (changes: Partial<DraftForm>) =>
     setForm((current) => (current ? { ...current, ...changes } : current));
 
-  const patchSlot = (variant: HeroImageVariant, changes: Partial<ImageSlot>) =>
+  const patchSlot = (variant: HeroSlot, changes: Partial<ImageSlot>) =>
     setForm((current) =>
       current ? { ...current, [variant]: { ...current[variant], ...changes } } : current,
     );
 
-  const pickImage = async (variant: HeroImageVariant, file: File) => {
+  const pickImage = async (variant: HeroSlot, file: File) => {
     if (!fileService.isAcceptedImage(file)) {
       patchSlot(variant, { error: 'Unsupported file type — use a PNG, JPG, GIF or WebP.' });
       return;
@@ -357,16 +363,26 @@ export default function HeroSlideEditPage() {
     patchSlot(variant, { file, preview, error: null });
   };
 
-  const clearImage = (variant: HeroImageVariant) =>
+  const clearImage = (variant: HeroSlot) =>
     patchSlot(variant, { file: null, preview: null, fileId: null, error: null });
 
-  const save = async () => {
+  /**
+   * The Save button. Validates first, then asks for confirmation.
+   *
+   * That order matters: confirming and only then being told the form is
+   * invalid wastes the decision, so the dialog only appears once there is
+   * actually something savable.
+   */
+  const requestSave = () => {
     setSubmitted(true);
     if (hasErrors) {
       toast.error('Check the highlighted fields');
       return;
     }
+    setConfirmOpen(true);
+  };
 
+  const save = async () => {
     setSaving(true);
     try {
       /*
@@ -396,12 +412,12 @@ export default function HeroSlideEditPage() {
       };
 
       if (isNew) {
-        // New slides go live immediately; the list's row toggle hides them.
+        // New slides are active immediately; the list's row toggle deactivates them.
         await heroSectionService.create({ ...body, status: 'ACTIVE' });
         toast.success('Slide created');
       } else {
         await heroSectionService.update(id!, body);
-        toast.success('Slide updated', 'The live home page now shows this content.');
+        toast.success('Slide updated', 'The public home page now shows this content.');
       }
       navigate(LIST_PATH);
     } catch (error) {
@@ -416,9 +432,9 @@ export default function HeroSlideEditPage() {
       <PageHeader
         eyebrow={
           slide && (
-            <Badge tone={slide.status === 'ACTIVE' ? 'teal' : 'neutral'} dot>
-              {slide.status === 'ACTIVE' ? 'Live' : 'Hidden'}
-            </Badge>
+            <ActivePill active={slide.status === 'ACTIVE'}>
+              {STATUS_LABELS[slide.status]}
+            </ActivePill>
           )
         }
         title={isNew ? 'New hero slide' : 'Edit hero slide'}
@@ -567,12 +583,32 @@ export default function HeroSlideEditPage() {
             variant="orange"
             loading={saving}
             leftIcon={<Save className="h-4 w-4" />}
-            onClick={() => void save()}
+            onClick={requestSave}
           >
             {isNew ? 'Create slide' : 'Save changes'}
           </Button>
         </div>
       </div>
+
+      {/*
+        A save here publishes straight to the live marketing home page - there
+        is no draft state in between - so it gets the same confirmation step as
+        the destructive actions on the list.
+      */}
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => void save()}
+        title={isNew ? 'Create hero slide' : 'Update hero slide'}
+        description={
+          isNew
+            ? 'Are you sure you want to create this slide? It will appear in the home page carousel straight away.'
+            : 'Are you sure you want to update this slide? The public home page will show the new content straight away.'
+        }
+        confirmLabel={isNew ? 'Create' : 'Update'}
+        cancelLabel="Cancel"
+        variant="primary"
+      />
     </>
   );
 }

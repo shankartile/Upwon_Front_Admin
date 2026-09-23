@@ -28,8 +28,24 @@ export const ACCEPTED_IMAGE_TYPES = [
   'image/webp',
 ] as const;
 
+/**
+ * Mirrors the video half of the backend's ALLOWED_MIME_TYPES.
+ *
+ * Two codecs rather than every container: these are the pair every current
+ * browser plays natively, so anything else would upload fine and then refuse
+ * to play on the site.
+ */
+export const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/webm'] as const;
+
+/** The accept attribute for a video file input. */
+export const VIDEO_ACCEPT = ACCEPTED_VIDEO_TYPES.join(',');
+
+export function isAcceptedVideo(file: File): boolean {
+  return (ACCEPTED_VIDEO_TYPES as readonly string[]).includes(file.type);
+}
+
 /** Matches MAX_UPLOAD_BYTES in the backend .env. */
-export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+export const MAX_UPLOAD_BYTES = 64 * 1024 * 1024;
 
 /** The accept attribute for a file input, derived from the list above. */
 export const IMAGE_ACCEPT = ACCEPTED_IMAGE_TYPES.join(',');

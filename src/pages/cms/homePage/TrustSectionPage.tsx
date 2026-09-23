@@ -10,35 +10,34 @@ import { Select } from '../../../components/ui/Select';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 import { useToast } from '../../../context/ToastContext';
 import { useDebounce } from '../../../hooks/useDebounce';
-import * as heroSectionService from '../../../services/heroSectionService';
+import * as trustSectionService from '../../../services/trustSectionService';
 import { DEFAULT_PAGE_SIZE } from '../../../config/constants';
 import { errorMessage } from '../../../lib/http';
 import { assetUrl } from '../../../lib/assetUrl';
 import { plainHeading } from '../../../lib/heading';
 import { fmtDate, relativeTime } from '../../../lib/formatters';
-import { STATUS_LABELS, type ContentStatus, type HeroSlide } from '../../../types/homePage';
+import { STATUS_LABELS, type ContentStatus, type TrustEntry } from '../../../types/homePage';
 
 /**
- * Hero Section admin - the slide list.
+ * Trust Section admin - the entry list.
  *
- * Searching, filtering and paging are all done by the database: the table
- * renders exactly the page the API returned. Creating and editing happen on
- * their own page (HeroSlideEditPage), reached from here.
+ * The same screen as the Hero Section, against the same shape of data: one row
+ * per entry, searched and paged by the database, with the form on its own page.
  */
 
-const EDIT_PATH = '/cms/home-page/hero-section';
+const EDIT_PATH = '/cms/home-page/trust-section';
 
-/** MAX_HERO_SLIDES on the server. Shown as a hint before the 409 fires. */
-const MAX_SLIDES = 12;
+/** MAX_TRUST_ENTRIES on the server. Shown as a hint before the 409 fires. */
+const MAX_ENTRIES = 24;
 
 type StatusFilter = 'all' | ContentStatus;
 
 type Pending =
-  | { kind: 'delete'; record: HeroSlide }
-  | { kind: 'status'; record: HeroSlide; next: ContentStatus };
+  | { kind: 'delete'; record: TrustEntry }
+  | { kind: 'status'; record: TrustEntry; next: ContentStatus };
 
-export default function HeroSectionPage() {
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
+export default function TrustSectionPage() {
+  const [entries, setEntries] = useState<TrustEntry[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -57,20 +56,17 @@ export default function HeroSectionPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const { rows, meta } = await heroSectionService.list({
+      const { rows, meta } = await trustSectionService.list({
         status: statusFilter === 'all' ? undefined : statusFilter,
         search: debouncedSearch,
         page,
         limit: pageSize,
       });
-      setSlides(rows);
+      setEntries(rows);
       setTotal(meta.total);
 
-      /*
-       * Deleting the last row of the last page, or narrowing a search, can
-       * leave the viewer past the end of the results. The server answers with
-       * an empty page rather than an error, so step back a page and refetch.
-       */
+      // Deleting the last row of the last page can strand the viewer past the
+      // end of the results; the server answers with an empty page, so step back.
       if (rows.length === 0 && meta.total > 0 && page > 1) {
         setPage(Math.max(1, Math.ceil(meta.total / pageSize)));
       }
@@ -86,8 +82,7 @@ export default function HeroSectionPage() {
     void load();
   }, [load]);
 
-  // A new search or filter should land on the first page of its own results,
-  // not on whatever page number the previous query was showing.
+  // A new search or filter should land on the first page of its own results.
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch, statusFilter]);
@@ -100,11 +95,11 @@ export default function HeroSectionPage() {
     if (!pending) return;
     try {
       if (pending.kind === 'delete') {
-        await heroSectionService.remove(pending.record.id);
-        toast.success('Slide deleted');
+        await trustSectionService.remove(pending.record.id);
+        toast.success('Entry deleted');
       } else {
-        await heroSectionService.setStatus(pending.record.id, pending.next);
-        toast.success(pending.next === 'ACTIVE' ? 'Slide activated' : 'Slide deactivated');
+        await trustSectionService.setStatus(pending.record.id, pending.next);
+        toast.success(pending.next === 'ACTIVE' ? 'Entry activated' : 'Entry deactivated');
       }
       await load();
     } catch (error) {
@@ -114,7 +109,7 @@ export default function HeroSectionPage() {
     }
   };
 
-  const atLimit = total >= MAX_SLIDES;
+  const atLimit = total >= MAX_ENTRIES;
   /** The row's position in the whole ordering, not just within this page. */
   const positionOf = (index: number) => (page - 1) * pageSize + index;
 
@@ -125,17 +120,17 @@ export default function HeroSectionPage() {
           variant="orange"
           leftIcon={<Plus className="h-4 w-4" />}
           disabled={atLimit}
-          title={atLimit ? `The carousel holds at most ${MAX_SLIDES} slides` : undefined}
+          title={atLimit ? `The section holds at most ${MAX_ENTRIES} entries` : undefined}
           onClick={() => navigate(`${EDIT_PATH}/new`)}
         >
-          New slide
+          New entry
         </Button>
       </div>
 
       {loadError && (
         <div className="mb-4 rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm dark:border-orange-900/40 dark:bg-orange-900/10">
           <p className="font-medium text-orange-800 dark:text-orange-300">
-            Could not load hero slides
+            Could not load trust entries
           </p>
           <p className="mt-1 text-orange-700 dark:text-orange-400">{loadError}</p>
           <Button size="sm" variant="secondary" className="mt-3" onClick={() => void load()}>
@@ -144,14 +139,14 @@ export default function HeroSectionPage() {
         </div>
       )}
 
-      <DataTable<HeroSlide>
-        data={slides}
+      <DataTable<TrustEntry>
+        data={entries}
         loading={loading}
-        emptyTitle={isNarrowed ? 'No matching slides' : 'No hero slides yet'}
+        emptyTitle={isNarrowed ? 'No matching entries' : 'No trust entries yet'}
         emptyDescription={
           isNarrowed
             ? 'Try a different search term, or clear the status filter.'
-            : 'Add the first slide to start the home page carousel.'
+            : 'Add the first entry to start the trust section.'
         }
         actionsHeader="Actions"
         actionsWidth="140px"
@@ -171,7 +166,7 @@ export default function HeroSectionPage() {
           <TableToolbar
             search={search}
             onSearchChange={setSearch}
-            placeholder="Search slides…"
+            placeholder="Search entries…"
             right={
               <div className="w-40">
                 <Select
@@ -191,48 +186,39 @@ export default function HeroSectionPage() {
           {
             key: 'order',
             header: 'Sr. No',
-            width: '64px',
+            width: '76px',
             render: (row) => (
               <span className="tabular-nums text-charcoal-light dark:text-navy-300">
-                {positionOf(slides.indexOf(row)) + 1}
+                {positionOf(entries.indexOf(row)) + 1}
               </span>
             ),
           },
           {
             key: 'image',
-            header: 'Image',
-            width: '104px',
-            render: (row) => (
-              <div className="flex items-center gap-1.5">
-                {row.image ? (
+            header: 'Logo',
+            width: '110px',
+            render: (row) =>
+              row.image ? (
+                // object-contain, matching the marquee: logos are never cropped.
+                <span className="flex h-10 w-20 items-center justify-center rounded-md border border-cream-300 bg-cream-50 p-1 dark:border-navy-800 dark:bg-navy-900">
                   <img
                     src={assetUrl(row.image)}
-                    alt=""
-                    title="Desktop image"
-                    className="h-10 w-16 rounded-md border border-cream-300 object-cover dark:border-navy-800"
+                    alt={row.imageAlt ?? ''}
+                    className="max-h-full max-w-full object-contain"
                   />
-                ) : (
-                  <span
-                    className="flex h-10 w-16 items-center justify-center rounded-md border border-dashed border-cream-400 text-charcoal-light dark:border-navy-700 dark:text-navy-300"
-                    title="No desktop image"
-                  >
-                    <ImageOff className="h-4 w-4" />
-                  </span>
-                )}
-                {row.mobileImage && (
-                  <img
-                    src={assetUrl(row.mobileImage)}
-                    alt=""
-                    title="Mobile image"
-                    className="h-10 w-7 rounded-md border border-cream-300 object-cover dark:border-navy-800"
-                  />
-                )}
-              </div>
-            ),
+                </span>
+              ) : (
+                <span
+                  className="flex h-10 w-20 items-center justify-center rounded-md border border-dashed border-cream-400 text-charcoal-light dark:border-navy-700 dark:text-navy-300"
+                  title="No logo on this entry"
+                >
+                  <ImageOff className="h-4 w-4" />
+                </span>
+              ),
           },
           {
             key: 'heading',
-            header: 'Slide',
+            header: 'Entry',
             render: (row) => (
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
@@ -248,19 +234,41 @@ export default function HeroSectionPage() {
             ),
           },
           {
-            /*
-             * Earns its place twice over: it is the one thing an editor wants
-             * at a glance beyond the copy itself, and it stops Slide absorbing
-             * every spare pixel on a wide screen and stranding Status and
-             * Actions against the far edge.
-             */
+            key: 'brand',
+            header: 'Brand',
+            width: '140px',
+            render: (row) => (
+              <span className="truncate text-charcoal dark:text-cream-100">
+                {row.imageAlt ?? <span className="text-charcoal-light dark:text-navy-300">—</span>}
+              </span>
+            ),
+          },
+          {
+            key: 'stat',
+            header: 'Stat',
+            width: '150px',
+            render: (row) =>
+              row.statValue && row.statLabel ? (
+                <div className="min-w-0">
+                  <p className="font-semibold tracking-tight text-charcoal dark:text-cream-100">
+                    {row.statValue}
+                  </p>
+                  <p className="truncate text-xs text-charcoal-light dark:text-navy-300">
+                    {row.statLabel}
+                  </p>
+                </div>
+              ) : (
+                <span className="text-charcoal-light dark:text-navy-300">—</span>
+              ),
+          },
+          {
             key: 'updatedAt',
             header: 'Updated',
             width: '132px',
             render: (row) => (
               <div className="min-w-0">
                 <p className="truncate text-charcoal dark:text-cream-100">
-                  {fmtDate(row.updatedAt, 'd MMM yyyy')}
+                  {fmtDate(row.updatedAt)}
                 </p>
                 <p
                   className="truncate text-xs text-charcoal-light dark:text-navy-300"
@@ -307,17 +315,17 @@ export default function HeroSectionPage() {
         onConfirm={() => void runPending()}
         title={
           pending?.kind === 'delete'
-            ? 'Delete hero slide'
+            ? 'Delete trust entry'
             : pending?.next === 'ACTIVE'
-              ? 'Activate hero slide'
-              : 'Deactivate hero slide'
+              ? 'Activate trust entry'
+              : 'Deactivate trust entry'
         }
         description={
           pending?.kind === 'delete'
-            ? 'This permanently removes the slide from the home page carousel.'
+            ? 'This permanently removes the entry, along with its logo and stat, from the trust section.'
             : pending?.next === 'ACTIVE'
-              ? 'This slide will start appearing in the home page carousel.'
-              : 'This slide will be removed from the carousel but kept here.'
+              ? 'This entry will start appearing in the home page trust section.'
+              : 'This entry will be removed from the live section but kept here.'
         }
         confirmLabel={pending?.kind === 'delete' ? 'Delete' : 'Confirm'}
         variant={pending?.kind === 'delete' ? 'danger' : 'primary'}

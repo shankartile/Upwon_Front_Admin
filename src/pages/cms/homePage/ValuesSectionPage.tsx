@@ -10,35 +10,34 @@ import { Select } from '../../../components/ui/Select';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 import { useToast } from '../../../context/ToastContext';
 import { useDebounce } from '../../../hooks/useDebounce';
-import * as heroSectionService from '../../../services/heroSectionService';
+import * as valuesSectionService from '../../../services/valuesSectionService';
 import { DEFAULT_PAGE_SIZE } from '../../../config/constants';
 import { errorMessage } from '../../../lib/http';
 import { assetUrl } from '../../../lib/assetUrl';
 import { plainHeading } from '../../../lib/heading';
 import { fmtDate, relativeTime } from '../../../lib/formatters';
-import { STATUS_LABELS, type ContentStatus, type HeroSlide } from '../../../types/homePage';
+import { STATUS_LABELS, type ContentStatus, type ValuesEntry } from '../../../types/homePage';
 
 /**
- * Hero Section admin - the slide list.
+ * Values Section admin - the card list.
  *
- * Searching, filtering and paging are all done by the database: the table
- * renders exactly the page the API returned. Creating and editing happen on
- * their own page (HeroSlideEditPage), reached from here.
+ * The same screen as the other home page sections: one row per card, searched
+ * and paged by the database, with the form on its own page.
  */
 
-const EDIT_PATH = '/cms/home-page/hero-section';
+const EDIT_PATH = '/cms/home-page/values-section';
 
-/** MAX_HERO_SLIDES on the server. Shown as a hint before the 409 fires. */
-const MAX_SLIDES = 12;
+/** MAX_VALUES_ENTRIES on the server. Shown as a hint before the 409 fires. */
+const MAX_ENTRIES = 24;
 
 type StatusFilter = 'all' | ContentStatus;
 
 type Pending =
-  | { kind: 'delete'; record: HeroSlide }
-  | { kind: 'status'; record: HeroSlide; next: ContentStatus };
+  | { kind: 'delete'; record: ValuesEntry }
+  | { kind: 'status'; record: ValuesEntry; next: ContentStatus };
 
-export default function HeroSectionPage() {
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
+export default function ValuesSectionPage() {
+  const [entries, setEntries] = useState<ValuesEntry[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -57,20 +56,17 @@ export default function HeroSectionPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const { rows, meta } = await heroSectionService.list({
+      const { rows, meta } = await valuesSectionService.list({
         status: statusFilter === 'all' ? undefined : statusFilter,
         search: debouncedSearch,
         page,
         limit: pageSize,
       });
-      setSlides(rows);
+      setEntries(rows);
       setTotal(meta.total);
 
-      /*
-       * Deleting the last row of the last page, or narrowing a search, can
-       * leave the viewer past the end of the results. The server answers with
-       * an empty page rather than an error, so step back a page and refetch.
-       */
+      // Deleting the last row of the last page can strand the viewer past the
+      // end of the results; the server answers with an empty page, so step back.
       if (rows.length === 0 && meta.total > 0 && page > 1) {
         setPage(Math.max(1, Math.ceil(meta.total / pageSize)));
       }
@@ -86,8 +82,7 @@ export default function HeroSectionPage() {
     void load();
   }, [load]);
 
-  // A new search or filter should land on the first page of its own results,
-  // not on whatever page number the previous query was showing.
+  // A new search or filter should land on the first page of its own results.
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch, statusFilter]);
@@ -100,11 +95,11 @@ export default function HeroSectionPage() {
     if (!pending) return;
     try {
       if (pending.kind === 'delete') {
-        await heroSectionService.remove(pending.record.id);
-        toast.success('Slide deleted');
+        await valuesSectionService.remove(pending.record.id);
+        toast.success('Card deleted');
       } else {
-        await heroSectionService.setStatus(pending.record.id, pending.next);
-        toast.success(pending.next === 'ACTIVE' ? 'Slide activated' : 'Slide deactivated');
+        await valuesSectionService.setStatus(pending.record.id, pending.next);
+        toast.success(pending.next === 'ACTIVE' ? 'Card activated' : 'Card deactivated');
       }
       await load();
     } catch (error) {
@@ -114,28 +109,36 @@ export default function HeroSectionPage() {
     }
   };
 
-  const atLimit = total >= MAX_SLIDES;
+  const atLimit = total >= MAX_ENTRIES;
   /** The row's position in the whole ordering, not just within this page. */
   const positionOf = (index: number) => (page - 1) * pageSize + index;
 
   return (
     <>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        {/*
+          The copy repeats on every card and the site uses the first active
+          one, so it is worth saying rather than leaving to be discovered.
+        */}
+        <p className="text-sm text-charcoal-light dark:text-navy-300">
+          The section copy is shared — the site uses the first active card’s copy and shows
+          every active card in the grid.
+        </p>
         <Button
           variant="orange"
           leftIcon={<Plus className="h-4 w-4" />}
           disabled={atLimit}
-          title={atLimit ? `The carousel holds at most ${MAX_SLIDES} slides` : undefined}
+          title={atLimit ? `The section holds at most ${MAX_ENTRIES} cards` : undefined}
           onClick={() => navigate(`${EDIT_PATH}/new`)}
         >
-          New slide
+          New card
         </Button>
       </div>
 
       {loadError && (
         <div className="mb-4 rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm dark:border-orange-900/40 dark:bg-orange-900/10">
           <p className="font-medium text-orange-800 dark:text-orange-300">
-            Could not load hero slides
+            Could not load cards
           </p>
           <p className="mt-1 text-orange-700 dark:text-orange-400">{loadError}</p>
           <Button size="sm" variant="secondary" className="mt-3" onClick={() => void load()}>
@@ -144,14 +147,14 @@ export default function HeroSectionPage() {
         </div>
       )}
 
-      <DataTable<HeroSlide>
-        data={slides}
+      <DataTable<ValuesEntry>
+        data={entries}
         loading={loading}
-        emptyTitle={isNarrowed ? 'No matching slides' : 'No hero slides yet'}
+        emptyTitle={isNarrowed ? 'No matching cards' : 'No cards yet'}
         emptyDescription={
           isNarrowed
             ? 'Try a different search term, or clear the status filter.'
-            : 'Add the first slide to start the home page carousel.'
+            : 'Add the first card to take over this section from the site’s built-in grid.'
         }
         actionsHeader="Actions"
         actionsWidth="140px"
@@ -171,7 +174,7 @@ export default function HeroSectionPage() {
           <TableToolbar
             search={search}
             onSearchChange={setSearch}
-            placeholder="Search slides…"
+            placeholder="Search cards…"
             right={
               <div className="w-40">
                 <Select
@@ -191,76 +194,71 @@ export default function HeroSectionPage() {
           {
             key: 'order',
             header: 'Sr. No',
-            width: '64px',
+            width: '76px',
             render: (row) => (
               <span className="tabular-nums text-charcoal-light dark:text-navy-300">
-                {positionOf(slides.indexOf(row)) + 1}
+                {positionOf(entries.indexOf(row)) + 1}
               </span>
             ),
           },
           {
             key: 'image',
             header: 'Image',
-            width: '104px',
+            width: '110px',
+            render: (row) =>
+              row.image ? (
+                // object-cover at 4:3, matching how the card renders it.
+                <img
+                  src={assetUrl(row.image)}
+                  alt={row.cardTitle}
+                  className="h-12 w-16 rounded-md border border-cream-300 object-cover dark:border-navy-800"
+                />
+              ) : (
+                <span
+                  className="flex h-12 w-16 items-center justify-center rounded-md border border-dashed border-cream-400 text-charcoal-light dark:border-navy-700 dark:text-navy-300"
+                  title="Image missing"
+                >
+                  <ImageOff className="h-4 w-4" />
+                </span>
+              ),
+          },
+          {
+            key: 'card',
+            header: 'Card',
             render: (row) => (
-              <div className="flex items-center gap-1.5">
-                {row.image ? (
-                  <img
-                    src={assetUrl(row.image)}
-                    alt=""
-                    title="Desktop image"
-                    className="h-10 w-16 rounded-md border border-cream-300 object-cover dark:border-navy-800"
-                  />
-                ) : (
-                  <span
-                    className="flex h-10 w-16 items-center justify-center rounded-md border border-dashed border-cream-400 text-charcoal-light dark:border-navy-700 dark:text-navy-300"
-                    title="No desktop image"
-                  >
-                    <ImageOff className="h-4 w-4" />
-                  </span>
-                )}
-                {row.mobileImage && (
-                  <img
-                    src={assetUrl(row.mobileImage)}
-                    alt=""
-                    title="Mobile image"
-                    className="h-10 w-7 rounded-md border border-cream-300 object-cover dark:border-navy-800"
-                  />
-                )}
+              <div className="min-w-0">
+                <p className="truncate font-medium text-charcoal dark:text-cream-100">
+                  {row.cardTitle}
+                </p>
+                <p className="line-clamp-2 text-xs leading-snug text-charcoal-light dark:text-navy-300">
+                  {row.cardBody}
+                </p>
               </div>
             ),
           },
           {
             key: 'heading',
-            header: 'Slide',
+            header: 'Section copy',
+            width: '200px',
             render: (row) => (
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
+                <p className="truncate text-xs font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
                   {row.eyebrow}
                 </p>
-                <p className="truncate font-medium text-charcoal dark:text-cream-100">
+                <p className="truncate text-xs text-charcoal-light dark:text-navy-300">
                   {plainHeading(row.heading)}
-                </p>
-                <p className="line-clamp-2 text-xs leading-snug text-charcoal-light dark:text-navy-300">
-                  {row.subtext}
                 </p>
               </div>
             ),
           },
           {
-            /*
-             * Earns its place twice over: it is the one thing an editor wants
-             * at a glance beyond the copy itself, and it stops Slide absorbing
-             * every spare pixel on a wide screen and stranding Status and
-             * Actions against the far edge.
-             */
             key: 'updatedAt',
             header: 'Updated',
             width: '132px',
             render: (row) => (
               <div className="min-w-0">
                 <p className="truncate text-charcoal dark:text-cream-100">
-                  {fmtDate(row.updatedAt, 'd MMM yyyy')}
+                  {fmtDate(row.updatedAt)}
                 </p>
                 <p
                   className="truncate text-xs text-charcoal-light dark:text-navy-300"
@@ -307,17 +305,17 @@ export default function HeroSectionPage() {
         onConfirm={() => void runPending()}
         title={
           pending?.kind === 'delete'
-            ? 'Delete hero slide'
+            ? 'Delete card'
             : pending?.next === 'ACTIVE'
-              ? 'Activate hero slide'
-              : 'Deactivate hero slide'
+              ? 'Activate card'
+              : 'Deactivate card'
         }
         description={
           pending?.kind === 'delete'
-            ? 'This permanently removes the slide from the home page carousel.'
+            ? 'This permanently removes the card, along with its image and copy, from the section.'
             : pending?.next === 'ACTIVE'
-              ? 'This slide will start appearing in the home page carousel.'
-              : 'This slide will be removed from the carousel but kept here.'
+              ? 'This card will start appearing in the home page values grid.'
+              : 'This card will be removed from the live grid but kept here.'
         }
         confirmLabel={pending?.kind === 'delete' ? 'Delete' : 'Confirm'}
         variant={pending?.kind === 'delete' ? 'danger' : 'primary'}

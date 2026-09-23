@@ -11,6 +11,16 @@ import NotFoundPage from './pages/NotFoundPage';
 import HomePageLayout from './pages/cms/homePage/HomePageLayout';
 import HeroSectionPage from './pages/cms/homePage/HeroSectionPage';
 import HeroSlideEditPage from './pages/cms/homePage/HeroSlideEditPage';
+import HeroSlideViewPage from './pages/cms/homePage/HeroSlideViewPage';
+import TrustSectionPage from './pages/cms/homePage/TrustSectionPage';
+import TrustEntryEditPage from './pages/cms/homePage/TrustEntryEditPage';
+import TrustEntryViewPage from './pages/cms/homePage/TrustEntryViewPage';
+import IndustriesSectionPage from './pages/cms/homePage/IndustriesSectionPage';
+import IndustriesEntryEditPage from './pages/cms/homePage/IndustriesEntryEditPage';
+import IndustriesEntryViewPage from './pages/cms/homePage/IndustriesEntryViewPage';
+import ValuesSectionPage from './pages/cms/homePage/ValuesSectionPage';
+import ValuesEntryEditPage from './pages/cms/homePage/ValuesEntryEditPage';
+import ValuesEntryViewPage from './pages/cms/homePage/ValuesEntryViewPage';
 
 import PagesListPage from './pages/cms/pages/PagesListPage';
 import PageEditPage from './pages/cms/pages/PageEditPage';
@@ -73,6 +83,9 @@ export default function App() {
           <Route path="/cms/home-page" element={<HomePageLayout />}>
             <Route index element={<Navigate to="hero-section" replace />} />
             <Route path="hero-section" element={<HeroSectionPage />} />
+            <Route path="trust-section" element={<TrustSectionPage />} />
+            <Route path="industries-section" element={<IndustriesSectionPage />} />
+            <Route path="values-section" element={<ValuesSectionPage />} />
           </Route>
 
           {/*
@@ -82,6 +95,16 @@ export default function App() {
             sentinel, matching /cms/pages/new and the other CMS edit screens.
           */}
           <Route path="/cms/home-page/hero-section/:id" element={<HeroSlideEditPage />} />
+          <Route path="/cms/home-page/hero-section/:id/view" element={<HeroSlideViewPage />} />
+
+          <Route path="/cms/home-page/trust-section/:id" element={<TrustEntryEditPage />} />
+          <Route path="/cms/home-page/trust-section/:id/view" element={<TrustEntryViewPage />} />
+
+          <Route path="/cms/home-page/industries-section/:id" element={<IndustriesEntryEditPage />} />
+          <Route path="/cms/home-page/industries-section/:id/view" element={<IndustriesEntryViewPage />} />
+
+          <Route path="/cms/home-page/values-section/:id" element={<ValuesEntryEditPage />} />
+          <Route path="/cms/home-page/values-section/:id/view" element={<ValuesEntryViewPage />} />
 
           <Route path="/cms/pages" element={<PagesListPage />} />
           <Route path="/cms/pages/:id" element={<PageEditPage />} />

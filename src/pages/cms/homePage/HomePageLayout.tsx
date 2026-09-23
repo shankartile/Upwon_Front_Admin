@@ -12,7 +12,12 @@ import { Tabs } from '../../../components/ui/Tabs';
  * plus its route, and nothing here changes.
  */
 
-const SECTIONS = [{ id: 'hero-section', label: 'Hero Section' }] as const;
+const SECTIONS = [
+  { id: 'hero-section', label: 'Hero Section' },
+  { id: 'trust-section', label: 'Trust Section' },
+  { id: 'industries-section', label: 'Industries Section' },
+  { id: 'values-section', label: 'Values Section' },
+] as const;
 
 type SectionId = (typeof SECTIONS)[number]['id'];
 

@@ -12,15 +12,22 @@
  * Keep the numbers in step with the server's.
  */
 
-export type HeroImageVariant = 'desktop' | 'mobile';
+export type HeroImageVariant = 'desktop' | 'mobile' | 'trustLogo' | 'valuesCard';
 
 export interface HeroImageSpec {
   label: string;
   /** The recommended size, and also the minimum. */
   width: number;
   height: number;
-  /** Fractional allowance on the aspect ratio, e.g. 0.2 = +/-20%. */
-  ratioTolerance: number;
+  /**
+   * Fractional allowance on the aspect ratio, e.g. 0.2 = +/-20%.
+   *
+   * null skips the check. The hero is object-cover, so a wrong ratio is
+   * silently cropped and worth catching; logos are object-contain, which keeps
+   * whatever shape they are - the real brand marks run from 5:1 wordmarks to
+   * 1:1 roundels, so a ratio rule there would reject valid artwork.
+   */
+  ratioTolerance: number | null;
   /** Shown under the picker, so the requirement is visible before choosing. */
   hint: string;
 }
@@ -39,6 +46,20 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     height: 1200,
     ratioTolerance: 0.2,
     hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+  },
+  trustLogo: {
+    label: 'Logo',
+    width: 300,
+    height: 80,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 300×80px. The existing brand logos are 500px wide.',
+  },
+  valuesCard: {
+    label: 'Card image',
+    width: 800,
+    height: 600,
+    ratioTolerance: 0.2,
+    hint: 'Roughly 4:3, at least 800×600px — the card crops to that shape.',
   },
 };
 
@@ -84,6 +105,8 @@ export function checkHeroImageDimensions(
   if (dimensions.width < spec.width || dimensions.height < spec.height) {
     return `Needs to be at least ${spec.width}×${spec.height}px — this one is ${actual} and would look blurry when stretched.`;
   }
+
+  if (spec.ratioTolerance === null) return null;
 
   const targetRatio = spec.width / spec.height;
   const drift = Math.abs(dimensions.width / dimensions.height - targetRatio) / targetRatio;

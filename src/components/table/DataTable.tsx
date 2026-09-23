@@ -23,7 +23,15 @@ export interface DataTableProps<T extends { id: string }> {
   emptyDescription?: string;
   selectable?: boolean;
   onSelectionChange?: (ids: string[]) => void;
-  pagination?: { page: number; pageSize: number; total: number; onPageChange: (p: number) => void };
+  pagination?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    onPageChange: (p: number) => void;
+    /** Omit to hide the rows-per-page picker and keep a fixed page size. */
+    onPageSizeChange?: (size: number) => void;
+    pageSizeOptions?: number[];
+  };
   sort?: { key: string; dir: 'asc' | 'desc'; onChange: (key: string) => void };
   rowActions?: (row: T) => ReactNode;
   actionsHeader?: string;
@@ -188,6 +196,8 @@ export function DataTable<T extends { id: string }>(props: DataTableProps<T>) {
             pageSize={pagination.pageSize}
             total={pagination.total}
             onPageChange={pagination.onPageChange}
+            onPageSizeChange={pagination.onPageSizeChange}
+            pageSizeOptions={pagination.pageSizeOptions}
           />
         </div>
       )}

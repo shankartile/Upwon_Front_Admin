@@ -3,7 +3,7 @@ import type { AdminUser, Role } from '../types';
 import { seedUsers } from '../data/seed';
 import { DEMO_CREDS } from '../config/constants';
 import { env } from '../config/env';
-import { getAccessToken, request, setAccessToken } from '../lib/http';
+import { request, setAccessToken } from '../lib/http';
 
 /**
  * Sign-in, in two modes.
@@ -82,10 +82,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
        * panel trusts it - an expired one triggers the refresh in lib/http.
        */
       if (!env.useMocks) {
-        if (!getAccessToken()) {
-          if (!cancelled) setLoading(false);
-          return;
-        }
+        /*
+         * Note there is no "no access token means signed out" shortcut here.
+         *
+         * The refresh cookie outlives the access token by a long way, and it
+         * lives in an httpOnly cookie this code cannot read - so the absence of
+         * an access token says nothing about whether the session is still good.
+         * It is simply missing whenever localStorage was cleared, or the dev
+         * server moved to a different port (localStorage is keyed by origin,
+         * port included), or a previous refresh failed.
+         *
+         * Calling /auth/me regardless costs one 401 in that case, which the
+         * interceptor in lib/http turns into a refresh and a retry. Bailing out
+         * early instead is what logs a still-valid session out.
+         */
         try {
           const admin = await request<AuthenticatedAdminDto>('/auth/me');
           if (cancelled) return;

@@ -45,6 +45,35 @@ export function Badge({ tone = 'neutral', children, className, dot }: BadgeProps
   );
 }
 
+/**
+ * A solid, filled pill for an on/off state.
+ *
+ * Distinct from `Badge`, which is a tinted outline: scanning down a column of
+ * rows, a filled shape reads as a state where an outline reads as a label.
+ * Teal is the palette's only green; inactive is deliberately colourless rather
+ * than red, because it is a resting state and not a failure.
+ */
+export function ActivePill({ active, children }: { active: boolean; children: ReactNode }) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
+        active
+          ? 'bg-teal-500 text-white'
+          : 'bg-cream-400 text-charcoal dark:bg-navy-700 dark:text-navy-100',
+      )}
+    >
+      <span
+        className={cn(
+          'h-1.5 w-1.5 rounded-full',
+          active ? 'bg-white/80' : 'bg-charcoal-light dark:bg-navy-300',
+        )}
+      />
+      {children}
+    </span>
+  );
+}
+
 export function StatusBadge({ status }: { status: string }) {
   const map: Record<string, Tone> = {
     published: 'teal', draft: 'neutral', scheduled: 'gold', archived: 'orange',
