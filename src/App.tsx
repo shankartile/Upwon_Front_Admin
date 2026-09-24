@@ -67,6 +67,14 @@ import FmsFaqEntryEditPage from './pages/cms/fmsPage/FaqEntryEditPage';
 import FmsFaqEntryViewPage from './pages/cms/fmsPage/FaqEntryViewPage';
 import FmsCtaSectionPage from './pages/cms/fmsPage/CtaSectionPage';
 import FmsProofSectionPage from './pages/cms/fmsPage/ProofSectionPage';
+import PosPageLayout from './pages/cms/posPage/PosPageLayout';
+import PosHeroSectionPage from './pages/cms/posPage/HeroSectionPage';
+import PosHeroSlideEditPage from './pages/cms/posPage/HeroSlideEditPage';
+import PosHeroSlideViewPage from './pages/cms/posPage/HeroSlideViewPage';
+import PosFaqSectionPage from './pages/cms/posPage/FaqSectionPage';
+import PosFaqEntryEditPage from './pages/cms/posPage/FaqEntryEditPage';
+import PosFaqEntryViewPage from './pages/cms/posPage/FaqEntryViewPage';
+import PosCtaSectionPage from './pages/cms/posPage/CtaSectionPage';
 import FmsFranchiseSectionPage from './pages/cms/fmsPage/FranchiseSectionPage';
 import FmsVideoSectionPage from './pages/cms/fmsPage/VideoSectionPage';
 import FmsIntegrationsSectionPage from './pages/cms/fmsPage/IntegrationsSectionPage';
@@ -385,6 +393,28 @@ export default function App() {
           <Route
             path="/cms/products/fms/outcomes-section/stories/:storyId/stats/:id/view"
             element={<FmsOutcomeStatViewPage />}
+          />
+
+          {/* The POS page, laid out the same way as the FMS one. */}
+          <Route path="/cms/products/pos" element={<PosPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<PosHeroSectionPage />} />
+            <Route path="faq-section" element={<PosFaqSectionPage />} />
+            <Route path="cta-section" element={<PosCtaSectionPage />} />
+          </Route>
+          {/* Entry forms sit outside the layout so they get the full width. */}
+          <Route
+            path="/cms/products/pos/hero-section/:id"
+            element={<PosHeroSlideEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/hero-section/:id/view"
+            element={<PosHeroSlideViewPage />}
+          />
+          <Route path="/cms/products/pos/faq-section/:id" element={<PosFaqEntryEditPage />} />
+          <Route
+            path="/cms/products/pos/faq-section/:id/view"
+            element={<PosFaqEntryViewPage />}
           />
 
           {/* The SFA-DMS page, laid out the same way as the ERP one. */}

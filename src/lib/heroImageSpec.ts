@@ -38,6 +38,10 @@ export type HeroImageVariant =
   | 'fmsFranchisePhoto'
   | 'fmsOutcomeLogo'
   | 'fmsOutcomePhoto'
+  | 'posHero'
+  | 'posHeroMobile'
+  | 'posCtaDesktop'
+  | 'posCtaMobile'
   | 'erpCtaDesktop'
   | 'erpCtaMobile'
   | 'erpIndustry'
@@ -196,6 +200,34 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     height: 566,
     ratioTolerance: 0.2,
     hint: 'Wide landscape, at least 1600x566px. The card floats over its right-hand side, so keep the subject left of centre.',
+  },
+  posHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600x566px. Covered, so a differently shaped upload is cropped rather than letterboxed.',
+  },
+  posHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800x1200px. Optional — phones fall back to the desktop image.',
+  },
+  posCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600x566px. The copy sits over the wash on its right, so keep the left third for the counter mockup.',
+  },
+  posCtaMobile: {
+    label: 'Mobile artwork',
+    width: 828,
+    height: 1899,
+    ratioTolerance: 0.2,
+    hint: 'Tall crop, at least 828x1899px. The copy is centred over it, so it needs to stay text-safe.',
   },
   sfaOutcomePortrait: {
     label: 'Portrait',
