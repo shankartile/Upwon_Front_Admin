@@ -357,3 +357,236 @@ export interface CreateFmsIntegrationLogoInput {
 }
 
 export type UpdateFmsIntegrationLogoInput = Partial<CreateFmsIntegrationLogoInput>;
+
+// -- the growth path --------------------------------------------------------
+
+/**
+ * The reassurance line under the row of cards. One record for the section.
+ *
+ * Null before it has ever been set, and `footnote` may be null after - the
+ * row reads fine without the line, so turning it off is a real edit.
+ */
+export interface FmsGrowthSection {
+  id: string;
+  footnote: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpsertFmsGrowthSectionInput {
+  footnote?: string | null;
+}
+
+/** One tick under a tier card. */
+export interface FmsGrowthFeature {
+  id: string;
+  tierId: string;
+  label: string;
+  displayOrder: number;
+  status: ContentStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFmsGrowthFeatureInput {
+  label: string;
+  displayOrder?: number;
+  status: ContentStatus;
+}
+
+export type UpdateFmsGrowthFeatureInput = Partial<CreateFmsGrowthFeatureInput>;
+
+export interface FmsGrowthTier {
+  id: string;
+  /** The small caps label at the top of the card: CORE, PRO, PLUS. */
+  name: string;
+  /** Stable across renames, so a deep link keeps pointing at the same tier. */
+  slug: string;
+  /** The large line where a price would be. */
+  lead: string;
+  tagline: string;
+  /** The bordered pill under the tagline. */
+  scope: string;
+  /** The bold first tick. Null on the tier with nothing beneath it. */
+  inheritsLabel: string | null;
+  buttonLabel: string;
+  buttonHref: string;
+  /** The card wearing the "Most Popular" badge. At most one is true. */
+  isPopular: boolean;
+  displayOrder: number;
+  status: ContentStatus;
+  /** Attached by the API, so a list row can count them. */
+  features: FmsGrowthFeature[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFmsGrowthTierInput {
+  name: string;
+  slug: string;
+  lead: string;
+  tagline: string;
+  scope: string;
+  inheritsLabel?: string | null;
+  buttonLabel: string;
+  buttonHref: string;
+  isPopular?: boolean;
+  displayOrder?: number;
+  status: ContentStatus;
+}
+
+export type UpdateFmsGrowthTierInput = Partial<CreateFmsGrowthTierInput>;
+
+// -- the comparison grid ----------------------------------------------------
+
+/**
+ * The grid lives in the shared comparison tables under ('fms', 'alternatives'),
+ * so these mirror that shape rather than a table of the page's own.
+ *
+ * Prose cells, not scores: this section's own subtext says "No star ratings".
+ */
+
+/** The leader column - the header over the criteria. */
+export interface FmsAlternativesSection {
+  id: string;
+  leaderLabel: string;
+  leaderDescription: string | null;
+  status: ContentStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpsertFmsAlternativesSectionInput {
+  leaderLabel: string;
+  leaderDescription?: string | null;
+}
+
+export interface FmsAlternativesColumn {
+  id: string;
+  sectionId: string;
+  name: string;
+  /** Exactly one column is ours; setting it clears the rest. */
+  highlightColumn: boolean;
+  displayOrder: number;
+  status: ContentStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFmsAlternativesColumnInput {
+  name: string;
+  highlightColumn?: boolean;
+  displayOrder?: number;
+  status: ContentStatus;
+}
+
+export type UpdateFmsAlternativesColumnInput = Partial<CreateFmsAlternativesColumnInput>;
+
+/** One cell: a sentence against a column. */
+export interface FmsAlternativeCell {
+  columnId: string;
+  content: string;
+}
+
+export interface FmsAlternativeRow {
+  id: string;
+  /** The leader cell - the criterion this row compares on. */
+  parameter: string;
+  displayOrder: number;
+  status: ContentStatus;
+  /**
+   * The row's cells. A column with nothing to say is simply absent, which is
+   * how an empty cell is expressed.
+   */
+  cells: FmsAlternativeCell[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFmsAlternativeRowInput {
+  parameter: string;
+  displayOrder?: number;
+  status: ContentStatus;
+  /** Replaces the row's cells wholesale - a column left out is cleared. */
+  cells: FmsAlternativeCell[];
+}
+
+export type UpdateFmsAlternativeRowInput = Partial<CreateFmsAlternativeRowInput>;
+
+// -- the customer outcomes carousel -----------------------------------------
+
+/** One figure on a story's card. */
+export interface FmsOutcomeStat {
+  id: string;
+  storyId: string;
+  /** Read verbatim: "250+", "6,000+", "35 to 200+". */
+  value: string;
+  /** The line under it, which says what the figure counts. */
+  label: string;
+  displayOrder: number;
+  status: ContentStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFmsOutcomeStatInput {
+  value: string;
+  label: string;
+  displayOrder?: number;
+  status: ContentStatus;
+}
+
+export type UpdateFmsOutcomeStatInput = Partial<CreateFmsOutcomeStatInput>;
+
+/**
+ * One network's story.
+ *
+ * Every visible thing belongs here, the background photograph included - the
+ * picture changes with the card, so it is a field on the story rather than one
+ * image for the section.
+ */
+export interface FmsOutcomeStory {
+  id: string;
+  /** The network's name - also the alt text, and the avatar's initials. */
+  name: string;
+  /** Stable across renames, so a deep link keeps pointing at the same story. */
+  slug: string;
+  /** The brand mark on the card. Exclusive with logoFileId, one required. */
+  logoUrl: string | null;
+  logoFileId: string | null;
+  /** The two sources collapsed into the one URL to actually render. */
+  logo: string | null;
+  /** The photograph behind the card, same pair. */
+  photoUrl: string | null;
+  photoFileId: string | null;
+  photo: string | null;
+  quote: string;
+  personName: string;
+  personCompany: string;
+  linkLabel: string;
+  linkHref: string;
+  displayOrder: number;
+  status: ContentStatus;
+  /** Attached by the API, so a list row can count them. */
+  stats: FmsOutcomeStat[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFmsOutcomeStoryInput {
+  name: string;
+  slug: string;
+  logoUrl?: string | null;
+  logoFileId?: string | null;
+  photoUrl?: string | null;
+  photoFileId?: string | null;
+  quote: string;
+  personName: string;
+  personCompany: string;
+  linkLabel: string;
+  linkHref: string;
+  displayOrder?: number;
+  status: ContentStatus;
+}
+
+export type UpdateFmsOutcomeStoryInput = Partial<CreateFmsOutcomeStoryInput>;

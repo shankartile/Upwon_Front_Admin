@@ -70,6 +70,21 @@ import FmsProofSectionPage from './pages/cms/fmsPage/ProofSectionPage';
 import FmsFranchiseSectionPage from './pages/cms/fmsPage/FranchiseSectionPage';
 import FmsVideoSectionPage from './pages/cms/fmsPage/VideoSectionPage';
 import FmsIntegrationsSectionPage from './pages/cms/fmsPage/IntegrationsSectionPage';
+import FmsGrowthSectionPage from './pages/cms/fmsPage/GrowthSectionPage';
+import FmsAlternativesSectionPage from './pages/cms/fmsPage/AlternativesSectionPage';
+import FmsOutcomesSectionPage from './pages/cms/fmsPage/OutcomesSectionPage';
+import FmsOutcomeStoryEditPage from './pages/cms/fmsPage/OutcomeStoryEditPage';
+import FmsOutcomeStoryViewPage from './pages/cms/fmsPage/OutcomeStoryViewPage';
+import FmsOutcomeStatEditPage from './pages/cms/fmsPage/OutcomeStatEditPage';
+import FmsOutcomeStatViewPage from './pages/cms/fmsPage/OutcomeStatViewPage';
+import FmsAlternativesColumnEditPage from './pages/cms/fmsPage/AlternativesColumnEditPage';
+import FmsAlternativesColumnViewPage from './pages/cms/fmsPage/AlternativesColumnViewPage';
+import FmsAlternativesRowEditPage from './pages/cms/fmsPage/AlternativesRowEditPage';
+import FmsAlternativesRowViewPage from './pages/cms/fmsPage/AlternativesRowViewPage';
+import FmsGrowthTierEditPage from './pages/cms/fmsPage/GrowthTierEditPage';
+import FmsGrowthTierViewPage from './pages/cms/fmsPage/GrowthTierViewPage';
+import FmsGrowthFeatureEditPage from './pages/cms/fmsPage/GrowthFeatureEditPage';
+import FmsGrowthFeatureViewPage from './pages/cms/fmsPage/GrowthFeatureViewPage';
 import FmsIntegrationLogoEditPage from './pages/cms/fmsPage/IntegrationLogoEditPage';
 import FmsIntegrationLogoViewPage from './pages/cms/fmsPage/IntegrationLogoViewPage';
 import FmsVideoEntryEditPage from './pages/cms/fmsPage/VideoEntryEditPage';
@@ -242,6 +257,9 @@ export default function App() {
             <Route path="franchise-section" element={<FmsFranchiseSectionPage />} />
             <Route path="video-section" element={<FmsVideoSectionPage />} />
             <Route path="integrations-section" element={<FmsIntegrationsSectionPage />} />
+            <Route path="growth-section" element={<FmsGrowthSectionPage />} />
+            <Route path="alternatives-section" element={<FmsAlternativesSectionPage />} />
+            <Route path="outcomes-section" element={<FmsOutcomesSectionPage />} />
             <Route path="faq-section" element={<FmsFaqSectionPage />} />
             <Route path="cta-section" element={<FmsCtaSectionPage />} />
           </Route>
@@ -319,6 +337,54 @@ export default function App() {
           <Route
             path="/cms/products/fms/integrations-section/logos/:id/view"
             element={<FmsIntegrationLogoViewPage />}
+          />
+          <Route
+            path="/cms/products/fms/growth-section/tiers/:id"
+            element={<FmsGrowthTierEditPage />}
+          />
+          <Route
+            path="/cms/products/fms/growth-section/tiers/:id/view"
+            element={<FmsGrowthTierViewPage />}
+          />
+          <Route
+            path="/cms/products/fms/growth-section/tiers/:tierId/features/:id"
+            element={<FmsGrowthFeatureEditPage />}
+          />
+          <Route
+            path="/cms/products/fms/growth-section/tiers/:tierId/features/:id/view"
+            element={<FmsGrowthFeatureViewPage />}
+          />
+          <Route
+            path="/cms/products/fms/alternatives-section/columns/:id"
+            element={<FmsAlternativesColumnEditPage />}
+          />
+          <Route
+            path="/cms/products/fms/alternatives-section/columns/:id/view"
+            element={<FmsAlternativesColumnViewPage />}
+          />
+          <Route
+            path="/cms/products/fms/alternatives-section/rows/:id"
+            element={<FmsAlternativesRowEditPage />}
+          />
+          <Route
+            path="/cms/products/fms/alternatives-section/rows/:id/view"
+            element={<FmsAlternativesRowViewPage />}
+          />
+          <Route
+            path="/cms/products/fms/outcomes-section/stories/:id"
+            element={<FmsOutcomeStoryEditPage />}
+          />
+          <Route
+            path="/cms/products/fms/outcomes-section/stories/:id/view"
+            element={<FmsOutcomeStoryViewPage />}
+          />
+          <Route
+            path="/cms/products/fms/outcomes-section/stories/:storyId/stats/:id"
+            element={<FmsOutcomeStatEditPage />}
+          />
+          <Route
+            path="/cms/products/fms/outcomes-section/stories/:storyId/stats/:id/view"
+            element={<FmsOutcomeStatViewPage />}
           />
 
           {/* The SFA-DMS page, laid out the same way as the ERP one. */}

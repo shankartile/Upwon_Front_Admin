@@ -20,6 +20,9 @@ const SECTIONS = [
   { id: 'franchise-section', label: 'Franchise Categories' },
   { id: 'video-section', label: 'Video Section' },
   { id: 'integrations-section', label: 'Integrations' },
+  { id: 'growth-section', label: 'Growth Path' },
+  { id: 'alternatives-section', label: 'Comparison' },
+  { id: 'outcomes-section', label: 'Customer Outcomes' },
   { id: 'faq-section', label: 'FAQ' },
   { id: 'cta-section', label: 'CTA Section' },
 ] as const;

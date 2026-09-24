@@ -36,6 +36,8 @@ export type HeroImageVariant =
   | 'fmsCtaMobile'
   | 'fmsFranchiseIcon'
   | 'fmsFranchisePhoto'
+  | 'fmsOutcomeLogo'
+  | 'fmsOutcomePhoto'
   | 'erpCtaDesktop'
   | 'erpCtaMobile'
   | 'erpIndustry'
@@ -180,6 +182,20 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     height: 873,
     ratioTolerance: 0.2,
     hint: 'Wide landscape, at least 1504x873px. The left two-thirds sit under a colour wash, so keep the subject on the right.',
+  },
+  fmsOutcomeLogo: {
+    label: 'Brand mark',
+    width: 200,
+    height: 32,
+    ratioTolerance: null,
+    hint: 'Any shape - drawn contained at 32px tall with a width cap, so a wordmark and a round badge both sit correctly. Around 500px wide matches the shipped marks.',
+  },
+  fmsOutcomePhoto: {
+    label: 'Background photo',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide landscape, at least 1600x566px. The card floats over its right-hand side, so keep the subject left of centre.',
   },
   sfaOutcomePortrait: {
     label: 'Portrait',

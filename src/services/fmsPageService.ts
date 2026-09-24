@@ -9,6 +9,12 @@ import type {
   CreateFmsHeroSlideInput,
   CreateFmsProofLogoInput,
   CreateFmsProofStatInput,
+  CreateFmsAlternativeRowInput,
+  CreateFmsOutcomeStatInput,
+  CreateFmsOutcomeStoryInput,
+  CreateFmsAlternativesColumnInput,
+  CreateFmsGrowthFeatureInput,
+  CreateFmsGrowthTierInput,
   CreateFmsIntegrationLogoInput,
   CreateFmsVideoEntryInput,
   FmsCtaSection,
@@ -18,6 +24,14 @@ import type {
   FmsHeroSlide,
   FmsProofLogo,
   FmsProofStat,
+  FmsAlternativeRow,
+  FmsOutcomeStat,
+  FmsOutcomeStory,
+  FmsAlternativesColumn,
+  FmsAlternativesSection,
+  FmsGrowthFeature,
+  FmsGrowthSection,
+  FmsGrowthTier,
   FmsIntegrationLogo,
   FmsIntegrationSection,
   FmsVideoEntry,
@@ -27,8 +41,16 @@ import type {
   UpdateFmsHeroSlideInput,
   UpdateFmsProofLogoInput,
   UpdateFmsProofStatInput,
+  UpdateFmsAlternativeRowInput,
+  UpdateFmsOutcomeStatInput,
+  UpdateFmsOutcomeStoryInput,
+  UpdateFmsAlternativesColumnInput,
+  UpdateFmsGrowthFeatureInput,
+  UpdateFmsGrowthTierInput,
   UpdateFmsIntegrationLogoInput,
   UpdateFmsVideoEntryInput,
+  UpsertFmsAlternativesSectionInput,
+  UpsertFmsGrowthSectionInput,
   UpsertFmsIntegrationSectionInput,
   UpsertFmsCtaSectionInput,
 } from '../types/fmsPage';
@@ -427,5 +449,306 @@ export const integrationsSection = {
 
     remove: async (id: string): Promise<void> =>
       request<void>(`${BASE}/integrations-section/logos/${id}`, { method: 'DELETE' }),
+  },
+};
+
+// -- the growth path --------------------------------------------------------
+
+/**
+ * The line under the row sits at the root because there is one of it; the
+ * cards are a list under '/tiers', and each card's ticks are nested under it -
+ * mirroring the routes, so the URL carries the ownership the server checks.
+ */
+export const growthSection = {
+  /** Null before the line has ever been set. */
+  get: async (): Promise<FmsGrowthSection | null> =>
+    request<FmsGrowthSection | null>(`${BASE}/growth-section`),
+
+  save: async (input: UpsertFmsGrowthSectionInput): Promise<FmsGrowthSection> =>
+    request<FmsGrowthSection>(`${BASE}/growth-section`, { method: 'PUT', body: input }),
+
+  tiers: {
+    list: async (
+      params: ListParams = {},
+    ): Promise<{ rows: FmsGrowthTier[]; meta: PaginationMeta }> =>
+      requestPaginated<FmsGrowthTier>(`${BASE}/growth-section/tiers`, {
+        query: listQuery(params),
+      }),
+
+    getById: async (id: string): Promise<FmsGrowthTier> =>
+      request<FmsGrowthTier>(`${BASE}/growth-section/tiers/${id}`),
+
+    create: async (input: CreateFmsGrowthTierInput): Promise<FmsGrowthTier> =>
+      request<FmsGrowthTier>(`${BASE}/growth-section/tiers`, { method: 'POST', body: input }),
+
+    update: async (id: string, input: UpdateFmsGrowthTierInput): Promise<FmsGrowthTier> =>
+      request<FmsGrowthTier>(`${BASE}/growth-section/tiers/${id}`, {
+        method: 'PUT',
+        body: input,
+      }),
+
+    setStatus: async (id: string, status: ContentStatus): Promise<FmsGrowthTier> =>
+      request<FmsGrowthTier>(`${BASE}/growth-section/tiers/${id}/status`, {
+        method: 'PUT',
+        body: { status },
+      }),
+
+    /** Takes the complete list of ids in their new order, so it is idempotent. */
+    reorder: async (ids: string[]): Promise<FmsGrowthTier[]> =>
+      request<FmsGrowthTier[]>(`${BASE}/growth-section/tiers/reorder`, {
+        method: 'PUT',
+        body: { ids },
+      }),
+
+    remove: async (id: string): Promise<void> =>
+      request<void>(`${BASE}/growth-section/tiers/${id}`, { method: 'DELETE' }),
+  },
+
+  features: {
+    list: async (tierId: string): Promise<FmsGrowthFeature[]> =>
+      request<FmsGrowthFeature[]>(`${BASE}/growth-section/tiers/${tierId}/features`),
+
+    getById: async (tierId: string, id: string): Promise<FmsGrowthFeature> =>
+      request<FmsGrowthFeature>(`${BASE}/growth-section/tiers/${tierId}/features/${id}`),
+
+    create: async (
+      tierId: string,
+      input: CreateFmsGrowthFeatureInput,
+    ): Promise<FmsGrowthFeature> =>
+      request<FmsGrowthFeature>(`${BASE}/growth-section/tiers/${tierId}/features`, {
+        method: 'POST',
+        body: input,
+      }),
+
+    update: async (
+      tierId: string,
+      id: string,
+      input: UpdateFmsGrowthFeatureInput,
+    ): Promise<FmsGrowthFeature> =>
+      request<FmsGrowthFeature>(`${BASE}/growth-section/tiers/${tierId}/features/${id}`, {
+        method: 'PUT',
+        body: input,
+      }),
+
+    setStatus: async (
+      tierId: string,
+      id: string,
+      status: ContentStatus,
+    ): Promise<FmsGrowthFeature> =>
+      request<FmsGrowthFeature>(
+        `${BASE}/growth-section/tiers/${tierId}/features/${id}/status`,
+        { method: 'PUT', body: { status } },
+      ),
+
+    reorder: async (tierId: string, ids: string[]): Promise<FmsGrowthFeature[]> =>
+      request<FmsGrowthFeature[]>(
+        `${BASE}/growth-section/tiers/${tierId}/features/reorder`,
+        { method: 'PUT', body: { ids } },
+      ),
+
+    remove: async (tierId: string, id: string): Promise<void> =>
+      request<void>(`${BASE}/growth-section/tiers/${tierId}/features/${id}`, {
+        method: 'DELETE',
+      }),
+  },
+};
+
+// -- the comparison grid ----------------------------------------------------
+
+/**
+ * Three groups, mirroring the routes: the leader column at the root, the
+ * competitor columns, and the criteria rows. Rows carry their cells, because a
+ * row is only ever edited as a whole line.
+ */
+export const alternativesSection = {
+  /** Null before the grid has ever been authored. */
+  get: async (): Promise<FmsAlternativesSection | null> =>
+    request<FmsAlternativesSection | null>(`${BASE}/alternatives-section`),
+
+  save: async (
+    input: UpsertFmsAlternativesSectionInput,
+  ): Promise<FmsAlternativesSection> =>
+    request<FmsAlternativesSection>(`${BASE}/alternatives-section`, {
+      method: 'PUT',
+      body: input,
+    }),
+
+  columns: {
+    list: async (): Promise<FmsAlternativesColumn[]> =>
+      request<FmsAlternativesColumn[]>(`${BASE}/alternatives-section/columns`),
+
+    getById: async (id: string): Promise<FmsAlternativesColumn> =>
+      request<FmsAlternativesColumn>(`${BASE}/alternatives-section/columns/${id}`),
+
+    create: async (
+      input: CreateFmsAlternativesColumnInput,
+    ): Promise<FmsAlternativesColumn> =>
+      request<FmsAlternativesColumn>(`${BASE}/alternatives-section/columns`, {
+        method: 'POST',
+        body: input,
+      }),
+
+    update: async (
+      id: string,
+      input: UpdateFmsAlternativesColumnInput,
+    ): Promise<FmsAlternativesColumn> =>
+      request<FmsAlternativesColumn>(`${BASE}/alternatives-section/columns/${id}`, {
+        method: 'PUT',
+        body: input,
+      }),
+
+    setStatus: async (id: string, status: ContentStatus): Promise<FmsAlternativesColumn> =>
+      request<FmsAlternativesColumn>(`${BASE}/alternatives-section/columns/${id}/status`, {
+        method: 'PUT',
+        body: { status },
+      }),
+
+    /** Takes the complete list of ids in their new order, so it is idempotent. */
+    reorder: async (ids: string[]): Promise<FmsAlternativesColumn[]> =>
+      request<FmsAlternativesColumn[]>(`${BASE}/alternatives-section/columns/reorder`, {
+        method: 'PUT',
+        body: { ids },
+      }),
+
+    remove: async (id: string): Promise<void> =>
+      request<void>(`${BASE}/alternatives-section/columns/${id}`, { method: 'DELETE' }),
+  },
+
+  rows: {
+    list: async (): Promise<FmsAlternativeRow[]> =>
+      request<FmsAlternativeRow[]>(`${BASE}/alternatives-section/rows`),
+
+    getById: async (id: string): Promise<FmsAlternativeRow> =>
+      request<FmsAlternativeRow>(`${BASE}/alternatives-section/rows/${id}`),
+
+    create: async (input: CreateFmsAlternativeRowInput): Promise<FmsAlternativeRow> =>
+      request<FmsAlternativeRow>(`${BASE}/alternatives-section/rows`, {
+        method: 'POST',
+        body: input,
+      }),
+
+    update: async (
+      id: string,
+      input: UpdateFmsAlternativeRowInput,
+    ): Promise<FmsAlternativeRow> =>
+      request<FmsAlternativeRow>(`${BASE}/alternatives-section/rows/${id}`, {
+        method: 'PUT',
+        body: input,
+      }),
+
+    setStatus: async (id: string, status: ContentStatus): Promise<FmsAlternativeRow> =>
+      request<FmsAlternativeRow>(`${BASE}/alternatives-section/rows/${id}/status`, {
+        method: 'PUT',
+        body: { status },
+      }),
+
+    reorder: async (ids: string[]): Promise<FmsAlternativeRow[]> =>
+      request<FmsAlternativeRow[]>(`${BASE}/alternatives-section/rows/reorder`, {
+        method: 'PUT',
+        body: { ids },
+      }),
+
+    remove: async (id: string): Promise<void> =>
+      request<void>(`${BASE}/alternatives-section/rows/${id}`, { method: 'DELETE' }),
+  },
+};
+
+// -- the customer outcomes carousel -----------------------------------------
+
+/**
+ * Figures are addressed under their story, mirroring the routes: the URL
+ * carries the ownership the server then checks, so a figure belonging to one
+ * network can never be reached through another's.
+ */
+export const outcomesSection = {
+  stories: {
+    list: async (
+      params: ListParams = {},
+    ): Promise<{ rows: FmsOutcomeStory[]; meta: PaginationMeta }> =>
+      requestPaginated<FmsOutcomeStory>(`${BASE}/outcomes-section/stories`, {
+        query: listQuery(params),
+      }),
+
+    getById: async (id: string): Promise<FmsOutcomeStory> =>
+      request<FmsOutcomeStory>(`${BASE}/outcomes-section/stories/${id}`),
+
+    create: async (input: CreateFmsOutcomeStoryInput): Promise<FmsOutcomeStory> =>
+      request<FmsOutcomeStory>(`${BASE}/outcomes-section/stories`, {
+        method: 'POST',
+        body: input,
+      }),
+
+    update: async (
+      id: string,
+      input: UpdateFmsOutcomeStoryInput,
+    ): Promise<FmsOutcomeStory> =>
+      request<FmsOutcomeStory>(`${BASE}/outcomes-section/stories/${id}`, {
+        method: 'PUT',
+        body: input,
+      }),
+
+    setStatus: async (id: string, status: ContentStatus): Promise<FmsOutcomeStory> =>
+      request<FmsOutcomeStory>(`${BASE}/outcomes-section/stories/${id}/status`, {
+        method: 'PUT',
+        body: { status },
+      }),
+
+    /** Takes the complete list of ids in their new order, so it is idempotent. */
+    reorder: async (ids: string[]): Promise<FmsOutcomeStory[]> =>
+      request<FmsOutcomeStory[]>(`${BASE}/outcomes-section/stories/reorder`, {
+        method: 'PUT',
+        body: { ids },
+      }),
+
+    remove: async (id: string): Promise<void> =>
+      request<void>(`${BASE}/outcomes-section/stories/${id}`, { method: 'DELETE' }),
+  },
+
+  stats: {
+    list: async (storyId: string): Promise<FmsOutcomeStat[]> =>
+      request<FmsOutcomeStat[]>(`${BASE}/outcomes-section/stories/${storyId}/stats`),
+
+    getById: async (storyId: string, id: string): Promise<FmsOutcomeStat> =>
+      request<FmsOutcomeStat>(`${BASE}/outcomes-section/stories/${storyId}/stats/${id}`),
+
+    create: async (
+      storyId: string,
+      input: CreateFmsOutcomeStatInput,
+    ): Promise<FmsOutcomeStat> =>
+      request<FmsOutcomeStat>(`${BASE}/outcomes-section/stories/${storyId}/stats`, {
+        method: 'POST',
+        body: input,
+      }),
+
+    update: async (
+      storyId: string,
+      id: string,
+      input: UpdateFmsOutcomeStatInput,
+    ): Promise<FmsOutcomeStat> =>
+      request<FmsOutcomeStat>(`${BASE}/outcomes-section/stories/${storyId}/stats/${id}`, {
+        method: 'PUT',
+        body: input,
+      }),
+
+    setStatus: async (
+      storyId: string,
+      id: string,
+      status: ContentStatus,
+    ): Promise<FmsOutcomeStat> =>
+      request<FmsOutcomeStat>(
+        `${BASE}/outcomes-section/stories/${storyId}/stats/${id}/status`,
+        { method: 'PUT', body: { status } },
+      ),
+
+    reorder: async (storyId: string, ids: string[]): Promise<FmsOutcomeStat[]> =>
+      request<FmsOutcomeStat[]>(
+        `${BASE}/outcomes-section/stories/${storyId}/stats/reorder`,
+        { method: 'PUT', body: { ids } },
+      ),
+
+    remove: async (storyId: string, id: string): Promise<void> =>
+      request<void>(`${BASE}/outcomes-section/stories/${storyId}/stats/${id}`, {
+        method: 'DELETE',
+      }),
   },
 };
