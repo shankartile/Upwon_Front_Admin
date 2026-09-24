@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ImageOff, Pencil } from 'lucide-react';
 import { PageHeader } from '../../../components/layout/PageHeader';
@@ -9,7 +9,6 @@ import { Skeleton } from '../../../components/ui/Skeleton';
 import * as valuesSectionService from '../../../services/valuesSectionService';
 import { errorMessage } from '../../../lib/http';
 import { assetUrl } from '../../../lib/assetUrl';
-import { parseHeading } from '../../../lib/heading';
 import { STATUS_LABELS, type ValuesEntry } from '../../../types/homePage';
 
 /**
@@ -67,7 +66,6 @@ export default function ValuesEntryViewPage() {
     };
   }, [id]);
 
-  const headingLines = useMemo(() => (entry ? parseHeading(entry.heading) : []), [entry]);
 
   if (loadError) {
     return (
@@ -118,17 +116,6 @@ export default function ValuesEntryViewPage() {
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr,360px]">
-        <Card className="lg:col-span-2">
-          <CardHeader
-            title="Section copy"
-            subtitle="Shared across the grid — the site uses the first active card’s copy."
-          />
-          <CardBody className="space-y-5">
-            <ReadOnlyField label="Eyebrow" value={entry.eyebrow} />
-            <ReadOnlyField label="Heading" value={entry.heading} />
-            <ReadOnlyField label="Subtext" value={entry.subtext} />
-          </CardBody>
-        </Card>
 
         <Card>
           <CardHeader title="Card" subtitle="Roughly as it renders in the grid." />
@@ -160,27 +147,6 @@ export default function ValuesEntryViewPage() {
         </Card>
 
         <div className="space-y-6">
-          <Card>
-            <CardHeader title="Preview" subtitle="How the section heading renders." />
-            <CardBody>
-              <p className="text-lg font-semibold leading-snug text-charcoal dark:text-cream-100">
-                {headingLines.map((parts, lineIndex) => (
-                  <span key={lineIndex}>
-                    {lineIndex > 0 && <br />}
-                    {parts.map((part, partIndex) =>
-                      part.accent ? (
-                        <span key={partIndex} className="text-orange-500">
-                          {part.text}
-                        </span>
-                      ) : (
-                        <span key={partIndex}>{part.text}</span>
-                      ),
-                    )}
-                  </span>
-                ))}
-              </p>
-            </CardBody>
-          </Card>
 
           <Card>
             <CardHeader title="Placement" />

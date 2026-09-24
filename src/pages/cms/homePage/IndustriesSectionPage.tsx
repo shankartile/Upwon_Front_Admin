@@ -13,8 +13,8 @@ import { useDebounce } from '../../../hooks/useDebounce';
 import * as industriesSectionService from '../../../services/industriesSectionService';
 import { DEFAULT_PAGE_SIZE } from '../../../config/constants';
 import { errorMessage } from '../../../lib/http';
+import { SectionCopyCard } from './SectionCopyCard';
 import { assetUrl } from '../../../lib/assetUrl';
-import { plainHeading } from '../../../lib/heading';
 import { fmtDate, relativeTime } from '../../../lib/formatters';
 import {
   STATUS_LABELS,
@@ -43,7 +43,7 @@ type Pending =
 
 export default function IndustriesSectionPage() {
   const [entries, setEntries] = useState<IndustriesEntry[]>([]);
-  const [liveEyebrow, setLiveEyebrow] = useState<string | null>(null);
+  const [hasLive, setHasLive] = useState(false);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -77,7 +77,7 @@ export default function IndustriesSectionPage() {
        * 'one at a time' rule applies to the whole section either way.
        */
       const live = await industriesSectionService.list({ status: 'ACTIVE', limit: 1 });
-      setLiveEyebrow(live.rows[0]?.eyebrow ?? null);
+      setHasLive(live.rows.length > 0);
 
       // Deleting the last row of the last page can strand the viewer past the
       // end of the results; the server answers with an empty page, so step back.
@@ -129,22 +129,18 @@ export default function IndustriesSectionPage() {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        {/*
-          The section renders one block and only one entry may be active, so
-          which one that is, is the thing an editor needs at a glance.
-        */}
-        <p className="text-sm text-charcoal-light dark:text-navy-300">
-          {liveEyebrow ? (
-            <>
-              <span className="font-medium text-charcoal dark:text-cream-100">{liveEyebrow}</span>{' '}
-              is live. This section shows one entry at a time — deactivate or delete it to put
-              another in its place.
-            </>
-          ) : (
-            'No entry is live, so the site is showing its own built-in copy and video.'
-          )}
-        </p>
+      <SectionCopyCard
+        pageKey="home"
+        sectionKey="industries"
+        entryNoun="entry"
+        placeholders={{
+          "eyebrow": "Industries We Serve",
+          "heading": "Built for Food. Proven for FMCG. **Ready for everything that follows.**",
+          "subtext": "Every industry we serve, from food manufacturing to everyday FMCG."
+        }}
+      />
+
+      <div className="mb-4 flex items-center justify-end gap-3">
         <Button
           variant="orange"
           leftIcon={<Plus className="h-4 w-4" />}
@@ -152,8 +148,8 @@ export default function IndustriesSectionPage() {
           title={
             atLimit
               ? `The section holds at most ${MAX_ENTRIES} entries`
-              : liveEyebrow
-                ? `${liveEyebrow} is live — a new entry will be saved as Inactive`
+              : hasLive
+                ? `${hasLive} is live — a new entry will be saved as Inactive`
                 : undefined
           }
           onClick={() => navigate(`${EDIT_PATH}/new`)}
@@ -253,23 +249,6 @@ export default function IndustriesSectionPage() {
                   <VideoOff className="h-4 w-4" />
                 </span>
               ),
-          },
-          {
-            key: 'heading',
-            header: 'Entry',
-            render: (row) => (
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
-                  {row.eyebrow}
-                </p>
-                <p className="truncate font-medium text-charcoal dark:text-cream-100">
-                  {plainHeading(row.heading)}
-                </p>
-                <p className="line-clamp-2 text-xs leading-snug text-charcoal-light dark:text-navy-300">
-                  {row.subtext}
-                </p>
-              </div>
-            ),
           },
           {
             key: 'source',

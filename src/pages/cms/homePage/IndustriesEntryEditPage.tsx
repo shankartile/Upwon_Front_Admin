@@ -5,8 +5,6 @@ import { PageHeader } from '../../../components/layout/PageHeader';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { ActivePill } from '../../../components/ui/Badge';
-import { Input } from '../../../components/ui/Input';
-import { Textarea } from '../../../components/ui/Textarea';
 import { Select } from '../../../components/ui/Select';
 import { Field } from '../../../components/forms/Field';
 import { Skeleton } from '../../../components/ui/Skeleton';
@@ -16,7 +14,7 @@ import * as industriesSectionService from '../../../services/industriesSectionSe
 import * as fileService from '../../../services/fileService';
 import { errorMessage } from '../../../lib/http';
 import { assetUrl } from '../../../lib/assetUrl';
-import { hasBalancedAccentMarkers, parseHeading } from '../../../lib/heading';
+
 import {
   STATUS_LABELS,
   type ContentStatus,
@@ -28,8 +26,8 @@ import {
  * Create / edit one industries entry, as a full page.
  *
  * `:id` of 'new' means create - the same sentinel the other CMS edit screens
- * use. All four fields the section owns are on this one form: the eyebrow, the
- * heading, the subtext, and the video.
+ * use. The entry itself is just the video and its status - the copy that
+ * heads the section is authored once on the list screen.
  */
 
 const LIST_PATH = '/cms/home-page/industries-section';
@@ -37,25 +35,7 @@ const LIST_PATH = '/cms/home-page/industries-section';
 /** The entity type these uploads are tagged with, to make them publicly servable. */
 const VIDEO_ENTITY_TYPE = 'home_industries_video';
 
-/**
- * Field rules, mirroring the server-side industries section validator.
- *
- * Kept as data rather than inline `if`s so one `validateField` covers every
- * text field, and the counter under each input reads its max from the same
- * place the check does - they cannot drift apart.
- */
-const RULES = {
-  eyebrow: { label: 'Eyebrow', min: 2, max: 120 },
-  heading: { label: 'Heading', min: 3, max: 300 },
-  subtext: { label: 'Subtext', min: 3, max: 600 },
-} as const;
-
-type TextFieldName = keyof typeof RULES;
-
 interface Form {
-  eyebrow: string;
-  heading: string;
-  subtext: string;
   status: ContentStatus;
   /** What is already stored. */
   fileId: string | null;
@@ -68,9 +48,6 @@ interface Form {
 }
 
 const EMPTY: Form = {
-  eyebrow: '',
-  heading: '',
-  subtext: '',
   status: 'ACTIVE',
   fileId: null,
   videoUrl: null,
@@ -80,9 +57,6 @@ const EMPTY: Form = {
 };
 
 const toForm = (entry: IndustriesEntry): Form => ({
-  eyebrow: entry.eyebrow,
-  heading: entry.heading,
-  subtext: entry.subtext,
   status: entry.status,
   fileId: entry.videoFileId,
   videoUrl: entry.videoUrl,
@@ -91,56 +65,6 @@ const toForm = (entry: IndustriesEntry): Form => ({
   videoError: null,
 });
 
-/** Which fields have been left, so errors appear on blur rather than on open. */
-type Touched = Partial<Record<TextFieldName, boolean>>;
-
-/**
- * The standard check for one text field.
- *
- * @returns null when valid, otherwise the message to show under the input.
- */
-function validateField(name: TextFieldName, raw: string): string | null {
-  const rule = RULES[name];
-  const value = raw.trim();
-
-  if (!value) return `${rule.label} is required.`;
-  if (value.length < rule.min) {
-    return `${rule.label} must be at least ${rule.min} characters.`;
-  }
-  if (value.length > rule.max) {
-    return `${rule.label} must be ${rule.max} characters or fewer (currently ${value.length}).`;
-  }
-  if (name === 'heading' && !hasBalancedAccentMarkers(value)) {
-    return 'Unclosed ** marker — every accent must be opened and closed, as **like this**.';
-  }
-  return null;
-}
-
-/** Renders an authored heading the way the public site does. */
-function HeadingPreview({ heading }: { heading: string }) {
-  const lines = useMemo(() => parseHeading(heading), [heading]);
-  if (!heading.trim()) {
-    return <span className="text-charcoal-light dark:text-navy-300">Nothing to preview yet.</span>;
-  }
-  return (
-    <>
-      {lines.map((parts, lineIndex) => (
-        <span key={lineIndex}>
-          {lineIndex > 0 && <br />}
-          {parts.map((part, partIndex) =>
-            part.accent ? (
-              <span key={partIndex} className="text-orange-500">
-                {part.text}
-              </span>
-            ) : (
-              <span key={partIndex}>{part.text}</span>
-            ),
-          )}
-        </span>
-      ))}
-    </>
-  );
-}
 
 export default function IndustriesEntryEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -152,7 +76,6 @@ export default function IndustriesEntryEditPage() {
   const [entry, setEntry] = useState<IndustriesEntry | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [touched, setTouched] = useState<Touched>({});
   const [submitted, setSubmitted] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -199,17 +122,6 @@ export default function IndustriesEntryEditPage() {
     };
   }, [id, isNew]);
 
-  // Every text field's current error, recomputed each render. Cheap, and it
-  // means the Save button and the inline messages can never disagree.
-  const errors = useMemo(() => {
-    if (!form) return {} as Record<TextFieldName, string | null>;
-    return {
-      eyebrow: validateField('eyebrow', form.eyebrow),
-      heading: validateField('heading', form.heading),
-      subtext: validateField('subtext', form.subtext),
-    };
-  }, [form]);
-
   /** The video is required - the section is a showcase built around it. */
   const videoProblem = useMemo(() => {
     if (!form) return null;
@@ -225,7 +137,9 @@ export default function IndustriesEntryEditPage() {
       : 'Choose a video file to upload.';
   }, [form]);
 
-  const hasErrors = Object.values(errors).some(Boolean) || Boolean(videoProblem);
+  // The video is the only field left that can fail - the copy that heads the
+  // section is validated where it is authored, on the list screen.
+  const hasErrors = Boolean(videoProblem);
 
   if (loadError) {
     return (
@@ -244,10 +158,6 @@ export default function IndustriesEntryEditPage() {
   }
 
   if (!form) return <EditSkeleton />;
-
-  /** An error is shown once the field has been left, or once Save was pressed. */
-  const errorFor = (name: TextFieldName): string | undefined =>
-    submitted || touched[name] ? (errors[name] ?? undefined) : undefined;
 
   const patch = (changes: Partial<Form>) =>
     setForm((current) => (current ? { ...current, ...changes } : current));
@@ -282,9 +192,6 @@ export default function IndustriesEntryEditPage() {
       }
 
       const body: CreateIndustriesEntryInput = {
-        eyebrow: form.eyebrow.trim(),
-        heading: form.heading.trim(),
-        subtext: form.subtext.trim(),
         status: form.status,
         /*
          * An upload replaces whatever was there; sending videoFileId also
@@ -338,74 +245,8 @@ export default function IndustriesEntryEditPage() {
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr,360px]">
-        <Card>
-          <CardBody className="space-y-4">
-            <Field
-              label={RULES.eyebrow.label}
-              required
-              error={errorFor('eyebrow')}
-              hint={`The small pill above the heading. ${form.eyebrow.trim().length}/${RULES.eyebrow.max}`}
-            >
-              <Input
-                value={form.eyebrow}
-                maxLength={RULES.eyebrow.max}
-                placeholder="Industries We Serve"
-                aria-invalid={!!errorFor('eyebrow')}
-                onBlur={() => setTouched((t) => ({ ...t, eyebrow: true }))}
-                onChange={(e) => patch({ eyebrow: e.target.value })}
-              />
-            </Field>
-
-            <Field
-              label={RULES.heading.label}
-              required
-              error={errorFor('heading')}
-              hint={
-                <>
-                  Wrap accented words in <code>**double asterisks**</code> for the orange
-                  highlight. {form.heading.trim().length}/{RULES.heading.max}
-                </>
-              }
-            >
-              <Textarea
-                rows={3}
-                value={form.heading}
-                maxLength={RULES.heading.max}
-                placeholder="Built for Food. Proven for FMCG. **Ready for everything that follows.**"
-                aria-invalid={!!errorFor('heading')}
-                onBlur={() => setTouched((t) => ({ ...t, heading: true }))}
-                onChange={(e) => patch({ heading: e.target.value })}
-              />
-            </Field>
-
-            <Field
-              label={RULES.subtext.label}
-              required
-              error={errorFor('subtext')}
-              hint={`The paragraph under the heading. ${form.subtext.trim().length}/${RULES.subtext.max}`}
-            >
-              <Textarea
-                rows={3}
-                value={form.subtext}
-                maxLength={RULES.subtext.max}
-                placeholder="Every industry we serve, from food manufacturing to everyday FMCG — organised by depth."
-                aria-invalid={!!errorFor('subtext')}
-                onBlur={() => setTouched((t) => ({ ...t, subtext: true }))}
-                onChange={(e) => patch({ subtext: e.target.value })}
-              />
-            </Field>
-          </CardBody>
-        </Card>
 
         <div className="space-y-6">
-          <Card>
-            <CardHeader title="Preview" subtitle="How the heading will render." />
-            <CardBody>
-              <p className="text-lg font-semibold leading-snug text-charcoal dark:text-cream-100">
-                <HeadingPreview heading={form.heading} />
-              </p>
-            </CardBody>
-          </Card>
 
           <Card>
             <CardHeader title="Placement" />

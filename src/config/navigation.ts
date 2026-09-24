@@ -83,13 +83,56 @@
 
 
 import {
-  LayoutDashboard, FileText, Boxes, Building2, Trophy, Mail, MessageSquareQuote,
+  LayoutDashboard, Boxes, Building2, Trophy, Mail, MessageSquareQuote,
   HelpCircle, Megaphone, Users, ShieldCheck, Home,
   type LucideIcon,
 } from 'lucide-react';
 
-export interface NavItem { label: string; to: string; icon: LucideIcon; badge?: 'new' | number }
+/**
+ * An item may own a nested list instead of a destination of its own.
+ *
+ * Products is the case that needs it: each platform gets its own page of
+ * sections, so the parent is a disclosure rather than a link. `to` is optional
+ * for exactly that reason - a parent with children is somewhere you open, not
+ * somewhere you go.
+ */
+export interface NavItem {
+  label: string;
+  to?: string;
+  icon: LucideIcon;
+  badge?: 'new' | number;
+  children?: NavChild[];
+}
+
+/**
+ * A child page.
+ *
+ * `to` is optional here too: the product pages whose sections are not built
+ * yet are listed so the set reads as complete, but they are shown as
+ * unavailable rather than as links that go nowhere.
+ */
+export interface NavChild {
+  label: string;
+  to?: string;
+}
+
 export interface NavGroup { label?: string; items: NavItem[] }
+
+/**
+ * The seven platform pages, in the order the marketing site lists them.
+ *
+ * Only the ones with sections built carry a `to`; the rest are placeholders so
+ * it is obvious what is coming and what is not yet editable.
+ */
+const PRODUCT_PAGES: NavChild[] = [
+  { label: 'ERP Page', to: '/cms/products/erp' },
+  { label: 'SFA-DMS Page', to: '/cms/products/sfa-dms' },
+  { label: 'FMS Page', to: '/cms/products/fms' },
+  { label: 'POS Page' },
+  { label: 'HREasy Page' },
+  { label: 'WMS Page' },
+  { label: 'Vendor Portal Page' },
+];
 
 export const navigation: NavGroup[] = [
   { items: [{ label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard }] },
@@ -97,8 +140,9 @@ export const navigation: NavGroup[] = [
     label: 'Content',
     items: [
       { label: 'Home Page', to: '/cms/home-page', icon: Home },
-      { label: 'Pages', to: '/cms/pages', icon: FileText },
-      { label: 'Products', to: '/cms/products', icon: Boxes },
+      // No `to`: each product page is edited on its own screen, so the parent
+      // opens the list rather than a combined one.
+      { label: 'Products', icon: Boxes, children: PRODUCT_PAGES },
       { label: 'Industries', to: '/cms/industries', icon: Building2 },
       { label: 'Case Studies', to: '/cms/case-studies', icon: Trophy },
       { label: 'Newsletter', to: '/cms/newsletter', icon: Mail },
@@ -106,14 +150,6 @@ export const navigation: NavGroup[] = [
       { label: 'FAQs', to: '/cms/faqs', icon: HelpCircle },
     ],
   },
-
-  // {
-  //   label: 'Settings',
-  //   items: [
-  //     { label: 'General', to: '/settings/general', icon: Settings },
-  //     { label: 'Users & Roles', to: '/settings/users', icon: Users },
-  //   ],
-  // },
 ];
 
 export const accountNav: NavItem[] = [

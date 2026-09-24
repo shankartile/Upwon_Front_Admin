@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ImageOff, Pencil } from 'lucide-react';
 import { PageHeader } from '../../../components/layout/PageHeader';
@@ -9,7 +9,6 @@ import { Skeleton } from '../../../components/ui/Skeleton';
 import * as trustSectionService from '../../../services/trustSectionService';
 import { errorMessage } from '../../../lib/http';
 import { assetUrl } from '../../../lib/assetUrl';
-import { parseHeading } from '../../../lib/heading';
 import { STATUS_LABELS, type TrustEntry } from '../../../types/homePage';
 
 /**
@@ -68,7 +67,6 @@ export default function TrustEntryViewPage() {
     };
   }, [id]);
 
-  const headingLines = useMemo(() => (entry ? parseHeading(entry.heading) : []), [entry]);
 
   if (loadError) {
     return (
@@ -119,36 +117,8 @@ export default function TrustEntryViewPage() {
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr,360px]">
-        <Card>
-          <CardBody className="space-y-5">
-            <ReadOnlyField label="Eyebrow" value={entry.eyebrow} />
-            <ReadOnlyField label="Heading" value={entry.heading} />
-            <ReadOnlyField label="Subtext" value={entry.subtext} />
-          </CardBody>
-        </Card>
 
         <div className="space-y-6">
-          <Card>
-            <CardHeader title="Preview" subtitle="How the heading renders on the site." />
-            <CardBody>
-              <p className="text-lg font-semibold leading-snug text-charcoal dark:text-cream-100">
-                {headingLines.map((parts, lineIndex) => (
-                  <span key={lineIndex}>
-                    {lineIndex > 0 && <br />}
-                    {parts.map((part, partIndex) =>
-                      part.accent ? (
-                        <span key={partIndex} className="text-orange-500">
-                          {part.text}
-                        </span>
-                      ) : (
-                        <span key={partIndex}>{part.text}</span>
-                      ),
-                    )}
-                  </span>
-                ))}
-              </p>
-            </CardBody>
-          </Card>
 
           <Card>
             <CardHeader title="Placement" />

@@ -40,6 +40,21 @@ export const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/webm'] as const;
 /** The accept attribute for a video file input. */
 export const VIDEO_ACCEPT = ACCEPTED_VIDEO_TYPES.join(',');
 
+/**
+ * The only document type the public file route will serve.
+ *
+ * The backend allows several document types on upload but serves exactly one
+ * of them to anonymous visitors, so anything else here would upload fine and
+ * then 404 when a visitor clicked the button it was attached to.
+ */
+export const ACCEPTED_DOCUMENT_TYPES = ['application/pdf'] as const;
+
+export const DOCUMENT_ACCEPT = ACCEPTED_DOCUMENT_TYPES.join(',');
+
+export function isAcceptedDocument(file: File): boolean {
+  return (ACCEPTED_DOCUMENT_TYPES as readonly string[]).includes(file.type);
+}
+
 export function isAcceptedVideo(file: File): boolean {
   return (ACCEPTED_VIDEO_TYPES as readonly string[]).includes(file.type);
 }

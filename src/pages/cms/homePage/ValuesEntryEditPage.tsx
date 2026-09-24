@@ -16,7 +16,7 @@ import * as valuesSectionService from '../../../services/valuesSectionService';
 import * as fileService from '../../../services/fileService';
 import { errorMessage } from '../../../lib/http';
 import { assetUrl } from '../../../lib/assetUrl';
-import { hasBalancedAccentMarkers, parseHeading } from '../../../lib/heading';
+
 import {
   checkHeroImageDimensions,
   HERO_IMAGE_SPECS,
@@ -50,9 +50,6 @@ const CARD_ENTITY_TYPE = 'home_values_card';
  * place the check does - they cannot drift apart.
  */
 const RULES = {
-  eyebrow: { label: 'Eyebrow', min: 2, max: 120 },
-  heading: { label: 'Heading', min: 3, max: 300 },
-  subtext: { label: 'Subtext', min: 3, max: 600 },
   cardTitle: { label: 'Card title', min: 2, max: 160 },
   cardBody: { label: 'Card text', min: 3, max: 600 },
 } as const;
@@ -60,9 +57,6 @@ const RULES = {
 type TextFieldName = keyof typeof RULES;
 
 interface Form {
-  eyebrow: string;
-  heading: string;
-  subtext: string;
   cardTitle: string;
   cardBody: string;
   status: ContentStatus;
@@ -76,9 +70,6 @@ interface Form {
 }
 
 const EMPTY: Form = {
-  eyebrow: '',
-  heading: '',
-  subtext: '',
   cardTitle: '',
   cardBody: '',
   status: 'ACTIVE',
@@ -90,9 +81,6 @@ const EMPTY: Form = {
 };
 
 const toForm = (entry: ValuesEntry): Form => ({
-  eyebrow: entry.eyebrow,
-  heading: entry.heading,
-  subtext: entry.subtext,
   cardTitle: entry.cardTitle,
   cardBody: entry.cardBody,
   status: entry.status,
@@ -122,37 +110,9 @@ function validateField(name: TextFieldName, raw: string): string | null {
   if (value.length > rule.max) {
     return `${rule.label} must be ${rule.max} characters or fewer (currently ${value.length}).`;
   }
-  if (name === 'heading' && !hasBalancedAccentMarkers(value)) {
-    return 'Unclosed ** marker — every accent must be opened and closed, as **like this**.';
-  }
   return null;
 }
 
-/** Renders an authored heading the way the public site does. */
-function HeadingPreview({ heading }: { heading: string }) {
-  const lines = useMemo(() => parseHeading(heading), [heading]);
-  if (!heading.trim()) {
-    return <span className="text-charcoal-light dark:text-navy-300">Nothing to preview yet.</span>;
-  }
-  return (
-    <>
-      {lines.map((parts, lineIndex) => (
-        <span key={lineIndex}>
-          {lineIndex > 0 && <br />}
-          {parts.map((part, partIndex) =>
-            part.accent ? (
-              <span key={partIndex} className="text-orange-500">
-                {part.text}
-              </span>
-            ) : (
-              <span key={partIndex}>{part.text}</span>
-            ),
-          )}
-        </span>
-      ))}
-    </>
-  );
-}
 
 export default function ValuesEntryEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -198,9 +158,6 @@ export default function ValuesEntryEditPage() {
   const errors = useMemo(() => {
     if (!form) return {} as Record<TextFieldName, string | null>;
     return {
-      eyebrow: validateField('eyebrow', form.eyebrow),
-      heading: validateField('heading', form.heading),
-      subtext: validateField('subtext', form.subtext),
       cardTitle: validateField('cardTitle', form.cardTitle),
       cardBody: validateField('cardBody', form.cardBody),
     };
@@ -281,9 +238,6 @@ export default function ValuesEntryEditPage() {
       }
 
       const body: CreateValuesEntryInput = {
-        eyebrow: form.eyebrow.trim(),
-        heading: form.heading.trim(),
-        subtext: form.subtext.trim(),
         cardTitle: form.cardTitle.trim(),
         cardBody: form.cardBody.trim(),
         status: form.status,
@@ -337,68 +291,6 @@ export default function ValuesEntryEditPage() {
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr,360px]">
-        <Card className="lg:col-span-2">
-          <CardHeader
-            title="Section copy"
-            subtitle="Shared across the grid — the site uses the first active card’s copy."
-          />
-          <CardBody className="space-y-4">
-            <Field
-              label={RULES.eyebrow.label}
-              required
-              error={errorFor('eyebrow')}
-              hint={`The small pill above the heading. ${form.eyebrow.trim().length}/${RULES.eyebrow.max}`}
-            >
-              <Input
-                value={form.eyebrow}
-                maxLength={RULES.eyebrow.max}
-                placeholder="Our Customers Appreciate Us"
-                aria-invalid={!!errorFor('eyebrow')}
-                onBlur={() => setTouched((t) => ({ ...t, eyebrow: true }))}
-                onChange={(e) => patch({ eyebrow: e.target.value })}
-              />
-            </Field>
-
-            <Field
-              label={RULES.heading.label}
-              required
-              error={errorFor('heading')}
-              hint={
-                <>
-                  Wrap accented words in <code>**double asterisks**</code> for the orange
-                  highlight. {form.heading.trim().length}/{RULES.heading.max}
-                </>
-              }
-            >
-              <Textarea
-                rows={2}
-                value={form.heading}
-                maxLength={RULES.heading.max}
-                placeholder="Values & **Work Culture**"
-                aria-invalid={!!errorFor('heading')}
-                onBlur={() => setTouched((t) => ({ ...t, heading: true }))}
-                onChange={(e) => patch({ heading: e.target.value })}
-              />
-            </Field>
-
-            <Field
-              label={RULES.subtext.label}
-              required
-              error={errorFor('subtext')}
-              hint={`The line under the heading. ${form.subtext.trim().length}/${RULES.subtext.max}`}
-            >
-              <Textarea
-                rows={2}
-                value={form.subtext}
-                maxLength={RULES.subtext.max}
-                placeholder="These core values guide how we work, grow, and lead."
-                aria-invalid={!!errorFor('subtext')}
-                onBlur={() => setTouched((t) => ({ ...t, subtext: true }))}
-                onChange={(e) => patch({ subtext: e.target.value })}
-              />
-            </Field>
-          </CardBody>
-        </Card>
 
         <Card>
           <CardHeader title="Card" subtitle="The photo, the value, and what it means." />
@@ -463,14 +355,6 @@ export default function ValuesEntryEditPage() {
         </Card>
 
         <div className="space-y-6">
-          <Card>
-            <CardHeader title="Preview" subtitle="How the section heading will render." />
-            <CardBody>
-              <p className="text-lg font-semibold leading-snug text-charcoal dark:text-cream-100">
-                <HeadingPreview heading={form.heading} />
-              </p>
-            </CardBody>
-          </Card>
 
           <Card>
             <CardHeader title="Placement" />

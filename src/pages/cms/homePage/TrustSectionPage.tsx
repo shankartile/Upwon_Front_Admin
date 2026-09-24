@@ -13,8 +13,8 @@ import { useDebounce } from '../../../hooks/useDebounce';
 import * as trustSectionService from '../../../services/trustSectionService';
 import { DEFAULT_PAGE_SIZE } from '../../../config/constants';
 import { errorMessage } from '../../../lib/http';
+import { SectionCopyCard } from './SectionCopyCard';
 import { assetUrl } from '../../../lib/assetUrl';
-import { plainHeading } from '../../../lib/heading';
 import { fmtDate, relativeTime } from '../../../lib/formatters';
 import { STATUS_LABELS, type ContentStatus, type TrustEntry } from '../../../types/homePage';
 
@@ -115,6 +115,18 @@ export default function TrustSectionPage() {
 
   return (
     <>
+      <SectionCopyCard
+        pageKey="home"
+        sectionKey="trust"
+        entryNoun="entry"
+        placeholders={{
+          eyebrow: "Trusted across India's food belt",
+          heading: 'The brands that feed India **run on UPWON.**',
+          subtext:
+            "50+ of India's food and FMCG businesses run their daily operations on UPWON.",
+        }}
+      />
+
       <div className="mb-4 flex justify-end">
         <Button
           variant="orange"
@@ -215,23 +227,6 @@ export default function TrustSectionPage() {
                   <ImageOff className="h-4 w-4" />
                 </span>
               ),
-          },
-          {
-            key: 'heading',
-            header: 'Entry',
-            render: (row) => (
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
-                  {row.eyebrow}
-                </p>
-                <p className="truncate font-medium text-charcoal dark:text-cream-100">
-                  {plainHeading(row.heading)}
-                </p>
-                <p className="line-clamp-2 text-xs leading-snug text-charcoal-light dark:text-navy-300">
-                  {row.subtext}
-                </p>
-              </div>
-            ),
           },
           {
             key: 'brand',

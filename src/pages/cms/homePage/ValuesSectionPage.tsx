@@ -13,8 +13,8 @@ import { useDebounce } from '../../../hooks/useDebounce';
 import * as valuesSectionService from '../../../services/valuesSectionService';
 import { DEFAULT_PAGE_SIZE } from '../../../config/constants';
 import { errorMessage } from '../../../lib/http';
+import { SectionCopyCard } from './SectionCopyCard';
 import { assetUrl } from '../../../lib/assetUrl';
-import { plainHeading } from '../../../lib/heading';
 import { fmtDate, relativeTime } from '../../../lib/formatters';
 import { STATUS_LABELS, type ContentStatus, type ValuesEntry } from '../../../types/homePage';
 
@@ -115,15 +115,18 @@ export default function ValuesSectionPage() {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        {/*
-          The copy repeats on every card and the site uses the first active
-          one, so it is worth saying rather than leaving to be discovered.
-        */}
-        <p className="text-sm text-charcoal-light dark:text-navy-300">
-          The section copy is shared — the site uses the first active card’s copy and shows
-          every active card in the grid.
-        </p>
+      <SectionCopyCard
+        pageKey="home"
+        sectionKey="values"
+        entryNoun="card"
+        placeholders={{
+          "eyebrow": "Our Customers Appreciate Us",
+          "heading": "Values & **Work Culture**",
+          "subtext": "These core values guide how we work, grow, and lead."
+        }}
+      />
+
+      <div className="mb-4 flex items-center justify-end gap-3">
         <Button
           variant="orange"
           leftIcon={<Plus className="h-4 w-4" />}
@@ -232,21 +235,6 @@ export default function ValuesSectionPage() {
                 </p>
                 <p className="line-clamp-2 text-xs leading-snug text-charcoal-light dark:text-navy-300">
                   {row.cardBody}
-                </p>
-              </div>
-            ),
-          },
-          {
-            key: 'heading',
-            header: 'Section copy',
-            width: '200px',
-            render: (row) => (
-              <div className="min-w-0">
-                <p className="truncate text-xs font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
-                  {row.eyebrow}
-                </p>
-                <p className="truncate text-xs text-charcoal-light dark:text-navy-300">
-                  {plainHeading(row.heading)}
                 </p>
               </div>
             ),

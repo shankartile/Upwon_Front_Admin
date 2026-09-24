@@ -91,12 +91,6 @@ export interface HeroSlideFilters {
  */
 export interface TrustEntry {
   id: string;
-  eyebrow: string;
-  /** Authored text with the accent markers intact, for round-tripping. */
-  heading: string;
-  /** The parsed heading, ready to render. Built server-side. */
-  headingLines: HeadingLine[];
-  subtext: string;
   /** An absolute URL or a site-relative path. Exclusive with imageFileId. */
   imageUrl: string | null;
   /** An asset uploaded through the files module. Exclusive with imageUrl. */
@@ -115,9 +109,6 @@ export interface TrustEntry {
 }
 
 export interface CreateTrustEntryInput {
-  eyebrow: string;
-  heading: string;
-  subtext: string;
   imageUrl?: string | null;
   imageFileId?: string | null;
   imageAlt?: string | null;
@@ -141,12 +132,6 @@ export type UpdateTrustEntryInput = Partial<CreateTrustEntryInput>;
  */
 export interface IndustriesEntry {
   id: string;
-  eyebrow: string;
-  /** Authored text with the `**accent**` markers intact, for round-tripping. */
-  heading: string;
-  /** The parsed heading, ready to render. Built server-side. */
-  headingLines: HeadingLine[];
-  subtext: string;
   /** An absolute URL or a site-relative path. Exclusive with videoFileId. */
   videoUrl: string | null;
   /** An asset uploaded through the files module. Exclusive with videoUrl. */
@@ -160,9 +145,6 @@ export interface IndustriesEntry {
 }
 
 export interface CreateIndustriesEntryInput {
-  eyebrow: string;
-  heading: string;
-  subtext: string;
   videoUrl?: string | null;
   videoFileId?: string | null;
   displayOrder?: number;
@@ -181,12 +163,6 @@ export type UpdateIndustriesEntryInput = Partial<CreateIndustriesEntryInput>;
  */
 export interface ValuesEntry {
   id: string;
-  eyebrow: string;
-  /** Authored text with the `**accent**` markers intact, for round-tripping. */
-  heading: string;
-  /** The parsed heading, ready to render. Built server-side. */
-  headingLines: HeadingLine[];
-  subtext: string;
   /** An absolute URL or a site-relative path. Exclusive with imageFileId. */
   imageUrl: string | null;
   /** An asset uploaded through the files module. Exclusive with imageUrl. */
@@ -203,9 +179,6 @@ export interface ValuesEntry {
 }
 
 export interface CreateValuesEntryInput {
-  eyebrow: string;
-  heading: string;
-  subtext: string;
   imageUrl?: string | null;
   imageFileId?: string | null;
   cardTitle: string;
@@ -215,3 +188,156 @@ export interface CreateValuesEntryInput {
 }
 
 export type UpdateValuesEntryInput = Partial<CreateValuesEntryInput>;
+
+/**
+ * One platform-integration logo, shaped like a hero slide.
+ *
+ * Carries the section copy, the shared centre logo, and one of the brand marks
+ * pinned to the rotating sphere. The copy and the centre logo repeat across
+ * rows and the site uses the first active one; the server keeps every row's
+ * centre logo in step, so editing it on any entry changes it for the section.
+ */
+export interface IntegrationsEntry {
+  id: string;
+  /** Shared across the section. Exclusive with centreLogoFileId. */
+  centreLogoUrl: string | null;
+  /** Shared across the section. Exclusive with centreLogoUrl. */
+  centreLogoFileId: string | null;
+  /** The centre sources collapsed into the one URL to actually render. */
+  centreLogo: string | null;
+  /** This row's orbit logo. Exclusive with logoFileId. */
+  logoUrl: string | null;
+  /** An asset uploaded through the files module. Exclusive with logoUrl. */
+  logoFileId: string | null;
+  /** The logo sources collapsed into the one URL to actually render. */
+  logo: string | null;
+  /** The brand name. Doubles as the logo's alt text. */
+  logoAlt: string;
+  displayOrder: number;
+  status: ContentStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateIntegrationsEntryInput {
+  centreLogoUrl?: string | null;
+  centreLogoFileId?: string | null;
+  logoUrl?: string | null;
+  logoFileId?: string | null;
+  logoAlt: string;
+  displayOrder?: number;
+  status?: ContentStatus;
+}
+
+export type UpdateIntegrationsEntryInput = Partial<CreateIntegrationsEntryInput>;
+
+/**
+ * One client video testimonial, shaped like a hero slide.
+ *
+ * Carries the section copy plus one card: its still, its optional clip, the
+ * quote and who said it. The copy repeats across rows and the site uses the
+ * first active one.
+ */
+export interface TestimonialEntry {
+  id: string;
+  /** The card's still. Exclusive with posterFileId. */
+  posterUrl: string | null;
+  /** An asset uploaded through the files module. Exclusive with posterUrl. */
+  posterFileId: string | null;
+  /** The poster sources collapsed into the one URL to actually render. */
+  poster: string | null;
+  /** The clip the play button opens. Optional. Exclusive with videoFileId. */
+  videoUrl: string | null;
+  /** An asset uploaded through the files module. Exclusive with videoUrl. */
+  videoFileId: string | null;
+  /** The video sources collapsed into the one URL to actually render. */
+  video: string | null;
+  /** What the customer said. The site wraps it in curly quotes. */
+  quote: string;
+  clientName: string;
+  /** Role and sector as one authored line, e.g. 'Retail Operations · Sweets'. */
+  clientPosition: string;
+  displayOrder: number;
+  status: ContentStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateTestimonialEntryInput {
+  posterUrl?: string | null;
+  posterFileId?: string | null;
+  videoUrl?: string | null;
+  videoFileId?: string | null;
+  quote: string;
+  clientName: string;
+  clientPosition: string;
+  displayOrder?: number;
+  status?: ContentStatus;
+}
+
+export type UpdateTestimonialEntryInput = Partial<CreateTestimonialEntryInput>;
+
+/**
+ * One frequently asked question, shaped like a hero slide.
+ *
+ * Carries the section copy plus one question and its answer. The copy repeats
+ * across rows and the site uses the first active one.
+ *
+ * No media fields here, unlike the other sections: the accordion is text only.
+ */
+export interface FaqEntry {
+  id: string;
+  question: string;
+  /** Plain text. The accordion renders it into a <p>, so markup is literal. */
+  answer: string;
+  displayOrder: number;
+  status: ContentStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFaqEntryInput {
+  question: string;
+  answer: string;
+  displayOrder?: number;
+  status?: ContentStatus;
+}
+
+export type UpdateFaqEntryInput = Partial<CreateFaqEntryInput>;
+
+/**
+ * The report-download call to action.
+ *
+ * A singleton, unlike the other sections: the page has one of these bands, so
+ * there is no list, no ordering and no publish state. Its eyebrow, heading and
+ * subtext live with every other section's, in the shared section copy.
+ */
+export interface CtaSection {
+  id: string;
+  /** The collage behind the band. Exclusive with desktopImageFileId. */
+  desktopImageUrl: string | null;
+  desktopImageFileId: string | null;
+  /** The two sources collapsed into the one URL to actually render. */
+  desktopImage: string | null;
+  mobileImageUrl: string | null;
+  mobileImageFileId: string | null;
+  mobileImage: string | null;
+  buttonLabel: string;
+  /** The PDF the button hands over. Upload only - there is no URL variant. */
+  reportFileId: string | null;
+  /** Already carries ?download, so the button saves rather than views. */
+  reportUrl: string | null;
+  reportFileName: string | null;
+  reportSizeBytes: number | null;
+  updatedAt: string;
+}
+
+/** A full replacement, not a patch - one row edited by one small form. */
+export interface UpsertCtaSectionInput {
+  desktopImageUrl?: string | null;
+  desktopImageFileId?: string | null;
+  mobileImageUrl?: string | null;
+  mobileImageFileId?: string | null;
+  buttonLabel: string;
+  reportFileId?: string | null;
+}

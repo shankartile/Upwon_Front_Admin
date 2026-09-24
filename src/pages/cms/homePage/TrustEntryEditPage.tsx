@@ -6,7 +6,6 @@ import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { ActivePill } from '../../../components/ui/Badge';
 import { Input } from '../../../components/ui/Input';
-import { Textarea } from '../../../components/ui/Textarea';
 import { Select } from '../../../components/ui/Select';
 import { Field, FieldGrid } from '../../../components/forms/Field';
 import { Skeleton } from '../../../components/ui/Skeleton';
@@ -16,7 +15,7 @@ import * as trustSectionService from '../../../services/trustSectionService';
 import * as fileService from '../../../services/fileService';
 import { errorMessage } from '../../../lib/http';
 import { assetUrl } from '../../../lib/assetUrl';
-import { hasBalancedAccentMarkers, parseHeading } from '../../../lib/heading';
+
 import {
   checkHeroImageDimensions,
   HERO_IMAGE_SPECS,
@@ -50,9 +49,6 @@ const LOGO_ENTITY_TYPE = 'home_trust_logo';
  * place the check does - they cannot drift apart.
  */
 const RULES = {
-  eyebrow: { label: 'Eyebrow', min: 2, max: 120, required: true },
-  heading: { label: 'Heading', min: 3, max: 300, required: true },
-  subtext: { label: 'Subtext', min: 3, max: 600, required: true },
   imageAlt: { label: 'Brand name', min: 0, max: 255, required: false },
   statValue: { label: 'Stat value', min: 0, max: 40, required: false },
   statLabel: { label: 'Stat label', min: 0, max: 120, required: false },
@@ -61,9 +57,6 @@ const RULES = {
 type TextFieldName = keyof typeof RULES;
 
 interface Form {
-  eyebrow: string;
-  heading: string;
-  subtext: string;
   imageAlt: string;
   statValue: string;
   statLabel: string;
@@ -78,9 +71,6 @@ interface Form {
 }
 
 const EMPTY: Form = {
-  eyebrow: '',
-  heading: '',
-  subtext: '',
   imageAlt: '',
   statValue: '',
   statLabel: '',
@@ -93,9 +83,6 @@ const EMPTY: Form = {
 };
 
 const toForm = (entry: TrustEntry): Form => ({
-  eyebrow: entry.eyebrow,
-  heading: entry.heading,
-  subtext: entry.subtext,
   imageAlt: entry.imageAlt ?? '',
   statValue: entry.statValue ?? '',
   statLabel: entry.statLabel ?? '',
@@ -128,37 +115,9 @@ function validateField(name: TextFieldName, raw: string): string | null {
   if (value.length > rule.max) {
     return `${rule.label} must be ${rule.max} characters or fewer (currently ${value.length}).`;
   }
-  if (name === 'heading' && !hasBalancedAccentMarkers(value)) {
-    return 'Unclosed ** marker — every accent must be opened and closed, as **like this**.';
-  }
   return null;
 }
 
-/** Renders an authored heading the way the public site does. */
-function HeadingPreview({ heading }: { heading: string }) {
-  const lines = useMemo(() => parseHeading(heading), [heading]);
-  if (!heading.trim()) {
-    return <span className="text-charcoal-light dark:text-navy-300">Nothing to preview yet.</span>;
-  }
-  return (
-    <>
-      {lines.map((parts, lineIndex) => (
-        <span key={lineIndex}>
-          {lineIndex > 0 && <br />}
-          {parts.map((part, partIndex) =>
-            part.accent ? (
-              <span key={partIndex} className="text-orange-500">
-                {part.text}
-              </span>
-            ) : (
-              <span key={partIndex}>{part.text}</span>
-            ),
-          )}
-        </span>
-      ))}
-    </>
-  );
-}
 
 export default function TrustEntryEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -212,9 +171,6 @@ export default function TrustEntryEditPage() {
   const errors = useMemo(() => {
     if (!form) return {} as Record<TextFieldName, string | null>;
     return {
-      eyebrow: validateField('eyebrow', form.eyebrow),
-      heading: validateField('heading', form.heading),
-      subtext: validateField('subtext', form.subtext),
       imageAlt: validateField('imageAlt', form.imageAlt),
       statValue: validateField('statValue', form.statValue),
       statLabel: validateField('statLabel', form.statLabel),
@@ -309,9 +265,6 @@ export default function TrustEntryEditPage() {
 
       // Empty strings mean "not set", which the API models as null.
       const body: CreateTrustEntryInput = {
-        eyebrow: form.eyebrow.trim(),
-        heading: form.heading.trim(),
-        subtext: form.subtext.trim(),
         imageFileId,
         imageAlt: form.imageAlt.trim() || null,
         statValue: form.statValue.trim() || null,
@@ -361,74 +314,8 @@ export default function TrustEntryEditPage() {
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr,360px]">
-        <Card>
-          <CardBody className="space-y-4">
-            <Field
-              label={RULES.eyebrow.label}
-              required
-              error={errorFor('eyebrow')}
-              hint={`The small pill above the heading. ${form.eyebrow.trim().length}/${RULES.eyebrow.max}`}
-            >
-              <Input
-                value={form.eyebrow}
-                maxLength={RULES.eyebrow.max}
-                placeholder="Trusted across India's food belt"
-                aria-invalid={!!errorFor('eyebrow')}
-                onBlur={() => setTouched((t) => ({ ...t, eyebrow: true }))}
-                onChange={(e) => patch({ eyebrow: e.target.value })}
-              />
-            </Field>
-
-            <Field
-              label={RULES.heading.label}
-              required
-              error={errorFor('heading')}
-              hint={
-                <>
-                  Wrap accented words in <code>**double asterisks**</code> for the orange
-                  highlight. {form.heading.trim().length}/{RULES.heading.max}
-                </>
-              }
-            >
-              <Textarea
-                rows={3}
-                value={form.heading}
-                maxLength={RULES.heading.max}
-                placeholder="The brands that feed India **run on UPWON.**"
-                aria-invalid={!!errorFor('heading')}
-                onBlur={() => setTouched((t) => ({ ...t, heading: true }))}
-                onChange={(e) => patch({ heading: e.target.value })}
-              />
-            </Field>
-
-            <Field
-              label={RULES.subtext.label}
-              required
-              error={errorFor('subtext')}
-              hint={`Sits under the star rating. ${form.subtext.trim().length}/${RULES.subtext.max}`}
-            >
-              <Textarea
-                rows={3}
-                value={form.subtext}
-                maxLength={RULES.subtext.max}
-                placeholder="50+ of India's food and FMCG businesses run their daily operations on UPWON."
-                aria-invalid={!!errorFor('subtext')}
-                onBlur={() => setTouched((t) => ({ ...t, subtext: true }))}
-                onChange={(e) => patch({ subtext: e.target.value })}
-              />
-            </Field>
-          </CardBody>
-        </Card>
 
         <div className="space-y-6">
-          <Card>
-            <CardHeader title="Preview" subtitle="How the heading will render." />
-            <CardBody>
-              <p className="text-lg font-semibold leading-snug text-charcoal dark:text-cream-100">
-                <HeadingPreview heading={form.heading} />
-              </p>
-            </CardBody>
-          </Card>
 
           <Card>
             <CardHeader title="Placement" />

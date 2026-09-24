@@ -12,7 +12,34 @@
  * Keep the numbers in step with the server's.
  */
 
-export type HeroImageVariant = 'desktop' | 'mobile' | 'trustLogo' | 'valuesCard';
+export type HeroImageVariant =
+  | 'desktop'
+  | 'mobile'
+  | 'trustLogo'
+  | 'valuesCard'
+  | 'integrationsLogo'
+  | 'integrationsCentreLogo'
+  | 'testimonialPoster'
+  | 'ctaDesktop'
+  | 'ctaMobile'
+  | 'erpHero'
+  | 'erpHeroMobile'
+  | 'sfaHero'
+  | 'sfaHeroMobile'
+  | 'sfaCtaBackground'
+  | 'sfaCtaDashboard'
+  | 'sfaComplianceBackground'
+  | 'sfaOutcomePortrait'
+  | 'fmsHero'
+  | 'fmsHeroMobile'
+  | 'fmsCtaDesktop'
+  | 'fmsCtaMobile'
+  | 'erpCtaDesktop'
+  | 'erpCtaMobile'
+  | 'erpIndustry'
+  | 'erpDashboard'
+  | 'erpAvatar'
+  | 'erpOutcome';
 
 export interface HeroImageSpec {
   label: string;
@@ -60,6 +87,167 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     height: 600,
     ratioTolerance: 0.2,
     hint: 'Roughly 4:3, at least 800×600px — the card crops to that shape.',
+  },
+  integrationsLogo: {
+    label: 'Logo',
+    width: 300,
+    height: 36,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 300px wide. The existing brand marks are 300px wide and 39–148px tall.',
+  },
+  integrationsCentreLogo: {
+    label: 'Centre logo',
+    width: 300,
+    height: 140,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 300×140px. Optional — the site falls back to its own UPWON mark.',
+  },
+  testimonialPoster: {
+    label: 'Poster image',
+    width: 900,
+    height: 560,
+    ratioTolerance: null,
+    hint: 'At least 900×560px. Any shape — the card crops to 1:1 or 2:1 depending on where the marquee places it, so keep the subject centred.',
+  },
+  ctaDesktop: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 566,
+    ratioTolerance: null,
+    hint: 'Wide collage, at least 1600×566px. Shown contained on the left half, so it is never cropped.',
+  },
+  ctaMobile: {
+    label: 'Mobile image',
+    width: 440,
+    height: 956,
+    ratioTolerance: 0.2,
+    hint: 'Tall crop, at least 440×956px. This one fills the top of the band, so a wide image loses its top and bottom.',
+  },
+  sfaHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 565,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600×565px — the slider crops to fill, so a different shape loses its edges.',
+  },
+  sfaHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+  },
+  fmsHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600×566px. Covered by the slider, so a different shape is cropped.',
+  },
+  fmsHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+  },
+  fmsCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 2116,
+    height: 743,
+    ratioTolerance: 0.2,
+    hint: 'Very wide, at least 2116×743px. The copy sits in the light panel on its right, so keep that area clear.',
+  },
+  fmsCtaMobile: {
+    label: 'Mobile artwork',
+    width: 853,
+    height: 1844,
+    ratioTolerance: 0.2,
+    hint: 'Tall crop, at least 853×1844px. The copy is centred over it, so it needs to stay text-safe.',
+  },
+  sfaOutcomePortrait: {
+    label: 'Portrait',
+    width: 192,
+    height: 148,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 192×148px — but the tile is a square crop, so a square around 512×512px is what it actually wants.',
+  },
+  sfaComplianceBackground: {
+    label: 'Panel artwork',
+    width: 1432,
+    height: 904,
+    ratioTolerance: 0.2,
+    hint: 'Roughly 8:5, at least 1432×904px. Drawn bg-cover and anchored right, with the badges over its left two-thirds.',
+  },
+  sfaCtaBackground: {
+    label: 'Band background',
+    width: 1536,
+    height: 1024,
+    ratioTolerance: 0.2,
+    hint: 'Roughly 3:2, at least 1536×1024px. Drawn behind the whole band, so it is cropped on every axis.',
+  },
+  sfaCtaDashboard: {
+    label: 'Dashboard screenshot',
+    width: 1536,
+    height: 1024,
+    ratioTolerance: 0.2,
+    hint: 'Roughly 3:2, at least 1536×1024px. Peeks up from the bottom edge of the band.',
+  },
+  erpHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800\u00d71200px. Optional — phones fall back to the desktop image.',
+  },
+  erpHero: {
+    label: 'Desktop image',
+    width: 1536,
+    height: 1024,
+    ratioTolerance: 0.2,
+    hint: 'Roughly 3:2, at least 1536×1024px — the slider crops to fill, so a different shape loses its edges.',
+  },
+  erpCtaDesktop: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide band, at least 1600×566px. Cropped to fill, unlike the home page band.',
+  },
+  erpCtaMobile: {
+    label: 'Mobile image',
+    width: 831,
+    height: 1891,
+    ratioTolerance: 0.2,
+    hint: 'Tall crop, at least 831×1891px — a wide image would lose its top and bottom.',
+  },
+  erpOutcome: {
+    label: 'Card photograph',
+    width: 900,
+    height: 600,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 900×600px. Drawn tall beside the text on desktop and as a short banner on mobile, so it is cropped differently at each size.',
+  },
+  erpAvatar: {
+    label: 'Portrait',
+    width: 200,
+    height: 200,
+    ratioTolerance: 0.2,
+    hint: 'Square, at least 200×200px. Drawn as a small circle, so anything far from square loses its edges.',
+  },
+  erpDashboard: {
+    label: 'Dashboard screenshot',
+    width: 1448,
+    height: 1086,
+    ratioTolerance: 0.2,
+    hint: 'Roughly 4:3, at least 1448×1086px. It is drawn as a panned background, so a very different shape crops badly.',
+  },
+  erpIndustry: {
+    label: 'Industry image',
+    width: 905,
+    height: 600,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 905×600px. The shipped set runs from 905×678 to 905×859.',
   },
 };
 
