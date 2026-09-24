@@ -16,6 +16,10 @@ import { Tabs } from '../../../components/ui/Tabs';
 
 const SECTIONS = [
   { id: 'hero-section', label: 'Hero Section' },
+  { id: 'proof-section', label: 'Proof Strip' },
+  { id: 'franchise-section', label: 'Franchise Categories' },
+  { id: 'video-section', label: 'Video Section' },
+  { id: 'integrations-section', label: 'Integrations' },
   { id: 'faq-section', label: 'FAQ' },
   { id: 'cta-section', label: 'CTA Section' },
 ] as const;

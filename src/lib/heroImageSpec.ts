@@ -34,6 +34,8 @@ export type HeroImageVariant =
   | 'fmsHeroMobile'
   | 'fmsCtaDesktop'
   | 'fmsCtaMobile'
+  | 'fmsFranchiseIcon'
+  | 'fmsFranchisePhoto'
   | 'erpCtaDesktop'
   | 'erpCtaMobile'
   | 'erpIndustry'
@@ -164,6 +166,20 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     height: 1844,
     ratioTolerance: 0.2,
     hint: 'Tall crop, at least 853×1844px. The copy is centred over it, so it needs to stay text-safe.',
+  },
+  fmsFranchiseIcon: {
+    label: 'Tab icon',
+    width: 128,
+    height: 128,
+    ratioTolerance: null,
+    hint: 'Any shape - it is drawn contained inside the tile. A 512x512 square with a transparent background matches the shipped set.',
+  },
+  fmsFranchisePhoto: {
+    label: 'Panel photo',
+    width: 1504,
+    height: 873,
+    ratioTolerance: 0.2,
+    hint: 'Wide landscape, at least 1504x873px. The left two-thirds sit under a colour wash, so keep the subject on the right.',
   },
   sfaOutcomePortrait: {
     label: 'Portrait',

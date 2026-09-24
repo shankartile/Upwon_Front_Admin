@@ -46,7 +46,7 @@ export const PAGE_SECTION_KEYS = {
    * The hero is absent on purpose, as on the other pages: its slides each
    * carry their own eyebrow, headline and subhead.
    */
-  fms: ['faq', 'cta'],
+  fms: ['proof', 'faq', 'cta'],
 } as const;
 
 export type PageKey = keyof typeof PAGE_SECTION_KEYS;

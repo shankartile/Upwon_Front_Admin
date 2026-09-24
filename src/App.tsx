@@ -66,6 +66,22 @@ import FmsFaqSectionPage from './pages/cms/fmsPage/FaqSectionPage';
 import FmsFaqEntryEditPage from './pages/cms/fmsPage/FaqEntryEditPage';
 import FmsFaqEntryViewPage from './pages/cms/fmsPage/FaqEntryViewPage';
 import FmsCtaSectionPage from './pages/cms/fmsPage/CtaSectionPage';
+import FmsProofSectionPage from './pages/cms/fmsPage/ProofSectionPage';
+import FmsFranchiseSectionPage from './pages/cms/fmsPage/FranchiseSectionPage';
+import FmsVideoSectionPage from './pages/cms/fmsPage/VideoSectionPage';
+import FmsIntegrationsSectionPage from './pages/cms/fmsPage/IntegrationsSectionPage';
+import FmsIntegrationLogoEditPage from './pages/cms/fmsPage/IntegrationLogoEditPage';
+import FmsIntegrationLogoViewPage from './pages/cms/fmsPage/IntegrationLogoViewPage';
+import FmsVideoEntryEditPage from './pages/cms/fmsPage/VideoEntryEditPage';
+import FmsVideoEntryViewPage from './pages/cms/fmsPage/VideoEntryViewPage';
+import FmsFranchiseCategoryEditPage from './pages/cms/fmsPage/FranchiseCategoryEditPage';
+import FmsFranchiseCategoryViewPage from './pages/cms/fmsPage/FranchiseCategoryViewPage';
+import FmsFranchiseEntryEditPage from './pages/cms/fmsPage/FranchiseEntryEditPage';
+import FmsFranchiseEntryViewPage from './pages/cms/fmsPage/FranchiseEntryViewPage';
+import FmsProofLogoEditPage from './pages/cms/fmsPage/ProofLogoEditPage';
+import FmsProofLogoViewPage from './pages/cms/fmsPage/ProofLogoViewPage';
+import FmsProofStatEditPage from './pages/cms/fmsPage/ProofStatEditPage';
+import FmsProofStatViewPage from './pages/cms/fmsPage/ProofStatViewPage';
 import SfaHeroSectionPage from './pages/cms/sfaDmsPage/HeroSectionPage';
 import SfaHeroSlideEditPage from './pages/cms/sfaDmsPage/HeroSlideEditPage';
 import SfaHeroSlideViewPage from './pages/cms/sfaDmsPage/HeroSlideViewPage';
@@ -222,6 +238,10 @@ export default function App() {
           <Route path="/cms/products/fms" element={<FmsPageLayout />}>
             <Route index element={<Navigate to="hero-section" replace />} />
             <Route path="hero-section" element={<FmsHeroSectionPage />} />
+            <Route path="proof-section" element={<FmsProofSectionPage />} />
+            <Route path="franchise-section" element={<FmsFranchiseSectionPage />} />
+            <Route path="video-section" element={<FmsVideoSectionPage />} />
+            <Route path="integrations-section" element={<FmsIntegrationsSectionPage />} />
             <Route path="faq-section" element={<FmsFaqSectionPage />} />
             <Route path="cta-section" element={<FmsCtaSectionPage />} />
           </Route>
@@ -238,6 +258,67 @@ export default function App() {
           <Route
             path="/cms/products/fms/faq-section/:id/view"
             element={<FmsFaqEntryViewPage />}
+          />
+          <Route
+            path="/cms/products/fms/proof-section/logos/:id"
+            element={<FmsProofLogoEditPage />}
+          />
+          <Route
+            path="/cms/products/fms/proof-section/logos/:id/view"
+            element={<FmsProofLogoViewPage />}
+          />
+          <Route
+            path="/cms/products/fms/proof-section/stats/:id"
+            element={<FmsProofStatEditPage />}
+          />
+          <Route
+            path="/cms/products/fms/proof-section/stats/:id/view"
+            element={<FmsProofStatViewPage />}
+          />
+          <Route
+            path="/cms/products/fms/franchise-section/categories/:id"
+            element={<FmsFranchiseCategoryEditPage />}
+          />
+          <Route
+            path="/cms/products/fms/franchise-section/categories/:id/view"
+            element={<FmsFranchiseCategoryViewPage />}
+          />
+          {/*
+            The flow and the benefits strip share one pair of screens; which
+            list is being edited comes from the segment in the path, so a step
+            can never be saved into the strip.
+          */}
+          <Route
+            path="/cms/products/fms/franchise-section/categories/:categoryId/steps/:id"
+            element={<FmsFranchiseEntryEditPage kind="steps" />}
+          />
+          <Route
+            path="/cms/products/fms/franchise-section/categories/:categoryId/steps/:id/view"
+            element={<FmsFranchiseEntryViewPage kind="steps" />}
+          />
+          <Route
+            path="/cms/products/fms/franchise-section/categories/:categoryId/benefits/:id"
+            element={<FmsFranchiseEntryEditPage kind="benefits" />}
+          />
+          <Route
+            path="/cms/products/fms/franchise-section/categories/:categoryId/benefits/:id/view"
+            element={<FmsFranchiseEntryViewPage kind="benefits" />}
+          />
+          <Route
+            path="/cms/products/fms/video-section/:id"
+            element={<FmsVideoEntryEditPage />}
+          />
+          <Route
+            path="/cms/products/fms/video-section/:id/view"
+            element={<FmsVideoEntryViewPage />}
+          />
+          <Route
+            path="/cms/products/fms/integrations-section/logos/:id"
+            element={<FmsIntegrationLogoEditPage />}
+          />
+          <Route
+            path="/cms/products/fms/integrations-section/logos/:id/view"
+            element={<FmsIntegrationLogoViewPage />}
           />
 
           {/* The SFA-DMS page, laid out the same way as the ERP one. */}

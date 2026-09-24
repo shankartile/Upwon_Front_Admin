@@ -1,0 +1,318 @@
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ImageOff, Plus } from 'lucide-react';
+import { DataTable } from '../../../components/table/DataTable';
+import { TableToolbar } from '../../../components/table/TableToolbar';
+import { RowActions } from '../../../components/table/RowActions';
+import { Button } from '../../../components/ui/Button';
+import { ActivePill } from '../../../components/ui/Badge';
+import { Select } from '../../../components/ui/Select';
+import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
+import { useToast } from '../../../context/ToastContext';
+import { useDebounce } from '../../../hooks/useDebounce';
+import { franchiseSection as service } from '../../../services/fmsPageService';
+import { DEFAULT_PAGE_SIZE } from '../../../config/constants';
+import { errorMessage } from '../../../lib/http';
+import { assetUrl } from '../../../lib/assetUrl';
+import { fmtDate, relativeTime } from '../../../lib/formatters';
+import { STATUS_LABELS, type ContentStatus } from '../../../types/homePage';
+import type { FmsFranchiseCategory } from '../../../types/fmsPage';
+
+/**
+ * The categories in the tab row, and behind each of them a panel.
+ *
+ * Deleting one takes its flow and its benefits strip with it, which is why the
+ * confirmation says so in as many words - the counts are in the row above it.
+ */
+
+const EDIT_PATH = '/cms/products/fms/franchise-section/categories';
+
+/** MAX_FMS_FRANCHISE_CATEGORIES on the server. Shown before the 409 fires. */
+const MAX_CATEGORIES = 8;
+
+type StatusFilter = 'all' | ContentStatus;
+
+type Pending =
+  | { kind: 'delete'; record: FmsFranchiseCategory }
+  | { kind: 'status'; record: FmsFranchiseCategory; next: ContentStatus };
+
+export default function FranchiseCategoriesCard() {
+  const [categories, setCategories] = useState<FmsFranchiseCategory[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [pending, setPending] = useState<Pending | null>(null);
+  const navigate = useNavigate();
+  const toast = useToast();
+
+  const debouncedSearch = useDebounce(search, 300);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { rows, meta } = await service.categories.list({
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        search: debouncedSearch,
+        page,
+        limit: pageSize,
+      });
+      setCategories(rows);
+      setTotal(meta.total);
+
+      // Deleting the last row of the last page can strand the viewer past the
+      // end of the results; the server answers with an empty page, so step back.
+      if (rows.length === 0 && meta.total > 0 && page > 1) {
+        setPage(Math.max(1, Math.ceil(meta.total / pageSize)));
+      }
+      setLoadError(null);
+    } catch (error) {
+      setLoadError(errorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  }, [statusFilter, debouncedSearch, page, pageSize]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter]);
+
+  const isNarrowed = statusFilter !== 'all' || debouncedSearch.trim() !== '';
+
+  const runPending = async () => {
+    if (!pending) return;
+    try {
+      if (pending.kind === 'delete') {
+        await service.categories.remove(pending.record.id);
+        toast.success('Category deleted');
+      } else {
+        await service.categories.setStatus(pending.record.id, pending.next);
+        toast.success(
+          pending.next === 'ACTIVE' ? 'Category activated' : 'Category deactivated',
+        );
+      }
+      await load();
+    } catch (error) {
+      toast.error('Action failed', errorMessage(error));
+    } finally {
+      setPending(null);
+    }
+  };
+
+  const atLimit = total >= MAX_CATEGORIES;
+  /** The row's position in the whole ordering, not just within this page. */
+  const positionOf = (index: number) => (page - 1) * pageSize + index;
+
+  return (
+    <section className="mt-8">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-charcoal dark:text-cream-100">
+            Categories
+          </h2>
+          <p className="mt-0.5 text-xs text-charcoal-light dark:text-navy-300">
+            The tab row, left to right. Each one opens its own panel, flow and benefits.
+          </p>
+        </div>
+        <Button
+          variant="orange"
+          leftIcon={<Plus className="h-4 w-4" />}
+          disabled={atLimit}
+          title={atLimit ? `The tab row holds at most ${MAX_CATEGORIES} categories` : undefined}
+          onClick={() => navigate(`${EDIT_PATH}/new`)}
+        >
+          New category
+        </Button>
+      </div>
+
+      {loadError && (
+        <div className="mb-4 rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm dark:border-orange-900/40 dark:bg-orange-900/10">
+          <p className="font-medium text-orange-800 dark:text-orange-300">
+            Could not load categories
+          </p>
+          <p className="mt-1 text-orange-700 dark:text-orange-400">{loadError}</p>
+          <Button size="sm" variant="secondary" className="mt-3" onClick={() => void load()}>
+            Retry
+          </Button>
+        </div>
+      )}
+
+      <DataTable<FmsFranchiseCategory>
+        data={categories}
+        loading={loading}
+        emptyTitle={isNarrowed ? 'No matching categories' : 'No categories yet'}
+        emptyDescription={
+          isNarrowed
+            ? 'Try a different search term, or clear the status filter.'
+            : 'Add the first category to take the tab row over from the site’s built-in set.'
+        }
+        actionsHeader="Actions"
+        actionsWidth="140px"
+        pagination={{
+          page,
+          pageSize,
+          total,
+          onPageChange: setPage,
+          onPageSizeChange: (size) => {
+            setPageSize(size);
+            setPage(1);
+          },
+        }}
+        // A row click opens the read-only view; editing is the explicit pencil.
+        onRowClick={(row) => navigate(`${EDIT_PATH}/${row.id}/view`)}
+        toolbar={
+          <TableToolbar
+            search={search}
+            onSearchChange={setSearch}
+            placeholder="Search categories…"
+            right={
+              <div className="w-40">
+                <Select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                  aria-label="Filter by status"
+                >
+                  <option value="all">All statuses</option>
+                  <option value="ACTIVE">{STATUS_LABELS.ACTIVE}</option>
+                  <option value="INACTIVE">{STATUS_LABELS.INACTIVE}</option>
+                </Select>
+              </div>
+            }
+          />
+        }
+        columns={[
+          {
+            key: 'order',
+            header: 'Sr. No',
+            width: '76px',
+            render: (row) => (
+              <span className="tabular-nums text-charcoal-light dark:text-navy-300">
+                {positionOf(categories.indexOf(row)) + 1}
+              </span>
+            ),
+          },
+          {
+            key: 'icon',
+            header: 'Icon',
+            width: '84px',
+            render: (row) => (
+              // The tile the tab draws, at its accent, so the pairing is visible.
+              <div
+                className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl p-1.5"
+                style={{ background: `${row.accentColor}1A` }}
+              >
+                {row.icon ? (
+                  <img
+                    src={assetUrl(row.icon) ?? undefined}
+                    alt=""
+                    className="max-h-full max-w-full object-contain"
+                  />
+                ) : (
+                  <ImageOff className="h-4 w-4 text-charcoal-light dark:text-navy-300" />
+                )}
+              </div>
+            ),
+          },
+          {
+            key: 'name',
+            header: 'Category',
+            render: (row) => (
+              <div className="min-w-0">
+                <p className="truncate font-medium text-charcoal dark:text-cream-100">
+                  {row.name}
+                </p>
+                <p className="truncate text-xs text-charcoal-light dark:text-navy-300">
+                  {row.tagline} · /{row.slug}
+                </p>
+              </div>
+            ),
+          },
+          {
+            key: 'contents',
+            header: 'Flow / benefits',
+            width: '124px',
+            render: (row) => (
+              <span className="text-xs text-charcoal-light dark:text-navy-300">
+                {row.steps.length} steps · {row.benefits.length} benefits
+              </span>
+            ),
+          },
+          {
+            key: 'updatedAt',
+            header: 'Updated',
+            width: '132px',
+            render: (row) => (
+              <div className="min-w-0">
+                <p className="truncate text-charcoal dark:text-cream-100">
+                  {fmtDate(row.updatedAt)}
+                </p>
+                <p
+                  className="truncate text-xs text-charcoal-light dark:text-navy-300"
+                  title={new Date(row.updatedAt).toLocaleString()}
+                >
+                  {relativeTime(row.updatedAt)}
+                </p>
+              </div>
+            ),
+          },
+          {
+            key: 'status',
+            header: 'Status',
+            width: '104px',
+            render: (row) => (
+              <ActivePill active={row.status === 'ACTIVE'}>
+                {STATUS_LABELS[row.status]}
+              </ActivePill>
+            ),
+          },
+        ]}
+        rowActions={(row) => (
+          <RowActions
+            onView={() => navigate(`${EDIT_PATH}/${row.id}/view`)}
+            onEdit={() => navigate(`${EDIT_PATH}/${row.id}`)}
+            onDelete={() => setPending({ kind: 'delete', record: row })}
+            toggle={{
+              checked: row.status === 'ACTIVE',
+              onChange: (checked) =>
+                setPending({
+                  kind: 'status',
+                  record: row,
+                  next: checked ? 'ACTIVE' : 'INACTIVE',
+                }),
+              label: row.status === 'ACTIVE' ? 'Deactivate' : 'Activate',
+            }}
+          />
+        )}
+      />
+
+      <ConfirmDialog
+        open={!!pending}
+        onClose={() => setPending(null)}
+        onConfirm={() => void runPending()}
+        title={
+          pending?.kind === 'delete'
+            ? 'Delete category'
+            : pending?.next === 'ACTIVE'
+              ? 'Activate category'
+              : 'Deactivate category'
+        }
+        description={
+          pending?.kind === 'delete'
+            ? `This permanently removes “${pending.record.name}”, along with its ${pending.record.steps.length} flow steps and ${pending.record.benefits.length} benefits.`
+            : pending?.next === 'ACTIVE'
+              ? 'This category will start appearing in the tab row.'
+              : 'This category will be removed from the live tab row but kept here.'
+        }
+        confirmLabel={pending?.kind === 'delete' ? 'Delete' : 'Confirm'}
+        variant={pending?.kind === 'delete' ? 'danger' : 'primary'}
+      />
+    </section>
+  );
+}
