@@ -30,50 +30,65 @@ export interface ListHeroSlidesParams extends HeroSlideFilters {
 }
 
 /**
- * One page of slides, filtered and searched by the database.
+ * The seven calls of a hero section API, bound to one base path.
  *
- * Always sorted by display order: the admin list should read like the
- * carousel it controls.
+ * The Insider page hero (modules/insider-page/routes/hero-section.routes.ts)
+ * mirrors the home one route for route, so both are built from this rather
+ * than written twice - see services/insiderHeroSectionService.ts. Only the
+ * slide and input types differ between them.
  */
-export const list = async ({
-  status,
-  search,
-  page = 1,
-  limit = 10,
-}: ListHeroSlidesParams = {}): Promise<{ rows: HeroSlide[]; meta: PaginationMeta }> =>
-  requestPaginated<HeroSlide>(BASE, {
-    query: {
+export function createHeroSectionService<TSlide, TCreate, TUpdate>(base: string) {
+  return {
+    /**
+     * One page of slides, filtered and searched by the database.
+     *
+     * Always sorted by display order: the admin list should read like the
+     * carousel it controls.
+     */
+    list: async ({
       status,
-      // Trimmed to empty means "no search"; buildUrl drops empty values.
-      search: search?.trim() || undefined,
-      page,
-      limit,
-      sortBy: 'displayOrder',
-      sortOrder: 'asc',
-    },
-  });
+      search,
+      page = 1,
+      limit = 10,
+    }: ListHeroSlidesParams = {}): Promise<{ rows: TSlide[]; meta: PaginationMeta }> =>
+      requestPaginated<TSlide>(base, {
+        query: {
+          status,
+          // Trimmed to empty means "no search"; buildUrl drops empty values.
+          search: search?.trim() || undefined,
+          page,
+          limit,
+          sortBy: 'displayOrder',
+          sortOrder: 'asc',
+        },
+      }),
 
-export const getById = async (id: string): Promise<HeroSlide> =>
-  request<HeroSlide>(`${BASE}/${id}`);
+    getById: async (id: string): Promise<TSlide> => request<TSlide>(`${base}/${id}`),
 
-export const create = async (input: CreateHeroSlideInput): Promise<HeroSlide> =>
-  request<HeroSlide>(BASE, { method: 'POST', body: input });
+    create: async (input: TCreate): Promise<TSlide> =>
+      request<TSlide>(base, { method: 'POST', body: input }),
 
-export const update = async (
-  id: string,
-  input: UpdateHeroSlideInput,
-): Promise<HeroSlide> => request<HeroSlide>(`${BASE}/${id}`, { method: 'PUT', body: input });
+    update: async (id: string, input: TUpdate): Promise<TSlide> =>
+      request<TSlide>(`${base}/${id}`, { method: 'PUT', body: input }),
 
-export const setStatus = async (id: string, status: ContentStatus): Promise<HeroSlide> =>
-  request<HeroSlide>(`${BASE}/${id}/status`, { method: 'PUT', body: { status } });
+    setStatus: async (id: string, status: ContentStatus): Promise<TSlide> =>
+      request<TSlide>(`${base}/${id}/status`, { method: 'PUT', body: { status } }),
 
-/**
- * Takes the complete id list in its new order, not a single moved id - a
- * whole-set rewrite is idempotent and cannot leave gaps or duplicates when two
- * admins reorder at once.
- */
-export const reorder = async (ids: string[]): Promise<HeroSlide[]> =>
-  request<HeroSlide[]>(`${BASE}/reorder`, { method: 'PUT', body: { ids } });
+    /**
+     * Takes the complete id list in its new order, not a single moved id - a
+     * whole-set rewrite is idempotent and cannot leave gaps or duplicates when
+     * two admins reorder at once.
+     */
+    reorder: async (ids: string[]): Promise<TSlide[]> =>
+      request<TSlide[]>(`${base}/reorder`, { method: 'PUT', body: { ids } }),
 
-export const remove = async (id: string): Promise<void> =>
-  request<void>(`${BASE}/${id}`, { method: 'DELETE' });
+    remove: async (id: string): Promise<void> =>
+      request<void>(`${base}/${id}`, { method: 'DELETE' }),
+  };
+}
+
+const home = createHeroSectionService<HeroSlide, CreateHeroSlideInput, UpdateHeroSlideInput>(
+  BASE,
+);
+
+export const { list, getById, create, update, setStatus, reorder, remove } = home;

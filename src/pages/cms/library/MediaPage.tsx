@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Upload, Trash2, Filter } from 'lucide-react';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { Card, CardBody } from '../../../components/ui/Card';
-import { Button } from '../../../components/ui/Button';
 import { Select } from '../../../components/ui/Select';
 import { Badge } from '../../../components/ui/Badge';
 import { ImageUploader } from '../../../components/forms/ImageUploader';
@@ -71,7 +70,11 @@ export default function MediaPage() {
             <p className="text-xs text-charcoal-light flex items-center gap-1.5">
               <Filter className="w-3 h-3" /> {filtered.length} asset{filtered.length !== 1 ? 's' : ''} shown
             </p>
-            <Button variant="secondary" className="w-full">Browse from URL</Button>
+            {/*
+              A "Browse from URL" button used to sit here with no handler at
+              all. Images in this panel are uploaded, never pasted as a URL, so
+              it is gone rather than wired up.
+            */}
           </CardBody>
         </Card>
       </div>

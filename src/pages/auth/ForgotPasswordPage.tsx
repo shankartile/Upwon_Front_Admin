@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Field } from '../../components/forms/Field';
 import { Logo } from '../../components/common/Logo';
+import { counterFor, EMAIL_MAX, emailError } from '../../lib/fieldRules';
 
 const HIGHLIGHTS = [
   { icon: Mail,  label: 'Reset link by email',        sub: 'Sent to the address on file' },
@@ -18,9 +19,24 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  /*
+   * validateForgotPassword → requiredEmail: required, max 254, and a pattern
+   * stricter than the browser's type="email" (which accepts 'a@b').
+   *
+   * These are the only checks this screen runs: onSubmit is still the placeholder
+   * timer it always was and never calls POST /auth/forgot-password. Wiring it up
+   * is outside this pass - see the notes handed back with this change.
+   */
+  const error = emailError(email);
+  const shownError = submitted || touched ? (error ?? undefined) : undefined;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitted(true);
+    if (error) return;
     setLoading(true);
     await new Promise((r) => setTimeout(r, 600));
     setSent(true);
@@ -127,7 +143,7 @@ export default function ForgotPasswordPage() {
                   variant="secondary"
                   size="lg"
                   className="w-full"
-                  onClick={() => { setSent(false); setEmail(''); }}
+                  onClick={() => { setSent(false); setEmail(''); setTouched(false); setSubmitted(false); }}
                 >
                   Use a different email
                 </Button>
@@ -140,16 +156,24 @@ export default function ForgotPasswordPage() {
               </div>
             ) : (
               <form onSubmit={onSubmit} className="space-y-4">
-                <Field label="Email address" required htmlFor="email">
+                <Field
+                  label="Email address"
+                  required
+                  htmlFor="email"
+                  error={shownError}
+                  hint={counterFor(email, EMAIL_MAX)}
+                >
                   <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onBlur={() => setTouched(true)}
                     placeholder="you@upwon.com"
                     leftIcon={<Mail className="w-4 h-4" />}
                     autoComplete="email"
-                    required
+                    invalid={!!shownError}
+                    aria-invalid={!!shownError}
                   />
                 </Field>
 
@@ -158,6 +182,7 @@ export default function ForgotPasswordPage() {
                   variant="orange"
                   size="lg"
                   loading={loading}
+                  disabled={submitted && !!error}
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                   className="w-full"
                 >

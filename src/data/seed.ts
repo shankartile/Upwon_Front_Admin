@@ -1,5 +1,5 @@
 import type {
-  CmsPage, Product, Industry, CaseStudy, NewsletterIssue, NewsletterStory,
+  CmsPage, Product, Industry, CaseStudy,
   Lead, AdminUser, Testimonial, ModuleItem, Integration, Comparison,
   AnnouncementBar, MediaRef, FaqItem, RedirectRule,
 } from '../types';
@@ -116,36 +116,6 @@ export const seedCaseStudies: CaseStudy[] = [
   updatedAt: day(i),
 }));
 
-export const seedNewsletterIssues: NewsletterIssue[] = Array.from({ length: 6 }, (_, i) => ({
-  id: `iss_${i + 1}`,
-  slug: `issue-${(6 - i).toString().padStart(2, '0')}`,
-  title: `The Upwon Signal — Issue ${6 - i}`,
-  coverUrl: `https://picsum.photos/seed/news${i}/600/300`,
-  publishDate: day(i * 30),
-  summary: 'Patterns we saw this month across ERP modernizations, AI in operations, and finance close cycles.',
-  status: i < 5 ? 'published' : 'scheduled',
-  storyCount: 4,
-  createdAt: day(120 - i * 15),
-  updatedAt: day(i * 30),
-}));
-
-export const seedNewsletterStories: NewsletterStory[] = seedNewsletterIssues.flatMap((iss, ii) =>
-  Array.from({ length: 4 }, (_, j) => ({
-    id: `st_${ii + 1}_${j + 1}`,
-    issueId: iss.id,
-    slug: `story-${j + 1}`,
-    title: ['The 90-day close myth', 'Where AI actually pays off', 'Tally to ERP without tears', 'Why dashboards lie'][j],
-    body: '<p>Sample story body. Replace with rich content.</p>',
-    author: ['Aarav Mehta', 'Priya Shah', 'Rahul Iyer', 'Neha Kapoor'][j],
-    tags: ['ERP', 'Operations'].slice(0, (j % 2) + 1),
-    heroImageUrl: `https://picsum.photos/seed/st${ii}${j}/800/400`,
-    status: 'published' as const,
-    seo: emptySeo('Story | Upwon'),
-    createdAt: iss.publishDate,
-    updatedAt: iss.publishDate,
-  })),
-);
-
 const FIRST_NAMES = ['Arjun', 'Diya', 'Karan', 'Meera', 'Rohit', 'Sneha', 'Tanvi', 'Yash', 'Isha', 'Aditya'];
 const LAST_NAMES = ['Sharma', 'Patel', 'Singh', 'Kumar', 'Verma', 'Gupta', 'Reddy', 'Khan', 'Das', 'Bose'];
 const COMPANIES = ['Acme Co', 'Globex', 'Initech', 'Soylent', 'Umbrella', 'Vandelay', 'Wayne Ent', 'Stark Ind', 'Wonka', 'Hooli'];
@@ -226,7 +196,7 @@ export const seedMedia: MediaRef[] = Array.from({ length: 25 }, (_, i) => ({
   url: `https://picsum.photos/seed/me${i}/600/400`,
   alt: `Asset ${i + 1}`,
   width: 600, height: 400,
-  folder: ['Hero', 'Product', 'Industry', 'Newsletter', 'Misc'][i % 5],
+  folder: ['Hero', 'Product', 'Industry', 'Insider', 'Misc'][i % 5],
   size: 80000 + i * 1234,
 }));
 

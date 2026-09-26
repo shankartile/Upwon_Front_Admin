@@ -18,6 +18,10 @@ import { useToast } from '../../../context/ToastContext';
 import { leadsService } from '../../../services';
 import type { Lead, LeadStatus, LeadType } from '../../../types';
 import { fmtDate, relativeTime } from '../../../lib/formatters';
+import { oneOf } from '../../../lib/fieldRules';
+
+/** The only writable value on this screen; everything else is readOnly. */
+const LEAD_STATUSES: readonly LeadStatus[] = ['new', 'contacted', 'qualified', 'won', 'lost'];
 
 const TITLES: Record<LeadType, string> = {
   'demo': 'Demo Requests',
@@ -130,7 +134,10 @@ export default function LeadsInboxPage() {
             </FieldGrid>
             <Field label="Message"><Textarea value={active.message ?? ''} readOnly rows={4} /></Field>
             <Field label="Status">
-              <Select value={active.status} onChange={(e) => updateStatus(active, e.target.value as LeadStatus)}>
+              <Select
+                value={active.status}
+                onChange={(e) => updateStatus(active, oneOf(LEAD_STATUSES, e.target.value, active.status))}
+              >
                 <option value="new">New</option>
                 <option value="contacted">Contacted</option>
                 <option value="qualified">Qualified</option>

@@ -10,13 +10,17 @@ import { Select } from '../../../components/ui/Select';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 import { useToast } from '../../../context/ToastContext';
 import { useDebounce } from '../../../hooks/useDebounce';
-import * as heroSectionService from '../../../services/heroSectionService';
 import { DEFAULT_PAGE_SIZE } from '../../../config/constants';
 import { errorMessage } from '../../../lib/http';
 import { assetUrl } from '../../../lib/assetUrl';
 import { plainHeading } from '../../../lib/heading';
 import { fmtDate, relativeTime } from '../../../lib/formatters';
-import { STATUS_LABELS, type ContentStatus, type HeroSlide } from '../../../types/homePage';
+import { STATUS_LABELS, type ContentStatus } from '../../../types/homePage';
+import {
+  HOME_HERO_SECTION,
+  type HeroSectionConfig,
+  type HeroSlideRecord,
+} from './heroSectionConfig';
 
 /**
  * Hero Section admin - the slide list.
@@ -24,21 +28,38 @@ import { STATUS_LABELS, type ContentStatus, type HeroSlide } from '../../../type
  * Searching, filtering and paging are all done by the database: the table
  * renders exactly the page the API returned. Creating and editing happen on
  * their own page (HeroSlideEditPage), reached from here.
+ *
+ * Serves every hero carousel through `config` (see heroSectionConfig.ts): the
+ * home page one by default, the Insider page one from its own route.
  */
-
-const EDIT_PATH = '/cms/home-page/hero-section';
-
-/** MAX_HERO_SLIDES on the server. Shown as a hint before the 409 fires. */
-const MAX_SLIDES = 12;
 
 type StatusFilter = 'all' | ContentStatus;
 
-type Pending =
-  | { kind: 'delete'; record: HeroSlide }
-  | { kind: 'status'; record: HeroSlide; next: ContentStatus };
+const STATUS_FILTERS: readonly StatusFilter[] = ['all', 'ACTIVE', 'INACTIVE'];
 
-export default function HeroSectionPage() {
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
+/**
+ * The filter select's value, narrowed back to the three it offers.
+ *
+ * A <select> can only offer the options rendered inside it, but its change
+ * handler hands over a plain string, and casting that straight into state would
+ * let a value edited in the DOM reach the API as a status it never defined.
+ * Anything else keeps the filter the table already had.
+ */
+const toStatusFilter = (value: string, fallback: StatusFilter): StatusFilter =>
+  STATUS_FILTERS.includes(value as StatusFilter) ? (value as StatusFilter) : fallback;
+
+type Pending =
+  | { kind: 'delete'; record: HeroSlideRecord }
+  | { kind: 'status'; record: HeroSlideRecord; next: ContentStatus };
+
+export default function HeroSectionPage({
+  config = HOME_HERO_SECTION,
+}: {
+  config?: HeroSectionConfig;
+}) {
+  const { api, basePath, maxSlides, hasViewPage } = config;
+  const { carousel } = config.copy;
+  const [slides, setSlides] = useState<HeroSlideRecord[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -57,7 +78,7 @@ export default function HeroSectionPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const { rows, meta } = await heroSectionService.list({
+      const { rows, meta } = await api.list({
         status: statusFilter === 'all' ? undefined : statusFilter,
         search: debouncedSearch,
         page,
@@ -80,7 +101,7 @@ export default function HeroSectionPage() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, debouncedSearch, page, pageSize]);
+  }, [api, statusFilter, debouncedSearch, page, pageSize]);
 
   useEffect(() => {
     void load();
@@ -100,10 +121,10 @@ export default function HeroSectionPage() {
     if (!pending) return;
     try {
       if (pending.kind === 'delete') {
-        await heroSectionService.remove(pending.record.id);
+        await api.remove(pending.record.id);
         toast.success('Slide deleted');
       } else {
-        await heroSectionService.setStatus(pending.record.id, pending.next);
+        await api.setStatus(pending.record.id, pending.next);
         toast.success(pending.next === 'ACTIVE' ? 'Slide activated' : 'Slide deactivated');
       }
       await load();
@@ -114,9 +135,18 @@ export default function HeroSectionPage() {
     }
   };
 
-  const atLimit = total >= MAX_SLIDES;
+  const atLimit = total >= maxSlides;
   /** The row's position in the whole ordering, not just within this page. */
   const positionOf = (index: number) => (page - 1) * pageSize + index;
+  /**
+   * Opens a row.
+   *
+   * The read-only view where the carousel has one, otherwise the form: the
+   * Insider hero has no /view route, and linking one would land on a blank
+   * route rather than on the slide.
+   */
+  const openRow = (id: string) =>
+    navigate(hasViewPage ? `${basePath}/${id}/view` : `${basePath}/${id}`);
 
   return (
     <>
@@ -125,8 +155,8 @@ export default function HeroSectionPage() {
           variant="orange"
           leftIcon={<Plus className="h-4 w-4" />}
           disabled={atLimit}
-          title={atLimit ? `The carousel holds at most ${MAX_SLIDES} slides` : undefined}
-          onClick={() => navigate(`${EDIT_PATH}/new`)}
+          title={atLimit ? `The carousel holds at most ${maxSlides} slides` : undefined}
+          onClick={() => navigate(`${basePath}/new`)}
         >
           New slide
         </Button>
@@ -144,14 +174,14 @@ export default function HeroSectionPage() {
         </div>
       )}
 
-      <DataTable<HeroSlide>
+      <DataTable<HeroSlideRecord>
         data={slides}
         loading={loading}
         emptyTitle={isNarrowed ? 'No matching slides' : 'No hero slides yet'}
         emptyDescription={
           isNarrowed
             ? 'Try a different search term, or clear the status filter.'
-            : 'Add the first slide to start the home page carousel.'
+            : `Add the first slide to start the ${carousel}.`
         }
         actionsHeader="Actions"
         actionsWidth="140px"
@@ -165,8 +195,7 @@ export default function HeroSectionPage() {
             setPage(1);
           },
         }}
-        // A row click opens the read-only view; editing is the explicit pencil.
-        onRowClick={(row) => navigate(`${EDIT_PATH}/${row.id}/view`)}
+        onRowClick={(row) => openRow(row.id)}
         toolbar={
           <TableToolbar
             search={search}
@@ -176,7 +205,7 @@ export default function HeroSectionPage() {
               <div className="w-40">
                 <Select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                  onChange={(e) => setStatusFilter(toStatusFilter(e.target.value, statusFilter))}
                   aria-label="Filter by status"
                 >
                   <option value="all">All statuses</option>
@@ -235,9 +264,11 @@ export default function HeroSectionPage() {
             header: 'Slide',
             render: (row) => (
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
-                  {row.eyebrow}
-                </p>
+                {config.eyebrow && row.eyebrow && (
+                  <p className="text-xs font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
+                    {row.eyebrow}
+                  </p>
+                )}
                 <p className="truncate font-medium text-charcoal dark:text-cream-100">
                   {plainHeading(row.heading)}
                 </p>
@@ -284,8 +315,8 @@ export default function HeroSectionPage() {
         ]}
         rowActions={(row) => (
           <RowActions
-            onView={() => navigate(`${EDIT_PATH}/${row.id}/view`)}
-            onEdit={() => navigate(`${EDIT_PATH}/${row.id}`)}
+            onView={hasViewPage ? () => openRow(row.id) : undefined}
+            onEdit={() => navigate(`${basePath}/${row.id}`)}
             onDelete={() => setPending({ kind: 'delete', record: row })}
             toggle={{
               checked: row.status === 'ACTIVE',
@@ -295,6 +326,9 @@ export default function HeroSectionPage() {
                   record: row,
                   next: checked ? 'ACTIVE' : 'INACTIVE',
                 }),
+              // One state, one pair of words: the badge and the filter on this
+              // screen read Active / Inactive, so the control that changes it
+              // does too.
               label: row.status === 'ACTIVE' ? 'Deactivate' : 'Activate',
             }}
           />
@@ -314,10 +348,10 @@ export default function HeroSectionPage() {
         }
         description={
           pending?.kind === 'delete'
-            ? 'This permanently removes the slide from the home page carousel.'
+            ? `This permanently removes the slide from the ${carousel}.`
             : pending?.next === 'ACTIVE'
-              ? 'This slide will start appearing in the home page carousel.'
-              : 'This slide will be removed from the carousel but kept here.'
+              ? `This slide will start appearing in the live ${carousel}.`
+              : 'This slide will be removed from the live carousel but kept here.'
         }
         confirmLabel={pending?.kind === 'delete' ? 'Delete' : 'Confirm'}
         variant={pending?.kind === 'delete' ? 'danger' : 'primary'}

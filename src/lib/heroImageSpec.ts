@@ -49,7 +49,22 @@ export type HeroImageVariant =
   | 'erpAvatar'
   | 'erpOutcome';
 
-export interface HeroImageSpec {
+/**
+ * The two slots one hero slide owns.
+ *
+ * The registry above covers every CMS image slot, so a `Record` over the whole
+ * union would demand entries for all of them. The hero slide form and the
+ * per-carousel spec sets key by these two only.
+ */
+export type HeroSlot = Extract<HeroImageVariant, 'desktop' | 'mobile'>;
+
+/**
+ * The shape rules for one image slot. Not hero-specific: every CMS image slot
+ * declares one of these (see lib/insiderImageSpec.ts) and is checked by
+ * checkImageDimensions below, so every slot reports failures the same way -
+ * the same split the server makes in hero-image-spec.ts.
+ */
+export interface ImageSpec {
   label: string;
   /** The recommended size, and also the minimum. */
   width: number;
@@ -66,6 +81,9 @@ export interface HeroImageSpec {
   /** Shown under the picker, so the requirement is visible before choosing. */
   hint: string;
 }
+
+/** The hero's name for the same shape, kept so existing imports stay valid. */
+export type HeroImageSpec = ImageSpec;
 
 export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
   desktop: {
@@ -325,8 +343,28 @@ export interface ImageDimensions {
  *
  * Resolves to null when the file is not a decodable image, which the caller
  * reports as "could not read" rather than silently accepting.
+ *
+ * The dimensions are the ones stored in the file, not the ones it is displayed
+ * at: the server reads width and height straight out of the frame header and
+ * ignores the EXIF Orientation tag (modules/home-page/utils/image-dimensions.ts),
+ * while a browser applies that tag when it decodes. A phone photo saved as
+ * 900x1200 with "rotate 90" decodes as 1200x900, so measuring the displayed
+ * size would pass a file here that the server then refuses after it has been
+ * uploaded. createImageBitmap with imageOrientation 'none' measures what the
+ * server measures; the <img> fallback is for browsers without it.
  */
-export function readImageDimensions(file: File): Promise<ImageDimensions | null> {
+export async function readImageDimensions(file: File): Promise<ImageDimensions | null> {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const bitmap = await createImageBitmap(file, { imageOrientation: 'none' });
+      const dimensions = { width: bitmap.width, height: bitmap.height };
+      bitmap.close();
+      return dimensions;
+    } catch {
+      // Undecodable, or the option is unsupported - the fallback decides.
+    }
+  }
+
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -343,15 +381,14 @@ export function readImageDimensions(file: File): Promise<ImageDimensions | null>
 }
 
 /**
- * Checks dimensions against a variant's spec.
+ * Checks dimensions against a spec.
  *
  * @returns null when acceptable, otherwise a message naming what is wrong.
  */
-export function checkHeroImageDimensions(
-  variant: HeroImageVariant,
+export function checkImageDimensions(
+  spec: ImageSpec,
   dimensions: ImageDimensions,
 ): string | null {
-  const spec = HERO_IMAGE_SPECS[variant];
   const actual = `${dimensions.width}×${dimensions.height}px`;
 
   if (dimensions.width < spec.width || dimensions.height < spec.height) {
@@ -369,4 +406,12 @@ export function checkHeroImageDimensions(
   }
 
   return null;
+}
+
+/** Checks dimensions against a home hero variant's spec. */
+export function checkHeroImageDimensions(
+  variant: HeroImageVariant,
+  dimensions: ImageDimensions,
+): string | null {
+  return checkImageDimensions(HERO_IMAGE_SPECS[variant], dimensions);
 }

@@ -30,9 +30,11 @@ export default function HomePageLayout() {
   const { pathname } = useLocation();
 
   // The trailing path segment is the active section, so a deep link and a tab
-  // click agree without a second piece of state to keep in sync.
-  const active = (SECTIONS.find((s) => pathname.endsWith(s.id))?.id ??
-    SECTIONS[0].id) as SectionId;
+  // click agree without a second piece of state to keep in sync. Matched as a
+  // whole segment rather than a suffix, so a trailing slash still names its
+  // section - the same rule InsiderPageLayout uses.
+  const segment = pathname.split('/').filter(Boolean).pop();
+  const active = (SECTIONS.find((s) => s.id === segment)?.id ?? SECTIONS[0].id) as SectionId;
 
   return (
     <>

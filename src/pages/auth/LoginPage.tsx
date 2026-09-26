@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Eye, EyeOff, Lock, Mail, Sparkles, AlertCircle,
   BarChart3, Boxes, Inbox, Quote,
@@ -11,6 +11,27 @@ import { Logo } from '../../components/common/Logo';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { DEMO_CREDS } from '../../config/constants';
+import { env } from '../../config/env';
+import { ApiError, errorMessage } from '../../lib/http';
+import { serverFieldErrors } from '../../lib/formErrors';
+import { emailError, secretError } from '../../lib/fieldRules';
+
+// The demo credentials only exist in mock mode; against the real API they
+// always fail and burn the per-email login rate limit.
+const INITIAL_CREDS = env.useMocks ? DEMO_CREDS : { email: '', password: '' };
+
+/**
+ * Where to go once signed in: back to the page the visitor asked for, which
+ * ProtectedRoute saved on its way here, or the dashboard.
+ *
+ * Only a path of our own is accepted - anything else (an absolute URL, a
+ * protocol-relative //host) would turn the login screen into an open redirect
+ * for anyone who can put a link in front of an admin.
+ */
+function destination(state: unknown): string {
+  const from = (state as { from?: unknown } | null)?.from;
+  return typeof from === 'string' && /^\/(?![/\\])/.test(from) ? from : '/dashboard';
+}
 
 const HIGHLIGHTS = [
   { icon: Boxes,     label: '7 products & 10 industries',   sub: 'Manage every page from one place' },
@@ -18,28 +39,97 @@ const HIGHLIGHTS = [
   { icon: BarChart3, label: 'Live traffic & funnel widgets', sub: 'See what’s working at a glance' },
 ];
 
+type FieldName = 'email' | 'password';
+
+/**
+ * What the banner should say when a failure is not about one field.
+ *
+ * A 422 already names its fields and shows under them, so it gets no banner.
+ * The rest are told apart by code rather than by message, so a rate limit does
+ * not read like a wrong password.
+ *
+ * @returns null when the inline field errors already explain the failure.
+ */
+function loginBanner(error: unknown, fields: Record<string, string>): string | null {
+  if (Object.keys(fields).length > 0) return null;
+  if (!(error instanceof ApiError)) return errorMessage(error);
+
+  switch (error.code) {
+    case 'RATE_LIMIT_EXCEEDED':
+      return 'Too many sign-in attempts from this device. Wait a few minutes and try again.';
+    case 'INVALID_CREDENTIALS':
+      return 'Email or password is incorrect.';
+    case 'ACCOUNT_NOT_ACTIVE':
+      return 'This account is not active. Ask an administrator to re-enable it.';
+    default:
+      return errorMessage(error);
+  }
+}
+
 export default function LoginPage() {
   const { user, login } = useAuth();
   const navigate = useNavigate();
+  const { state } = useLocation();
   const toast = useToast();
-  const [email, setEmail] = useState(DEMO_CREDS.email);
-  const [password, setPassword] = useState(DEMO_CREDS.password);
+  const next = destination(state);
+  const [email, setEmail] = useState(INITIAL_CREDS.email);
+  const [password, setPassword] = useState(INITIAL_CREDS.password);
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [remember, setRemember] = useState(true);
+  const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
+  const [submitted, setSubmitted] = useState(false);
+  const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
 
-  useEffect(() => { if (user) navigate('/dashboard', { replace: true }); }, [user, navigate]);
+  useEffect(() => { if (user) navigate(next, { replace: true }); }, [user, navigate, next]);
+
+  /*
+   * validateLogin on the server: requiredEmail (max 254, and a pattern the
+   * browser's own type="email" does not enforce - it accepts 'a@b') and
+   * requiredString { min: 1, max: 128 } for the password.
+   *
+   * Deliberately NOT the 12-character policy: auth.validator.ts:16 explains
+   * that applying it at sign-in leaks the policy and refuses legacy passwords
+   * before they can be verified.
+   */
+  const errors = useMemo(
+    () => ({
+      email: emailError(email),
+      password: secretError(password),
+    }),
+    [email, password],
+  );
+  const hasErrors = Boolean(errors.email || errors.password);
+
+  const errorFor = (name: FieldName): string | undefined =>
+    serverErrors[name] ?? (submitted || touched[name] ? (errors[name] ?? undefined) : undefined);
+
+  const touch = (name: FieldName) => setTouched((t) => ({ ...t, [name]: true }));
+
+  /** A server error belongs to the value that caused it, so editing clears it. */
+  const clearServerError = (name: FieldName) =>
+    setServerErrors((current) => {
+      if (!(name in current)) return current;
+      const next = { ...current };
+      delete next[name];
+      return next;
+    });
 
   const doLogin = async (em: string, pw: string) => {
     setError(null);
+    setServerErrors({});
     setLoading(true);
     try {
       await login(em, pw);
       toast.success('Welcome back!');
-      navigate('/dashboard', { replace: true });
+      navigate(next, { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      // A 422's error.details name the fields they belong to, so they land
+      // under the inputs rather than collapsing into "Validation failed".
+      const fields = serverFieldErrors(err);
+      setServerErrors(fields);
+      setError(loginBanner(err, fields));
     } finally {
       setLoading(false);
     }
@@ -47,7 +137,12 @@ export default function LoginPage() {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    doLogin(email, password);
+    setSubmitted(true);
+    if (hasErrors) {
+      setError('Fix the highlighted fields to continue.');
+      return;
+    }
+    void doLogin(email, password);
   };
 
   return (
@@ -138,16 +233,21 @@ export default function LoginPage() {
             </div>
 
             <form onSubmit={onSubmit} className="space-y-4">
-              <Field label="Email address" required htmlFor="email">
+              <Field label="Email address" required htmlFor="email" error={errorFor('email')}>
                 <Input
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    clearServerError('email');
+                  }}
+                  onBlur={() => touch('email')}
                   placeholder="you@upwon.com"
                   leftIcon={<Mail className="w-4 h-4" />}
                   autoComplete="email"
-                  required
+                  invalid={!!errorFor('email')}
+                  aria-invalid={!!errorFor('email')}
                 />
               </Field>
 
@@ -164,11 +264,16 @@ export default function LoginPage() {
                   id="password"
                   type={showPw ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    clearServerError('password');
+                  }}
+                  onBlur={() => touch('password')}
                   placeholder="••••••••"
                   leftIcon={<Lock className="w-4 h-4" />}
                   autoComplete="current-password"
-                  required
+                  invalid={!!errorFor('password')}
+                  aria-invalid={!!errorFor('password')}
                   rightSlot={
                     <button
                       type="button"
@@ -180,8 +285,25 @@ export default function LoginPage() {
                     </button>
                   }
                 />
+                {/* The password box sits in a plain div rather than a Field, so
+                    its message has to carry the shared error styling itself -
+                    including the dark variant, without which it renders nearly
+                    black on the dark card. */}
+                {errorFor('password') && (
+                  <p className="text-xs text-orange-700 dark:text-orange-400">
+                    {errorFor('password')}
+                  </p>
+                )}
               </div>
 
+              {/*
+                "Keep me signed in on this device". /auth/login takes only
+                email, password and deviceName, so the box does not yet change
+                anything about the session - the refresh-token cookie is what
+                keeps a signed-in admin signed in across a reload. It stays
+                because removing a control the admin has always seen is not
+                this pass's business; wiring it up is a separate change.
+              */}
               <label className="flex items-center gap-2 text-xs text-charcoal-light select-none">
                 <input
                   type="checkbox"
@@ -204,6 +326,7 @@ export default function LoginPage() {
                 variant="orange"
                 size="lg"
                 loading={loading}
+                disabled={submitted && hasErrors}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
                 className="w-full"
               >
