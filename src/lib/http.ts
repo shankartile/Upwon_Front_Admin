@@ -299,6 +299,76 @@ export async function requestPaginated<T>(
   };
 }
 
+/** A file fetched from the API, with the name the server said to save it as. */
+export interface DownloadedFile {
+  blob: Blob;
+  /** From Content-Disposition, or null when the header did not name one. */
+  fileName: string | null;
+}
+
+/**
+ * The filename out of a Content-Disposition header.
+ *
+ * The server percent-encodes it (`attachment; filename="Priya%20Nair%20CV.pdf"`),
+ * so it is decoded here - and a value that will not decode is returned as it
+ * came rather than throwing, because losing a download over its own filename
+ * would be an absurd failure. The result becomes a download attribute, never a
+ * path, so any directory part is stripped out of it.
+ */
+function fileNameFromDisposition(header: string | null): string | null {
+  if (!header) return null;
+  const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(header);
+  if (!match) return null;
+
+  let name = match[1];
+  try {
+    name = decodeURIComponent(name);
+  } catch {
+    // Left as the server sent it.
+  }
+  name = name.replace(/[\\/]/g, '_').trim();
+  return name || null;
+}
+
+/**
+ * Fetches a binary response - a stored file rather than an envelope.
+ *
+ * The same plumbing as `request`: the bearer token, the silent refresh on a
+ * 401, and the JSON error envelope on a failure. Only the success path
+ * differs, because the body is bytes.
+ *
+ * This is the only way to download a file the API guards. A plain
+ * `<a href="{apiBaseUrl}/…">` carries no Authorization header, so it would
+ * 401 and paint the JSON error into a new tab instead of saving anything.
+ */
+export async function requestFile(
+  path: string,
+  options: RequestOptions = {},
+): Promise<DownloadedFile> {
+  let response: Response;
+  try {
+    response = await send(path, options);
+  } catch {
+    throw networkError();
+  }
+
+  if (response.status === 401 && mayRefresh(path, options)) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) return requestFile(path, { ...options, skipRefresh: true });
+  }
+
+  if (!response.ok) {
+    // A failure still answers with the ordinary envelope, so it is read as one.
+    const body = (await response.json().catch(() => null)) as ErrorBody | null;
+    throw toApiError(response, body && body.success === false ? body : null);
+  }
+
+  return {
+    blob: await response.blob(),
+    fileName: fileNameFromDisposition(response.headers.get('Content-Disposition')),
+  };
+}
+
 /** Turns any thrown value into something safe to show in a toast. */
 export function errorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.fieldSummary ?? error.message;

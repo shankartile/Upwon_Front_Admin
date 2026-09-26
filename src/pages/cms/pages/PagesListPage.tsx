@@ -79,7 +79,11 @@ export default function PagesListPage() {
             render: (r) => (
               <div className="min-w-0">
                 <p className="font-medium text-charcoal dark:text-cream-100 truncate">{r.title}</p>
-                <p className="text-xs text-charcoal-light dark:text-navy-300 font-mono truncate">/{r.slug}</p>
+                {/* The home page's slug IS '/', so it is its own path - without
+                    this the root row reads '//'. */}
+                <p className="text-xs text-charcoal-light dark:text-navy-300 font-mono truncate">
+                  {r.slug === '/' ? '/' : `/${r.slug}`}
+                </p>
               </div>
             ) },
           { key: 'status', header: 'Status', sortable: true, width: '140px', render: (r) => <StatusBadge status={r.status} /> },

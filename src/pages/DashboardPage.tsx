@@ -285,7 +285,7 @@ export default function DashboardPage() {
               <QuickAction icon={<Plus className="w-4 h-4" />} label="New page" to="/cms/pages/new" />
               <QuickAction icon={<Boxes className="w-4 h-4" />} label="New product" to="/cms/products/new" />
               <QuickAction icon={<Sparkles className="w-4 h-4" />} label="Case study" to="/cms/case-studies/new" />
-              <QuickAction icon={<Mail className="w-4 h-4" />} label="Newsletter" to="/cms/newsletter/new" />
+              <QuickAction icon={<Mail className="w-4 h-4" />} label="Insider news" to="/cms/insider/news/new" />
               <QuickAction icon={<Inbox className="w-4 h-4" />} label="View leads" to="/cms/leads/demo" />
               <QuickAction icon={<Calendar className="w-4 h-4" />} label="Announcements" to="/cms/announcements" />
             </div>

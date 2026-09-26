@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { DataTable } from '../../../components/table/DataTable';
@@ -16,6 +16,7 @@ import { useTable } from '../../../hooks/useTable';
 import { useToast } from '../../../context/ToastContext';
 import { announcementsService } from '../../../services';
 import type { AnnouncementBar } from '../../../types';
+import { checkText, counterFor, linkError, oneOf, type TextRule } from '../../../lib/fieldRules';
 
 type DraftState =
   | { mode: 'create'; record: Omit<AnnouncementBar, 'id' | 'createdAt' | 'updatedAt'> }
@@ -26,10 +27,30 @@ const EMPTY: Omit<AnnouncementBar, 'id' | 'createdAt' | 'updatedAt'> = {
   message: '', active: false, variant: 'info',
 };
 
+/**
+ * The panel's own rules - announcements are still the localStorage mock.
+ *
+ * The banner is one line across the top of every public page, hence the tight
+ * message cap: past about 160 characters it wraps and pushes the header down.
+ */
+const RULES: Record<'message' | 'cta', TextRule> = {
+  message: { label: 'Message', min: 3, max: 160, required: true },
+  cta: { label: 'CTA label', min: 0, max: 40, required: false },
+};
+
+const LINK_MAX = 500;
+
+/** The list's Badge tone switch falls through to 'navy' for anything else. */
+const VARIANTS: readonly AnnouncementBar['variant'][] = ['info', 'warn', 'promo'];
+
+type FieldName = 'message' | 'cta' | 'link';
+
 export default function AnnouncementsPage() {
   const [data, setData] = useState<AnnouncementBar[]>([]);
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState<DraftState | null>(null);
+  const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
+  const [submitted, setSubmitted] = useState(false);
   const [pending, setPending] = useState<
     | { kind: 'delete'; record: AnnouncementBar }
     | { kind: 'toggle'; record: AnnouncementBar; nextActive: boolean }
@@ -41,14 +62,51 @@ export default function AnnouncementsPage() {
   const reload = () => { setLoading(true); announcementsService.list().then((d) => { setData(d); setLoading(false); }); };
   useEffect(reload, []);
 
+  const openDraft = (state: DraftState) => {
+    setDraft(state);
+    setTouched({});
+    setSubmitted(false);
+  };
+
+  const closeDraft = () => {
+    setDraft(null);
+    setTouched({});
+    setSubmitted(false);
+  };
+
   const patch = (p: Partial<AnnouncementBar>) => {
     if (!draft) return;
     setDraft({ ...draft, record: { ...draft.record, ...p } } as DraftState);
   };
 
+  const errors = useMemo((): Record<FieldName, string | null> => {
+    if (!draft) return { message: null, cta: null, link: null };
+    const cta = (draft.record.cta ?? '').trim();
+    const link = (draft.record.link ?? '').trim();
+
+    return {
+      message: checkText(RULES.message, draft.record.message),
+      // A CTA is one unit: a label with no href is an unclickable banner, and
+      // an href with no label is nothing to click.
+      cta: checkText(RULES.cta, cta) ?? (!cta && link ? 'CTA label is required when a link is set.' : null),
+      link:
+        linkError(link, { max: LINK_MAX }) ??
+        (!link && cta ? 'Link is required when a CTA label is set.' : null),
+    };
+  }, [draft]);
+
+  const hasErrors = Object.values(errors).some(Boolean);
+  const touch = (name: FieldName) => setTouched((s) => ({ ...s, [name]: true }));
+  const errorFor = (name: FieldName): string | undefined =>
+    submitted || touched[name] ? (errors[name] ?? undefined) : undefined;
+
   const save = async () => {
     if (!draft || draft.mode === 'view') return;
-    if (!draft.record.message) return toast.error('Message required');
+    setSubmitted(true);
+    if (hasErrors) {
+      toast.error('Check the highlighted fields');
+      return;
+    }
     if (draft.mode === 'edit') {
       await announcementsService.update(draft.record.id, draft.record);
       toast.success('Updated');
@@ -56,7 +114,7 @@ export default function AnnouncementsPage() {
       await announcementsService.create(draft.record);
       toast.success('Added');
     }
-    setDraft(null); reload();
+    closeDraft(); reload();
   };
 
   const runPending = async () => {
@@ -81,7 +139,7 @@ export default function AnnouncementsPage() {
         description="Top-of-page banner shown across the marketing site."
         actions={
           <Button leftIcon={<Plus className="w-4 h-4" />} variant="orange"
-            onClick={() => setDraft({ mode: 'create', record: { ...EMPTY } })}>
+            onClick={() => openDraft({ mode: 'create', record: { ...EMPTY } })}>
             New announcement
           </Button>
         }
@@ -91,7 +149,7 @@ export default function AnnouncementsPage() {
         toolbar={<TableToolbar search={t.state.search} onSearchChange={t.setSearch} placeholder="Search…" />}
         pagination={{ page: t.state.page, pageSize: t.state.pageSize, total: t.total, onPageChange: t.setPage }}
         sort={{ key: t.state.sortKey, dir: t.state.sortDir, onChange: t.setSort }}
-        onRowClick={(r) => setDraft({ mode: 'view', record: r })}
+        onRowClick={(r) => openDraft({ mode: 'view', record: r })}
         actionsHeader="Actions"
         actionsWidth="180px"
         columns={[
@@ -101,12 +159,12 @@ export default function AnnouncementsPage() {
             <Badge tone={r.variant === 'promo' ? 'orange' : r.variant === 'warn' ? 'gold' : 'navy'}>{r.variant}</Badge>
           )},
           { key: 'active', header: 'Active', width: '120px',
-            render: (r) => <Badge tone={r.active ? 'teal' : 'neutral'} dot>{r.active ? 'live' : 'off'}</Badge> },
+            render: (r) => <Badge tone={r.active ? 'teal' : 'neutral'} dot>{r.active ? 'Active' : 'Inactive'}</Badge> },
         ]}
         rowActions={(r) => (
           <RowActions
-            onView={() => setDraft({ mode: 'view', record: r })}
-            onEdit={() => setDraft({ mode: 'edit', record: r })}
+            onView={() => openDraft({ mode: 'view', record: r })}
+            onEdit={() => openDraft({ mode: 'edit', record: r })}
             onDelete={() => setPending({ kind: 'delete', record: r })}
             toggle={{
               checked: r.active,
@@ -119,46 +177,82 @@ export default function AnnouncementsPage() {
 
       <Modal
         open={!!draft}
-        onClose={() => setDraft(null)}
+        onClose={closeDraft}
         size="lg"
         title={title}
         footer={
           readonly ? (
             <>
-              <Button variant="secondary" onClick={() => setDraft(null)}>Close</Button>
+              <Button variant="secondary" onClick={closeDraft}>Close</Button>
               <Button variant="orange"
-                onClick={() => draft && setDraft({ mode: 'edit', record: draft.record as AnnouncementBar })}>
+                onClick={() => draft && openDraft({ mode: 'edit', record: draft.record as AnnouncementBar })}>
                 Edit
               </Button>
             </>
           ) : (
             <>
-              <Button variant="secondary" onClick={() => setDraft(null)}>Cancel</Button>
-              <Button variant="orange" onClick={save}>Save</Button>
+              {submitted && hasErrors && (
+                <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
+                  Fix the highlighted fields to continue.
+                </p>
+              )}
+              <Button variant="secondary" onClick={closeDraft}>Cancel</Button>
+              <Button variant="orange" disabled={submitted && hasErrors} onClick={save}>Save</Button>
             </>
           )
         }
       >
         {draft && (
           <div className="space-y-4">
-            <Field label="Message" required>
-              <Input value={draft.record.message} readOnly={readonly}
-                onChange={(e) => patch({ message: e.target.value })} />
+            <Field
+              label={RULES.message.label}
+              required
+              error={readonly ? undefined : errorFor('message')}
+              hint={`One line across the top of every public page. ${counterFor(draft.record.message, RULES.message.max)}`}
+            >
+              <Input
+                value={draft.record.message}
+                readOnly={readonly}
+                invalid={!readonly && !!errorFor('message')}
+                aria-invalid={!readonly && !!errorFor('message')}
+                onBlur={() => touch('message')}
+                onChange={(e) => patch({ message: e.target.value })}
+              />
             </Field>
             <FieldGrid>
-              <Field label="CTA label">
-                <Input value={draft.record.cta ?? ''} readOnly={readonly}
-                  onChange={(e) => patch({ cta: e.target.value })} />
+              <Field
+                label={RULES.cta.label}
+                error={readonly ? undefined : errorFor('cta')}
+                hint={`Optional — but a link needs one. ${counterFor(draft.record.cta ?? '', RULES.cta.max)}`}
+              >
+                <Input
+                  value={draft.record.cta ?? ''}
+                  readOnly={readonly}
+                  invalid={!readonly && !!errorFor('cta')}
+                  aria-invalid={!readonly && !!errorFor('cta')}
+                  onBlur={() => touch('cta')}
+                  onChange={(e) => patch({ cta: e.target.value })}
+                />
               </Field>
-              <Field label="Link">
-                <Input value={draft.record.link ?? ''} readOnly={readonly}
-                  onChange={(e) => patch({ link: e.target.value })} />
+              <Field
+                label="Link"
+                error={readonly ? undefined : errorFor('link')}
+                hint="A site path such as /pricing, or a full https:// address."
+              >
+                <Input
+                  value={draft.record.link ?? ''}
+                  readOnly={readonly}
+                  invalid={!readonly && !!errorFor('link')}
+                  aria-invalid={!readonly && !!errorFor('link')}
+                  onBlur={() => touch('link')}
+                  onChange={(e) => patch({ link: e.target.value })}
+                />
               </Field>
             </FieldGrid>
             <FieldGrid>
               <Field label="Variant">
                 <Select value={draft.record.variant} disabled={readonly}
-                  onChange={(e) => patch({ variant: e.target.value as AnnouncementBar['variant'] })}>
+                  onChange={(e) => patch({ variant: oneOf(VARIANTS, e.target.value, draft.record.variant) })}>
                   <option value="info">Info</option>
                   <option value="warn">Warn</option>
                   <option value="promo">Promo</option>

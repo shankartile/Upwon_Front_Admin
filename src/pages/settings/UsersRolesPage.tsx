@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { DataTable } from '../../components/table/DataTable';
@@ -18,6 +18,14 @@ import { useToast } from '../../context/ToastContext';
 import { usersService } from '../../services';
 import type { AdminUser, Role } from '../../types';
 import { fmtDate } from '../../lib/formatters';
+import {
+  checkText,
+  counterFor,
+  EMAIL_MAX,
+  emailError,
+  oneOf,
+  type TextRule,
+} from '../../lib/fieldRules';
 
 type DraftState =
   | { mode: 'create'; record: Omit<AdminUser, 'id' | 'createdAt' | 'updatedAt'> }
@@ -28,10 +36,28 @@ const EMPTY: Omit<AdminUser, 'id' | 'createdAt' | 'updatedAt'> = {
   name: '', email: '', role: 'editor', active: true,
 };
 
+/**
+ * This screen is still the localStorage mock, but the people it invites are
+ * sign-in users, so the rules follow the server's own where there is one: the
+ * name matches firstName + lastName (1-100 each) and the address matches
+ * requiredEmail, which is unique on the server with a 409 EMAIL_TAKEN. That
+ * uniqueness is checked here against the loaded list - the whole list is on
+ * screen, so a duplicate invitation can be caught while it is being typed.
+ */
+const RULES: Record<'name', TextRule> = {
+  name: { label: 'Name', min: 2, max: 100, required: true },
+};
+
+const ROLES: readonly Role[] = ['admin', 'editor', 'viewer'];
+
+type FieldName = 'name' | 'email';
+
 export default function UsersRolesPage() {
   const [data, setData] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState<DraftState | null>(null);
+  const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
+  const [submitted, setSubmitted] = useState(false);
   const [pending, setPending] = useState<
     | { kind: 'delete'; record: AdminUser }
     | { kind: 'toggle'; record: AdminUser; nextActive: boolean }
@@ -43,14 +69,48 @@ export default function UsersRolesPage() {
   const reload = () => { setLoading(true); usersService.list().then((d) => { setData(d); setLoading(false); }); };
   useEffect(reload, []);
 
+  const openDraft = (state: DraftState) => {
+    setDraft(state);
+    setTouched({});
+    setSubmitted(false);
+  };
+
+  const closeDraft = () => {
+    setDraft(null);
+    setTouched({});
+    setSubmitted(false);
+  };
+
   const patch = (p: Partial<AdminUser>) => {
     if (!draft) return;
     setDraft({ ...draft, record: { ...draft.record, ...p } } as DraftState);
   };
 
+  const errors = useMemo((): Record<FieldName, string | null> => {
+    if (!draft) return { name: null, email: null };
+    const currentId = draft.mode === 'create' ? null : draft.record.id;
+    const address = draft.record.email.trim().toLowerCase();
+    const duplicate =
+      address && data.some((u) => u.id !== currentId && u.email.trim().toLowerCase() === address);
+
+    return {
+      name: checkText(RULES.name, draft.record.name),
+      email: emailError(draft.record.email) ?? (duplicate ? 'Another user already has this email address.' : null),
+    };
+  }, [draft, data]);
+
+  const hasErrors = Object.values(errors).some(Boolean);
+  const touch = (name: FieldName) => setTouched((t) => ({ ...t, [name]: true }));
+  const errorFor = (name: FieldName): string | undefined =>
+    submitted || touched[name] ? (errors[name] ?? undefined) : undefined;
+
   const save = async () => {
     if (!draft || draft.mode === 'view') return;
-    if (!draft.record.name || !draft.record.email) return toast.error('Name and email required');
+    setSubmitted(true);
+    if (hasErrors) {
+      toast.error('Check the highlighted fields');
+      return;
+    }
     if (draft.mode === 'edit') {
       await usersService.update(draft.record.id, draft.record);
       toast.success('Updated');
@@ -58,7 +118,7 @@ export default function UsersRolesPage() {
       await usersService.create(draft.record);
       toast.success('Invited');
     }
-    setDraft(null); reload();
+    closeDraft(); reload();
   };
 
   const runPending = async () => {
@@ -83,7 +143,7 @@ export default function UsersRolesPage() {
         description="Who can sign in to the admin and what they can do."
         actions={
           <Button leftIcon={<Plus className="w-4 h-4" />} variant="orange"
-            onClick={() => setDraft({ mode: 'create', record: { ...EMPTY } })}>
+            onClick={() => openDraft({ mode: 'create', record: { ...EMPTY } })}>
             Invite user
           </Button>
         }
@@ -93,7 +153,7 @@ export default function UsersRolesPage() {
         toolbar={<TableToolbar search={t.state.search} onSearchChange={t.setSearch} placeholder="Search users…" />}
         pagination={{ page: t.state.page, pageSize: t.state.pageSize, total: t.total, onPageChange: t.setPage }}
         sort={{ key: t.state.sortKey, dir: t.state.sortDir, onChange: t.setSort }}
-        onRowClick={(r) => setDraft({ mode: 'view', record: r })}
+        onRowClick={(r) => openDraft({ mode: 'view', record: r })}
         actionsHeader="Actions"
         actionsWidth="180px"
         columns={[
@@ -115,8 +175,8 @@ export default function UsersRolesPage() {
         ]}
         rowActions={(r) => (
           <RowActions
-            onView={() => setDraft({ mode: 'view', record: r })}
-            onEdit={() => setDraft({ mode: 'edit', record: r })}
+            onView={() => openDraft({ mode: 'view', record: r })}
+            onEdit={() => openDraft({ mode: 'edit', record: r })}
             onDelete={() => setPending({ kind: 'delete', record: r })}
             toggle={{
               checked: r.active,
@@ -129,22 +189,27 @@ export default function UsersRolesPage() {
 
       <Modal
         open={!!draft}
-        onClose={() => setDraft(null)}
+        onClose={closeDraft}
         size="lg"
         title={title}
         footer={
           readonly ? (
             <>
-              <Button variant="secondary" onClick={() => setDraft(null)}>Close</Button>
+              <Button variant="secondary" onClick={closeDraft}>Close</Button>
               <Button variant="orange"
-                onClick={() => draft && setDraft({ mode: 'edit', record: draft.record as AdminUser })}>
+                onClick={() => draft && openDraft({ mode: 'edit', record: draft.record as AdminUser })}>
                 Edit
               </Button>
             </>
           ) : (
             <>
-              <Button variant="secondary" onClick={() => setDraft(null)}>Cancel</Button>
-              <Button variant="orange" onClick={save}>Save</Button>
+              {submitted && hasErrors && (
+                <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
+                  Fix the highlighted fields to continue.
+                </p>
+              )}
+              <Button variant="secondary" onClick={closeDraft}>Cancel</Button>
+              <Button variant="orange" disabled={submitted && hasErrors} onClick={save}>Save</Button>
             </>
           )
         }
@@ -152,19 +217,42 @@ export default function UsersRolesPage() {
         {draft && (
           <div className="space-y-4">
             <FieldGrid>
-              <Field label="Name" required>
-                <Input value={draft.record.name} readOnly={readonly}
-                  onChange={(e) => patch({ name: e.target.value })} />
+              <Field
+                label={RULES.name.label}
+                required
+                error={readonly ? undefined : errorFor('name')}
+                hint={counterFor(draft.record.name, RULES.name.max)}
+              >
+                <Input
+                  value={draft.record.name}
+                  readOnly={readonly}
+                  invalid={!readonly && !!errorFor('name')}
+                  aria-invalid={!readonly && !!errorFor('name')}
+                  onBlur={() => touch('name')}
+                  onChange={(e) => patch({ name: e.target.value })}
+                />
               </Field>
-              <Field label="Email" required>
-                <Input type="email" value={draft.record.email} readOnly={readonly}
-                  onChange={(e) => patch({ email: e.target.value })} />
+              <Field
+                label="Email"
+                required
+                error={readonly ? undefined : errorFor('email')}
+                hint={`Also how they sign in, so it has to be unique. ${counterFor(draft.record.email, EMAIL_MAX)}`}
+              >
+                <Input
+                  type="email"
+                  value={draft.record.email}
+                  readOnly={readonly}
+                  invalid={!readonly && !!errorFor('email')}
+                  aria-invalid={!readonly && !!errorFor('email')}
+                  onBlur={() => touch('email')}
+                  onChange={(e) => patch({ email: e.target.value })}
+                />
               </Field>
             </FieldGrid>
             <FieldGrid>
               <Field label="Role">
                 <Select value={draft.record.role} disabled={readonly}
-                  onChange={(e) => patch({ role: e.target.value as Role })}>
+                  onChange={(e) => patch({ role: oneOf(ROLES, e.target.value, draft.record.role) })}>
                   <option value="admin">Admin</option>
                   <option value="editor">Editor</option>
                   <option value="viewer">Viewer</option>

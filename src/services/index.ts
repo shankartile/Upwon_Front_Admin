@@ -1,12 +1,12 @@
 import { makeCrud } from './crud';
 import {
   seedPages, seedProducts, seedIndustries, seedCaseStudies,
-  seedNewsletterIssues, seedNewsletterStories, seedLeads, seedUsers,
+  seedLeads, seedUsers,
   seedTestimonials, seedFaqs, seedModules, seedIntegrations, seedComparisons,
   seedAnnouncements, seedMedia, seedRedirects,
 } from '../data/seed';
 import type {
-  CmsPage, Product, Industry, CaseStudy, NewsletterIssue, NewsletterStory,
+  CmsPage, Product, Industry, CaseStudy,
   Lead, AdminUser, Testimonial, ModuleItem, Integration, Comparison,
   AnnouncementBar, MediaRef, FaqItem, RedirectRule,
 } from '../types';
@@ -15,8 +15,6 @@ export const pagesService = makeCrud<CmsPage>('pages', seedPages, 'pg');
 export const productsService = makeCrud<Product>('products', seedProducts, 'pr');
 export const industriesService = makeCrud<Industry>('industries', seedIndustries, 'in');
 export const caseStudiesService = makeCrud<CaseStudy>('caseStudies', seedCaseStudies, 'cs');
-export const issuesService = makeCrud<NewsletterIssue>('issues', seedNewsletterIssues, 'iss');
-export const storiesService = makeCrud<NewsletterStory>('stories', seedNewsletterStories, 'st');
 export const leadsService = makeCrud<Lead>('leads', seedLeads, 'ld');
 export const usersService = makeCrud<AdminUser>('users', seedUsers, 'u');
 export const testimonialsService = makeCrud<Testimonial>('testimonials', seedTestimonials, 'tm');

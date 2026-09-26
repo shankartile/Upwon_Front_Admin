@@ -80,16 +80,8 @@ export interface CaseStudy extends Audit {
   status: Status; seo: Seo;
 }
 
-export interface NewsletterIssue extends Audit {
-  id: ID; slug: string; title: string; coverUrl?: string;
-  publishDate: ISODate; summary: string; status: Status; storyCount: number;
-}
-
-export interface NewsletterStory extends Audit {
-  id: ID; issueId: ID; slug: string; title: string;
-  body: string; author: string; tags: string[];
-  heroImageUrl?: string; status: Status; seo: Seo;
-}
+// Insider (formerly Newsletter) issues and stories are real API content now -
+// see types/insiderPage.ts.
 
 export type LeadType = 'demo' | 'free-audit' | 'proposal' | 'contact' | 'partner';
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'won' | 'lost';

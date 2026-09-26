@@ -31,13 +31,22 @@ export interface DataTableProps<T extends { id: string }> {
   bulkActions?: (ids: string[]) => ReactNode;
   toolbar?: ReactNode;
   onRowClick?: (row: T) => void;
+  /**
+   * A floor for the table's width, e.g. '1760px'. The layout is fixed, so
+   * without one every column is squeezed into whatever the card is wide -
+   * fine for the five- and six-column tables, unreadable for a table with
+   * eleven. Set it to the sum of the column widths and the wrapper's
+   * overflow-x-auto scrolls instead of the text being cropped. Omitted
+   * everywhere else, which leaves those tables exactly as they were.
+   */
+  minWidth?: string;
 }
 
 export function DataTable<T extends { id: string }>(props: DataTableProps<T>) {
   const {
     data, columns, loading, emptyTitle = 'No records', emptyDescription,
     selectable, onSelectionChange, pagination, sort, rowActions, actionsHeader = 'Actions',
-    actionsWidth = '180px', bulkActions, toolbar, onRowClick,
+    actionsWidth = '180px', bulkActions, toolbar, onRowClick, minWidth,
   } = props;
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -76,7 +85,7 @@ export function DataTable<T extends { id: string }>(props: DataTableProps<T>) {
       )}
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm" style={{ tableLayout: 'fixed' }}>
+        <table className="w-full text-sm" style={{ tableLayout: 'fixed', minWidth }}>
           <colgroup>
             {selectable && <col style={{ width: '40px' }} />}
             {columns.map((c) => (

@@ -84,7 +84,7 @@
 
 import {
   LayoutDashboard, FileText, Boxes, Building2, Trophy, Mail, MessageSquareQuote,
-  HelpCircle, Megaphone, Users, ShieldCheck, Home,
+  HelpCircle, Megaphone, Users, ShieldCheck, Home, Phone, Briefcase, Handshake, Info,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -101,7 +101,22 @@ export const navigation: NavGroup[] = [
       { label: 'Products', to: '/cms/products', icon: Boxes },
       { label: 'Industries', to: '/cms/industries', icon: Building2 },
       { label: 'Case Studies', to: '/cms/case-studies', icon: Trophy },
-      { label: 'Newsletter', to: '/cms/newsletter', icon: Mail },
+      // The site still serves it at /newsletter; only the admin name changed.
+      { label: 'Insider', to: '/cms/insider', icon: Mail },
+      // The public /contact page, section by section.
+      { label: 'Contact', to: '/cms/contact', icon: Phone },
+      // The Open Roles on the public /careers page, and the applications they
+      // collect. Directly below Contact: both are inboxes as much as content.
+      { label: 'Career', to: '/cms/careers', icon: Briefcase },
+      // The hero of the public /partners page, and the applications its form
+      // collects. Directly below Career, as the user asked: the third area in a
+      // row that is an inbox as much as it is content.
+      { label: 'Partner Program', to: '/cms/partner-program', icon: Handshake },
+      // The public /about page, section by section, and the discovery calls its
+      // form books. Directly below Partner Program, as the user asked - and it
+      // belongs at the end of that run for the same reason the other three are in
+      // it: a page whose tabs are content, with one inbox among them.
+      { label: 'About Us', to: '/cms/about', icon: Info },
       { label: 'Testimonials', to: '/cms/testimonials', icon: MessageSquareQuote },
       { label: 'FAQs', to: '/cms/faqs', icon: HelpCircle },
     ],

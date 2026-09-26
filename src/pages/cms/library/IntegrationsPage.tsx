@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { DataTable } from '../../../components/table/DataTable';
@@ -10,12 +10,19 @@ import { Badge } from '../../../components/ui/Badge';
 import { Input } from '../../../components/ui/Input';
 import { Textarea } from '../../../components/ui/Textarea';
 import { Field, FieldGrid } from '../../../components/forms/Field';
+import { ImageUploader } from '../../../components/forms/ImageUploader';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 import { useTable } from '../../../hooks/useTable';
 import { useToast } from '../../../context/ToastContext';
 import { integrationsService } from '../../../services';
 import type { Integration } from '../../../types';
-import { slugify } from '../../../lib/formatters';
+import {
+  checkText,
+  counterFor,
+  slugError,
+  toSlug,
+  type TextRule,
+} from '../../../lib/fieldRules';
 
 type DraftState =
   | { mode: 'create'; record: Omit<Integration, 'id' | 'createdAt' | 'updatedAt'> }
@@ -26,10 +33,23 @@ const EMPTY: Omit<Integration, 'id' | 'createdAt' | 'updatedAt'> = {
   name: '', slug: '', description: '', category: 'Accounting', active: true,
 };
 
+/** The panel's own rules - the integrations library is still the mock. */
+const RULES: Record<'name' | 'description' | 'category', TextRule> = {
+  name: { label: 'Name', min: 2, max: 120, required: true },
+  description: { label: 'Description', min: 0, max: 500, required: false },
+  category: { label: 'Category', min: 1, max: 60, required: true },
+};
+
+const CATEGORY_LIST_ID = 'integration-categories';
+
+type FieldName = 'name' | 'slug' | 'description' | 'category';
+
 export default function IntegrationsPage() {
   const [data, setData] = useState<Integration[]>([]);
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState<DraftState | null>(null);
+  const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
+  const [submitted, setSubmitted] = useState(false);
   const [pending, setPending] = useState<
     | { kind: 'delete'; record: Integration }
     | { kind: 'toggle'; record: Integration; nextActive: boolean }
@@ -47,14 +67,57 @@ export default function IntegrationsPage() {
   };
   useEffect(reload, []);
 
+  const openDraft = (state: DraftState) => {
+    setDraft(state);
+    setTouched({});
+    setSubmitted(false);
+  };
+
+  const closeDraft = () => {
+    setDraft(null);
+    setTouched({});
+    setSubmitted(false);
+  };
+
   const patch = (p: Partial<Integration>) => {
     if (!draft) return;
     setDraft({ ...draft, record: { ...draft.record, ...p } } as DraftState);
   };
 
+  /** Every other integration's slug - it is what the public listing links on. */
+  const takenSlugs = useMemo(() => {
+    const currentId = draft && draft.mode !== 'create' ? draft.record.id : null;
+    return data.filter((i) => i.id !== currentId).map((i) => i.slug);
+  }, [data, draft]);
+
+  /** The categories already in use, offered as suggestions so a typo does not fork one. */
+  const categories = useMemo(
+    () => Array.from(new Set(data.map((i) => i.category).filter(Boolean))).sort(),
+    [data],
+  );
+
+  const errors = useMemo((): Record<FieldName, string | null> => {
+    if (!draft) return { name: null, slug: null, description: null, category: null };
+    return {
+      name: checkText(RULES.name, draft.record.name),
+      slug: slugError(draft.record.slug, { taken: takenSlugs }),
+      description: checkText(RULES.description, draft.record.description),
+      category: checkText(RULES.category, draft.record.category),
+    };
+  }, [draft, takenSlugs]);
+
+  const hasErrors = Object.values(errors).some(Boolean);
+  const touch = (name: FieldName) => setTouched((s) => ({ ...s, [name]: true }));
+  const errorFor = (name: FieldName): string | undefined =>
+    submitted || touched[name] ? (errors[name] ?? undefined) : undefined;
+
   const save = async () => {
     if (!draft || draft.mode === 'view') return;
-    if (!draft.record.name) return toast.error('Name required');
+    setSubmitted(true);
+    if (hasErrors) {
+      toast.error('Check the highlighted fields');
+      return;
+    }
     if (draft.mode === 'edit') {
       await integrationsService.update(draft.record.id, draft.record);
       toast.success('Updated');
@@ -62,7 +125,7 @@ export default function IntegrationsPage() {
       await integrationsService.create(draft.record);
       toast.success('Added');
     }
-    setDraft(null); reload();
+    closeDraft(); reload();
   };
 
   const runPending = async () => {
@@ -87,7 +150,7 @@ export default function IntegrationsPage() {
         description="Third-party systems Upwon can sync with."
         actions={
           <Button leftIcon={<Plus className="w-4 h-4" />} variant="orange"
-            onClick={() => setDraft({ mode: 'create', record: { ...EMPTY } })}>
+            onClick={() => openDraft({ mode: 'create', record: { ...EMPTY } })}>
             New integration
           </Button>
         }
@@ -97,7 +160,7 @@ export default function IntegrationsPage() {
         toolbar={<TableToolbar search={t.state.search} onSearchChange={t.setSearch} placeholder="Search integrations…" />}
         pagination={{ page: t.state.page, pageSize: t.state.pageSize, total: t.total, onPageChange: t.setPage }}
         sort={{ key: t.state.sortKey, dir: t.state.sortDir, onChange: t.setSort }}
-        onRowClick={(r) => setDraft({ mode: 'view', record: r })}
+        onRowClick={(r) => openDraft({ mode: 'view', record: r })}
         actionsHeader="Actions"
         actionsWidth="180px"
         columns={[
@@ -114,8 +177,8 @@ export default function IntegrationsPage() {
         ]}
         rowActions={(r) => (
           <RowActions
-            onView={() => setDraft({ mode: 'view', record: r })}
-            onEdit={() => setDraft({ mode: 'edit', record: r })}
+            onView={() => openDraft({ mode: 'view', record: r })}
+            onEdit={() => openDraft({ mode: 'edit', record: r })}
             onDelete={() => setPending({ kind: 'delete', record: r })}
             toggle={{
               checked: r.active ?? true,
@@ -128,22 +191,27 @@ export default function IntegrationsPage() {
 
       <Modal
         open={!!draft}
-        onClose={() => setDraft(null)}
+        onClose={closeDraft}
         size="lg"
         title={title}
         footer={
           readonly ? (
             <>
-              <Button variant="secondary" onClick={() => setDraft(null)}>Close</Button>
+              <Button variant="secondary" onClick={closeDraft}>Close</Button>
               <Button variant="orange"
-                onClick={() => draft && setDraft({ mode: 'edit', record: draft.record as Integration })}>
+                onClick={() => draft && openDraft({ mode: 'edit', record: draft.record as Integration })}>
                 Edit
               </Button>
             </>
           ) : (
             <>
-              <Button variant="secondary" onClick={() => setDraft(null)}>Cancel</Button>
-              <Button variant="orange" onClick={save}>Save</Button>
+              {submitted && hasErrors && (
+                <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
+                  Fix the highlighted fields to continue.
+                </p>
+              )}
+              <Button variant="secondary" onClick={closeDraft}>Cancel</Button>
+              <Button variant="orange" disabled={submitted && hasErrors} onClick={save}>Save</Button>
             </>
           )
         }
@@ -151,29 +219,97 @@ export default function IntegrationsPage() {
         {draft && (
           <div className="space-y-4">
             <FieldGrid>
-              <Field label="Name" required>
-                <Input value={draft.record.name} readOnly={readonly}
-                  onChange={(e) => patch({ name: e.target.value, slug: draft.record.slug || slugify(e.target.value) })} />
+              <Field
+                label={RULES.name.label}
+                required
+                error={readonly ? undefined : errorFor('name')}
+                hint={counterFor(draft.record.name, RULES.name.max)}
+              >
+                <Input
+                  value={draft.record.name}
+                  readOnly={readonly}
+                  invalid={!readonly && !!errorFor('name')}
+                  aria-invalid={!readonly && !!errorFor('name')}
+                  onBlur={() => touch('name')}
+                  onChange={(e) => patch({ name: e.target.value, slug: draft.record.slug || toSlug(e.target.value) })}
+                />
               </Field>
-              <Field label="Slug">
-                <Input value={draft.record.slug} readOnly={readonly}
-                  onChange={(e) => patch({ slug: e.target.value })} />
+              <Field
+                label="Slug"
+                required
+                error={readonly ? undefined : errorFor('slug')}
+                hint="What the public listing links on, e.g. tally-prime"
+              >
+                <Input
+                  value={draft.record.slug}
+                  readOnly={readonly}
+                  invalid={!readonly && !!errorFor('slug')}
+                  aria-invalid={!readonly && !!errorFor('slug')}
+                  onBlur={() => touch('slug')}
+                  onChange={(e) => patch({ slug: e.target.value })}
+                />
               </Field>
             </FieldGrid>
-            <Field label="Description">
-              <Textarea rows={3} value={draft.record.description} readOnly={readonly}
-                onChange={(e) => patch({ description: e.target.value })} />
+            <Field
+              label={RULES.description.label}
+              error={readonly ? undefined : errorFor('description')}
+              hint={`Shown under the name in the list. ${counterFor(draft.record.description, RULES.description.max)}`}
+            >
+              <Textarea
+                rows={3}
+                value={draft.record.description}
+                readOnly={readonly}
+                invalid={!readonly && !!errorFor('description')}
+                aria-invalid={!readonly && !!errorFor('description')}
+                onBlur={() => touch('description')}
+                onChange={(e) => patch({ description: e.target.value })}
+              />
             </Field>
             <FieldGrid>
-              <Field label="Category">
-                <Input value={draft.record.category} readOnly={readonly}
-                  onChange={(e) => patch({ category: e.target.value })} />
+              <Field
+                label={RULES.category.label}
+                required
+                error={readonly ? undefined : errorFor('category')}
+                hint="The list filters and badges on it — pick an existing one where you can."
+              >
+                <Input
+                  value={draft.record.category}
+                  list={CATEGORY_LIST_ID}
+                  readOnly={readonly}
+                  invalid={!readonly && !!errorFor('category')}
+                  aria-invalid={!readonly && !!errorFor('category')}
+                  onBlur={() => touch('category')}
+                  onChange={(e) => patch({ category: e.target.value })}
+                />
               </Field>
-              <Field label="Logo URL">
-                <Input value={draft.record.logoUrl ?? ''} readOnly={readonly}
-                  onChange={(e) => patch({ logoUrl: e.target.value })} />
+              {/*
+                "Logo URL" used to sit here, feeding an <img src> in the list
+                straight from a text box. Images in this panel are uploaded,
+                never pasted as a URL - so it is an upload slot, which also
+                checks the file's type and size before accepting it. It writes
+                the same `logoUrl` the list renders, and the X clears it.
+              */}
+              <Field label="Logo" hint="Shown in the integrations list.">
+                {readonly ? (
+                  <div className="flex h-24 w-full items-center justify-center rounded-xl border border-dashed border-cream-400 bg-cream-100 dark:border-navy-700 dark:bg-navy-950/50">
+                    {draft.record.logoUrl ? (
+                      <img src={draft.record.logoUrl} alt="" className="max-h-20 object-contain" />
+                    ) : (
+                      <span className="text-xs text-charcoal-light dark:text-navy-300">No logo</span>
+                    )}
+                  </div>
+                ) : (
+                  <ImageUploader
+                    value={draft.record.logoUrl}
+                    onChange={(logoUrl) => patch({ logoUrl })}
+                    aspect="wide"
+                  />
+                )}
               </Field>
             </FieldGrid>
+            <datalist id={CATEGORY_LIST_ID}>
+              {categories.map((c) => <option key={c} value={c} />)}
+            </datalist>
           </div>
         )}
       </Modal>

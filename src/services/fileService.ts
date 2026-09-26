@@ -1,6 +1,7 @@
 // src/services/fileService.ts
 
 import { request } from '../lib/http';
+import { checkImageDimensions, readImageDimensions, type ImageSpec } from '../lib/heroImageSpec';
 
 /**
  * Uploads, backed by the real API rather than the localStorage mocks the rest
@@ -36,6 +37,29 @@ export const IMAGE_ACCEPT = ACCEPTED_IMAGE_TYPES.join(',');
 
 export function isAcceptedImage(file: File): boolean {
   return (ACCEPTED_IMAGE_TYPES as readonly string[]).includes(file.type);
+}
+
+/**
+ * Checks a picked file before it is accepted into a form: type, size, and then
+ * its pixel dimensions against the slot's spec.
+ *
+ * The server re-checks the stored bytes and would reject a bad image with a 422
+ * anyway; doing it in the browser first turns a failed save into immediate
+ * feedback, and avoids uploading megabytes that cannot be used.
+ *
+ * @returns null when the file can be used, otherwise the message to show.
+ */
+export async function checkImageFile(file: File, spec: ImageSpec): Promise<string | null> {
+  if (!isAcceptedImage(file)) {
+    return 'Unsupported file type — use a PNG, JPG, GIF or WebP.';
+  }
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return 'Too large — the maximum upload size is 10 MB.';
+  }
+
+  const dimensions = await readImageDimensions(file);
+  if (!dimensions) return 'That file could not be read as an image.';
+  return checkImageDimensions(spec, dimensions);
 }
 
 /**
