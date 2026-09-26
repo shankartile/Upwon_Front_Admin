@@ -134,6 +134,22 @@ const PRODUCT_PAGES: NavChild[] = [
   { label: 'Vendor Portal Page' },
 ];
 
+/**
+ * The industry landing pages, in the order the marketing site lists them.
+ *
+ * Same arrangement as PRODUCT_PAGES: each industry is edited on its own screen
+ * of sections. Bakery & Confectionery is the first one built; the rest join
+ * this list as their sections are.
+ */
+const INDUSTRY_PAGES: NavChild[] = [
+  { label: 'Bakery & Confectionery', to: '/cms/industries/bakery-confectionery' },
+  { label: 'FMCG Distribution', to: '/cms/industries/fmcg-distribution' },
+  { label: 'Sweets & Namkeen', to: '/cms/industries/sweets-namkeen' },
+  { label: 'Food Processing', to: '/cms/industries/food-processing' },
+  { label: 'Non-Food FMCG', to: '/cms/industries/non-food-fmcg' },
+  { label: 'Dairy & Ice Cream', to: '/cms/industries/dairy' },
+];
+
 export const navigation: NavGroup[] = [
   { items: [{ label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard }] },
   {
@@ -143,7 +159,8 @@ export const navigation: NavGroup[] = [
       // No `to`: each product page is edited on its own screen, so the parent
       // opens the list rather than a combined one.
       { label: 'Products', icon: Boxes, children: PRODUCT_PAGES },
-      { label: 'Industries', to: '/cms/industries', icon: Building2 },
+      // A parent like Products: each industry page is its own screen.
+      { label: 'Industries', icon: Building2, children: INDUSTRY_PAGES },
       { label: 'Case Studies', to: '/cms/case-studies', icon: Trophy },
       { label: 'Newsletter', to: '/cms/newsletter', icon: Mail },
       { label: 'Testimonials', to: '/cms/testimonials', icon: MessageSquareQuote },

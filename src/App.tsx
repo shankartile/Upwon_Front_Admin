@@ -126,6 +126,132 @@ import ErpFaqEntryEditPage from './pages/cms/erpPage/FaqEntryEditPage';
 import ErpFaqEntryViewPage from './pages/cms/erpPage/FaqEntryViewPage';
 import ErpCtaSectionPage from './pages/cms/erpPage/CtaSectionPage';
 
+import BakeryPageLayout from './pages/cms/bakeryPage/BakeryPageLayout';
+import BakeryHeroSectionPage from './pages/cms/bakeryPage/HeroSectionPage';
+import BakeryHeroSlideEditPage from './pages/cms/bakeryPage/HeroSlideEditPage';
+import BakeryHeroSlideViewPage from './pages/cms/bakeryPage/HeroSlideViewPage';
+import BakeryTrustSectionPage from './pages/cms/bakeryPage/TrustSectionPage';
+import BakeryTrustLogoEditPage from './pages/cms/bakeryPage/TrustLogoEditPage';
+import BakeryTrustLogoViewPage from './pages/cms/bakeryPage/TrustLogoViewPage';
+import BakeryTrustStatEditPage from './pages/cms/bakeryPage/TrustStatEditPage';
+import BakeryTrustStatViewPage from './pages/cms/bakeryPage/TrustStatViewPage';
+import BakeryPlatformSectionPage from './pages/cms/bakeryPage/PlatformSectionPage';
+import BakeryPlatformTileEditPage from './pages/cms/bakeryPage/PlatformTileEditPage';
+import BakeryPlatformTileViewPage from './pages/cms/bakeryPage/PlatformTileViewPage';
+import BakeryHelpsSectionPage from './pages/cms/bakeryPage/HelpsSectionPage';
+import BakeryHelpVisualEditPage from './pages/cms/bakeryPage/HelpVisualEditPage';
+import BakeryHelpVisualViewPage from './pages/cms/bakeryPage/HelpVisualViewPage';
+import BakeryFaqSectionPage from './pages/cms/bakeryPage/FaqSectionPage';
+import BakeryFaqEntryEditPage from './pages/cms/bakeryPage/FaqEntryEditPage';
+import BakeryFaqEntryViewPage from './pages/cms/bakeryPage/FaqEntryViewPage';
+import BakeryCtaSectionPage from './pages/cms/bakeryPage/CtaSectionPage';
+import BakeryCtaFeatureEditPage from './pages/cms/bakeryPage/CtaFeatureEditPage';
+import BakeryCtaFeatureViewPage from './pages/cms/bakeryPage/CtaFeatureViewPage';
+
+import FmcgPageLayout from './pages/cms/fmcgPage/FmcgPageLayout';
+import FmcgHeroSectionPage from './pages/cms/fmcgPage/HeroSectionPage';
+import FmcgHeroSlideEditPage from './pages/cms/fmcgPage/HeroSlideEditPage';
+import FmcgHeroSlideViewPage from './pages/cms/fmcgPage/HeroSlideViewPage';
+import FmcgTrustSectionPage from './pages/cms/fmcgPage/TrustSectionPage';
+import FmcgTrustLogoEditPage from './pages/cms/fmcgPage/TrustLogoEditPage';
+import FmcgTrustLogoViewPage from './pages/cms/fmcgPage/TrustLogoViewPage';
+import FmcgTrustStatEditPage from './pages/cms/fmcgPage/TrustStatEditPage';
+import FmcgTrustStatViewPage from './pages/cms/fmcgPage/TrustStatViewPage';
+import FmcgPlatformSectionPage from './pages/cms/fmcgPage/PlatformSectionPage';
+import FmcgPlatformTileEditPage from './pages/cms/fmcgPage/PlatformTileEditPage';
+import FmcgPlatformTileViewPage from './pages/cms/fmcgPage/PlatformTileViewPage';
+import FmcgFaqSectionPage from './pages/cms/fmcgPage/FaqSectionPage';
+import FmcgFaqEntryEditPage from './pages/cms/fmcgPage/FaqEntryEditPage';
+import FmcgFaqEntryViewPage from './pages/cms/fmcgPage/FaqEntryViewPage';
+import FmcgCtaSectionPage from './pages/cms/fmcgPage/CtaSectionPage';
+
+import SweetsPageLayout from './pages/cms/sweetsPage/SweetsPageLayout';
+import SweetsHeroSectionPage from './pages/cms/sweetsPage/HeroSectionPage';
+import SweetsHeroSlideEditPage from './pages/cms/sweetsPage/HeroSlideEditPage';
+import SweetsHeroSlideViewPage from './pages/cms/sweetsPage/HeroSlideViewPage';
+import SweetsTrustSectionPage from './pages/cms/sweetsPage/TrustSectionPage';
+import SweetsTrustLogoEditPage from './pages/cms/sweetsPage/TrustLogoEditPage';
+import SweetsTrustLogoViewPage from './pages/cms/sweetsPage/TrustLogoViewPage';
+import SweetsTrustStatEditPage from './pages/cms/sweetsPage/TrustStatEditPage';
+import SweetsTrustStatViewPage from './pages/cms/sweetsPage/TrustStatViewPage';
+import SweetsPlatformSectionPage from './pages/cms/sweetsPage/PlatformSectionPage';
+import SweetsPlatformTileEditPage from './pages/cms/sweetsPage/PlatformTileEditPage';
+import SweetsPlatformTileViewPage from './pages/cms/sweetsPage/PlatformTileViewPage';
+import SweetsFaqSectionPage from './pages/cms/sweetsPage/FaqSectionPage';
+import SweetsFaqEntryEditPage from './pages/cms/sweetsPage/FaqEntryEditPage';
+import SweetsFaqEntryViewPage from './pages/cms/sweetsPage/FaqEntryViewPage';
+import SweetsCtaSectionPage from './pages/cms/sweetsPage/CtaSectionPage';
+
+import FoodProcessingPageLayout from './pages/cms/foodProcessingPage/FoodProcessingPageLayout';
+import FoodProcessingHeroSectionPage from './pages/cms/foodProcessingPage/HeroSectionPage';
+import FoodProcessingHeroSlideEditPage from './pages/cms/foodProcessingPage/HeroSlideEditPage';
+import FoodProcessingHeroSlideViewPage from './pages/cms/foodProcessingPage/HeroSlideViewPage';
+import FoodProcessingTrustSectionPage from './pages/cms/foodProcessingPage/TrustSectionPage';
+import FoodProcessingTrustLogoEditPage from './pages/cms/foodProcessingPage/TrustLogoEditPage';
+import FoodProcessingTrustLogoViewPage from './pages/cms/foodProcessingPage/TrustLogoViewPage';
+import FoodProcessingTrustStatEditPage from './pages/cms/foodProcessingPage/TrustStatEditPage';
+import FoodProcessingTrustStatViewPage from './pages/cms/foodProcessingPage/TrustStatViewPage';
+import FoodProcessingPlatformSectionPage from './pages/cms/foodProcessingPage/PlatformSectionPage';
+import FoodProcessingPlatformTileEditPage from './pages/cms/foodProcessingPage/PlatformTileEditPage';
+import FoodProcessingPlatformTileViewPage from './pages/cms/foodProcessingPage/PlatformTileViewPage';
+import FoodProcessingFaqSectionPage from './pages/cms/foodProcessingPage/FaqSectionPage';
+import FoodProcessingFaqEntryEditPage from './pages/cms/foodProcessingPage/FaqEntryEditPage';
+import FoodProcessingFaqEntryViewPage from './pages/cms/foodProcessingPage/FaqEntryViewPage';
+import FoodProcessingCtaSectionPage from './pages/cms/foodProcessingPage/CtaSectionPage';
+import FoodProcessingCoverageSectionPage from './pages/cms/foodProcessingPage/CoverageSectionPage';
+import FoodProcessingCoverageItemEditPage from './pages/cms/foodProcessingPage/CoverageItemEditPage';
+import FoodProcessingCoverageItemViewPage from './pages/cms/foodProcessingPage/CoverageItemViewPage';
+import NonFoodFmcgPageLayout from './pages/cms/nonFoodFmcgPage/NonFoodFmcgPageLayout';
+import NonFoodFmcgHeroSectionPage from './pages/cms/nonFoodFmcgPage/HeroSectionPage';
+import NonFoodFmcgHeroSlideEditPage from './pages/cms/nonFoodFmcgPage/HeroSlideEditPage';
+import NonFoodFmcgHeroSlideViewPage from './pages/cms/nonFoodFmcgPage/HeroSlideViewPage';
+import NonFoodFmcgTrustSectionPage from './pages/cms/nonFoodFmcgPage/TrustSectionPage';
+import NonFoodFmcgTrustLogoEditPage from './pages/cms/nonFoodFmcgPage/TrustLogoEditPage';
+import NonFoodFmcgTrustLogoViewPage from './pages/cms/nonFoodFmcgPage/TrustLogoViewPage';
+import NonFoodFmcgTrustStatEditPage from './pages/cms/nonFoodFmcgPage/TrustStatEditPage';
+import NonFoodFmcgTrustStatViewPage from './pages/cms/nonFoodFmcgPage/TrustStatViewPage';
+import NonFoodFmcgPlatformSectionPage from './pages/cms/nonFoodFmcgPage/PlatformSectionPage';
+import NonFoodFmcgPlatformTileEditPage from './pages/cms/nonFoodFmcgPage/PlatformTileEditPage';
+import NonFoodFmcgPlatformTileViewPage from './pages/cms/nonFoodFmcgPage/PlatformTileViewPage';
+import NonFoodFmcgFaqSectionPage from './pages/cms/nonFoodFmcgPage/FaqSectionPage';
+import NonFoodFmcgFaqEntryEditPage from './pages/cms/nonFoodFmcgPage/FaqEntryEditPage';
+import NonFoodFmcgFaqEntryViewPage from './pages/cms/nonFoodFmcgPage/FaqEntryViewPage';
+import NonFoodFmcgCtaSectionPage from './pages/cms/nonFoodFmcgPage/CtaSectionPage';
+import NonFoodFmcgCapabilitiesSectionPage from './pages/cms/nonFoodFmcgPage/CapabilitiesSectionPage';
+import NonFoodFmcgCapabilityCardEditPage from './pages/cms/nonFoodFmcgPage/CapabilityCardEditPage';
+import NonFoodFmcgCapabilityCardViewPage from './pages/cms/nonFoodFmcgPage/CapabilityCardViewPage';
+import NonFoodFmcgBenefitsSectionPage from './pages/cms/nonFoodFmcgPage/BenefitsSectionPage';
+import NonFoodFmcgBenefitItemEditPage from './pages/cms/nonFoodFmcgPage/BenefitItemEditPage';
+import NonFoodFmcgBenefitItemViewPage from './pages/cms/nonFoodFmcgPage/BenefitItemViewPage';
+import NonFoodFmcgCoverageSectionPage from './pages/cms/nonFoodFmcgPage/CoverageSectionPage';
+import NonFoodFmcgCoverageItemEditPage from './pages/cms/nonFoodFmcgPage/CoverageItemEditPage';
+import NonFoodFmcgCoverageItemViewPage from './pages/cms/nonFoodFmcgPage/CoverageItemViewPage';
+import DairyPageLayout from './pages/cms/dairyPage/DairyPageLayout';
+import DairyHeroSectionPage from './pages/cms/dairyPage/HeroSectionPage';
+import DairyHeroSlideEditPage from './pages/cms/dairyPage/HeroSlideEditPage';
+import DairyHeroSlideViewPage from './pages/cms/dairyPage/HeroSlideViewPage';
+import DairyTrustSectionPage from './pages/cms/dairyPage/TrustSectionPage';
+import DairyTrustLogoEditPage from './pages/cms/dairyPage/TrustLogoEditPage';
+import DairyTrustLogoViewPage from './pages/cms/dairyPage/TrustLogoViewPage';
+import DairyTrustStatEditPage from './pages/cms/dairyPage/TrustStatEditPage';
+import DairyTrustStatViewPage from './pages/cms/dairyPage/TrustStatViewPage';
+import DairyCapabilitiesSectionPage from './pages/cms/dairyPage/CapabilitiesSectionPage';
+import DairyCapabilityCardEditPage from './pages/cms/dairyPage/CapabilityCardEditPage';
+import DairyCapabilityCardViewPage from './pages/cms/dairyPage/CapabilityCardViewPage';
+import DairyPlatformSectionPage from './pages/cms/dairyPage/PlatformSectionPage';
+import DairyPlatformTileEditPage from './pages/cms/dairyPage/PlatformTileEditPage';
+import DairyPlatformTileViewPage from './pages/cms/dairyPage/PlatformTileViewPage';
+import DairyBenefitsSectionPage from './pages/cms/dairyPage/BenefitsSectionPage';
+import DairyBenefitItemEditPage from './pages/cms/dairyPage/BenefitItemEditPage';
+import DairyBenefitItemViewPage from './pages/cms/dairyPage/BenefitItemViewPage';
+import DairyCoverageSectionPage from './pages/cms/dairyPage/CoverageSectionPage';
+import DairyCoverageItemEditPage from './pages/cms/dairyPage/CoverageItemEditPage';
+import DairyCoverageItemViewPage from './pages/cms/dairyPage/CoverageItemViewPage';
+import DairyFaqSectionPage from './pages/cms/dairyPage/FaqSectionPage';
+import DairyFaqEntryEditPage from './pages/cms/dairyPage/FaqEntryEditPage';
+import DairyFaqEntryViewPage from './pages/cms/dairyPage/FaqEntryViewPage';
+import DairyCtaSectionPage from './pages/cms/dairyPage/CtaSectionPage';
+
 import IndustriesListPage from './pages/cms/industries/IndustriesListPage';
 import IndustryEditPage from './pages/cms/industries/IndustryEditPage';
 
@@ -320,6 +446,169 @@ export default function App() {
             path="/cms/products/fms/integrations-section/logos/:id/view"
             element={<FmsIntegrationLogoViewPage />}
           />
+
+          {/*
+            The Bakery & Confectionery industry page, laid out the same way as
+            the product pages. Declared as static paths, so they outrank the
+            older /cms/industries/:id route.
+          */}
+          <Route path="/cms/industries/bakery-confectionery" element={<BakeryPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<BakeryHeroSectionPage />} />
+            <Route path="trust-section" element={<BakeryTrustSectionPage />} />
+            <Route path="platform-section" element={<BakeryPlatformSectionPage />} />
+            <Route path="helps-section" element={<BakeryHelpsSectionPage />} />
+            <Route path="faq-section" element={<BakeryFaqSectionPage />} />
+            <Route path="cta-section" element={<BakeryCtaSectionPage />} />
+          </Route>
+          {/* Entry forms sit outside the layout so they get the full width. */}
+          <Route path="/cms/industries/bakery-confectionery/hero-section/:id" element={<BakeryHeroSlideEditPage />} />
+          <Route path="/cms/industries/bakery-confectionery/hero-section/:id/view" element={<BakeryHeroSlideViewPage />} />
+          <Route path="/cms/industries/bakery-confectionery/trust-section/logos/:id" element={<BakeryTrustLogoEditPage />} />
+          <Route
+            path="/cms/industries/bakery-confectionery/trust-section/logos/:id/view"
+            element={<BakeryTrustLogoViewPage />}
+          />
+          <Route path="/cms/industries/bakery-confectionery/trust-section/stats/:id" element={<BakeryTrustStatEditPage />} />
+          <Route
+            path="/cms/industries/bakery-confectionery/trust-section/stats/:id/view"
+            element={<BakeryTrustStatViewPage />}
+          />
+          <Route path="/cms/industries/bakery-confectionery/platform-section/:id" element={<BakeryPlatformTileEditPage />} />
+          <Route
+            path="/cms/industries/bakery-confectionery/platform-section/:id/view"
+            element={<BakeryPlatformTileViewPage />}
+          />
+          <Route path="/cms/industries/bakery-confectionery/helps-section/:id" element={<BakeryHelpVisualEditPage />} />
+          <Route path="/cms/industries/bakery-confectionery/helps-section/:id/view" element={<BakeryHelpVisualViewPage />} />
+          <Route path="/cms/industries/bakery-confectionery/faq-section/:id" element={<BakeryFaqEntryEditPage />} />
+          <Route path="/cms/industries/bakery-confectionery/faq-section/:id/view" element={<BakeryFaqEntryViewPage />} />
+          <Route path="/cms/industries/bakery-confectionery/cta-section/features/:id" element={<BakeryCtaFeatureEditPage />} />
+          <Route
+            path="/cms/industries/bakery-confectionery/cta-section/features/:id/view"
+            element={<BakeryCtaFeatureViewPage />}
+          />
+
+          {/* The FMCG Distribution industry page, laid out the same way. */}
+          <Route path="/cms/industries/fmcg-distribution" element={<FmcgPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<FmcgHeroSectionPage />} />
+            <Route path="trust-section" element={<FmcgTrustSectionPage />} />
+            <Route path="platform-section" element={<FmcgPlatformSectionPage />} />
+            <Route path="faq-section" element={<FmcgFaqSectionPage />} />
+            <Route path="cta-section" element={<FmcgCtaSectionPage />} />
+          </Route>
+          <Route path="/cms/industries/fmcg-distribution/hero-section/:id" element={<FmcgHeroSlideEditPage />} />
+          <Route path="/cms/industries/fmcg-distribution/hero-section/:id/view" element={<FmcgHeroSlideViewPage />} />
+          <Route path="/cms/industries/fmcg-distribution/trust-section/logos/:id" element={<FmcgTrustLogoEditPage />} />
+          <Route path="/cms/industries/fmcg-distribution/trust-section/logos/:id/view" element={<FmcgTrustLogoViewPage />} />
+          <Route path="/cms/industries/fmcg-distribution/trust-section/stats/:id" element={<FmcgTrustStatEditPage />} />
+          <Route path="/cms/industries/fmcg-distribution/trust-section/stats/:id/view" element={<FmcgTrustStatViewPage />} />
+          <Route path="/cms/industries/fmcg-distribution/platform-section/:id" element={<FmcgPlatformTileEditPage />} />
+          <Route path="/cms/industries/fmcg-distribution/platform-section/:id/view" element={<FmcgPlatformTileViewPage />} />
+          <Route path="/cms/industries/fmcg-distribution/faq-section/:id" element={<FmcgFaqEntryEditPage />} />
+          <Route path="/cms/industries/fmcg-distribution/faq-section/:id/view" element={<FmcgFaqEntryViewPage />} />
+
+          {/* The Sweets & Namkeen industry page, laid out the same way. */}
+          <Route path="/cms/industries/sweets-namkeen" element={<SweetsPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<SweetsHeroSectionPage />} />
+            <Route path="trust-section" element={<SweetsTrustSectionPage />} />
+            <Route path="platform-section" element={<SweetsPlatformSectionPage />} />
+            <Route path="faq-section" element={<SweetsFaqSectionPage />} />
+            <Route path="cta-section" element={<SweetsCtaSectionPage />} />
+          </Route>
+          <Route path="/cms/industries/sweets-namkeen/hero-section/:id" element={<SweetsHeroSlideEditPage />} />
+          <Route path="/cms/industries/sweets-namkeen/hero-section/:id/view" element={<SweetsHeroSlideViewPage />} />
+          <Route path="/cms/industries/sweets-namkeen/trust-section/logos/:id" element={<SweetsTrustLogoEditPage />} />
+          <Route path="/cms/industries/sweets-namkeen/trust-section/logos/:id/view" element={<SweetsTrustLogoViewPage />} />
+          <Route path="/cms/industries/sweets-namkeen/trust-section/stats/:id" element={<SweetsTrustStatEditPage />} />
+          <Route path="/cms/industries/sweets-namkeen/trust-section/stats/:id/view" element={<SweetsTrustStatViewPage />} />
+          <Route path="/cms/industries/sweets-namkeen/platform-section/:id" element={<SweetsPlatformTileEditPage />} />
+          <Route path="/cms/industries/sweets-namkeen/platform-section/:id/view" element={<SweetsPlatformTileViewPage />} />
+          <Route path="/cms/industries/sweets-namkeen/faq-section/:id" element={<SweetsFaqEntryEditPage />} />
+          <Route path="/cms/industries/sweets-namkeen/faq-section/:id/view" element={<SweetsFaqEntryViewPage />} />
+
+          {/* The Food Processing industry page, laid out the same way. */}
+          <Route path="/cms/industries/food-processing" element={<FoodProcessingPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<FoodProcessingHeroSectionPage />} />
+            <Route path="trust-section" element={<FoodProcessingTrustSectionPage />} />
+            <Route path="platform-section" element={<FoodProcessingPlatformSectionPage />} />
+            <Route path="coverage-section" element={<FoodProcessingCoverageSectionPage />} />
+            <Route path="faq-section" element={<FoodProcessingFaqSectionPage />} />
+            <Route path="cta-section" element={<FoodProcessingCtaSectionPage />} />
+          </Route>
+          <Route path="/cms/industries/food-processing/hero-section/:id" element={<FoodProcessingHeroSlideEditPage />} />
+          <Route path="/cms/industries/food-processing/hero-section/:id/view" element={<FoodProcessingHeroSlideViewPage />} />
+          <Route path="/cms/industries/food-processing/trust-section/logos/:id" element={<FoodProcessingTrustLogoEditPage />} />
+          <Route path="/cms/industries/food-processing/trust-section/logos/:id/view" element={<FoodProcessingTrustLogoViewPage />} />
+          <Route path="/cms/industries/food-processing/trust-section/stats/:id" element={<FoodProcessingTrustStatEditPage />} />
+          <Route path="/cms/industries/food-processing/trust-section/stats/:id/view" element={<FoodProcessingTrustStatViewPage />} />
+          <Route path="/cms/industries/food-processing/platform-section/:id" element={<FoodProcessingPlatformTileEditPage />} />
+          <Route path="/cms/industries/food-processing/platform-section/:id/view" element={<FoodProcessingPlatformTileViewPage />} />
+          <Route path="/cms/industries/food-processing/faq-section/:id" element={<FoodProcessingFaqEntryEditPage />} />
+          <Route path="/cms/industries/food-processing/faq-section/:id/view" element={<FoodProcessingFaqEntryViewPage />} />
+          <Route path="/cms/industries/food-processing/coverage-section/:id" element={<FoodProcessingCoverageItemEditPage />} />
+          <Route path="/cms/industries/food-processing/coverage-section/:id/view" element={<FoodProcessingCoverageItemViewPage />} />
+
+          {/* The Non-Food FMCG industry page, laid out the same way. */}
+          <Route path="/cms/industries/non-food-fmcg" element={<NonFoodFmcgPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<NonFoodFmcgHeroSectionPage />} />
+            <Route path="trust-section" element={<NonFoodFmcgTrustSectionPage />} />
+            <Route path="platform-section" element={<NonFoodFmcgPlatformSectionPage />} />
+            <Route path="capabilities-section" element={<NonFoodFmcgCapabilitiesSectionPage />} />
+            <Route path="benefits-section" element={<NonFoodFmcgBenefitsSectionPage />} />
+            <Route path="coverage-section" element={<NonFoodFmcgCoverageSectionPage />} />
+            <Route path="faq-section" element={<NonFoodFmcgFaqSectionPage />} />
+            <Route path="cta-section" element={<NonFoodFmcgCtaSectionPage />} />
+          </Route>
+          <Route path="/cms/industries/non-food-fmcg/hero-section/:id" element={<NonFoodFmcgHeroSlideEditPage />} />
+          <Route path="/cms/industries/non-food-fmcg/hero-section/:id/view" element={<NonFoodFmcgHeroSlideViewPage />} />
+          <Route path="/cms/industries/non-food-fmcg/trust-section/logos/:id" element={<NonFoodFmcgTrustLogoEditPage />} />
+          <Route path="/cms/industries/non-food-fmcg/trust-section/logos/:id/view" element={<NonFoodFmcgTrustLogoViewPage />} />
+          <Route path="/cms/industries/non-food-fmcg/trust-section/stats/:id" element={<NonFoodFmcgTrustStatEditPage />} />
+          <Route path="/cms/industries/non-food-fmcg/trust-section/stats/:id/view" element={<NonFoodFmcgTrustStatViewPage />} />
+          <Route path="/cms/industries/non-food-fmcg/platform-section/:id" element={<NonFoodFmcgPlatformTileEditPage />} />
+          <Route path="/cms/industries/non-food-fmcg/platform-section/:id/view" element={<NonFoodFmcgPlatformTileViewPage />} />
+          <Route path="/cms/industries/non-food-fmcg/faq-section/:id" element={<NonFoodFmcgFaqEntryEditPage />} />
+          <Route path="/cms/industries/non-food-fmcg/faq-section/:id/view" element={<NonFoodFmcgFaqEntryViewPage />} />
+          <Route path="/cms/industries/non-food-fmcg/capabilities-section/:id" element={<NonFoodFmcgCapabilityCardEditPage />} />
+          <Route path="/cms/industries/non-food-fmcg/capabilities-section/:id/view" element={<NonFoodFmcgCapabilityCardViewPage />} />
+          <Route path="/cms/industries/non-food-fmcg/benefits-section/:id" element={<NonFoodFmcgBenefitItemEditPage />} />
+          <Route path="/cms/industries/non-food-fmcg/benefits-section/:id/view" element={<NonFoodFmcgBenefitItemViewPage />} />
+          <Route path="/cms/industries/non-food-fmcg/coverage-section/:id" element={<NonFoodFmcgCoverageItemEditPage />} />
+          <Route path="/cms/industries/non-food-fmcg/coverage-section/:id/view" element={<NonFoodFmcgCoverageItemViewPage />} />
+
+          {/* The Dairy & Ice Cream page, laid out the same way. */}
+          <Route path="/cms/industries/dairy" element={<DairyPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<DairyHeroSectionPage />} />
+            <Route path="trust-section" element={<DairyTrustSectionPage />} />
+            <Route path="capabilities-section" element={<DairyCapabilitiesSectionPage />} />
+            <Route path="platform-section" element={<DairyPlatformSectionPage />} />
+            <Route path="benefits-section" element={<DairyBenefitsSectionPage />} />
+            <Route path="coverage-section" element={<DairyCoverageSectionPage />} />
+            <Route path="faq-section" element={<DairyFaqSectionPage />} />
+            <Route path="cta-section" element={<DairyCtaSectionPage />} />
+          </Route>
+          <Route path="/cms/industries/dairy/hero-section/:id" element={<DairyHeroSlideEditPage />} />
+          <Route path="/cms/industries/dairy/hero-section/:id/view" element={<DairyHeroSlideViewPage />} />
+          <Route path="/cms/industries/dairy/trust-section/logos/:id" element={<DairyTrustLogoEditPage />} />
+          <Route path="/cms/industries/dairy/trust-section/logos/:id/view" element={<DairyTrustLogoViewPage />} />
+          <Route path="/cms/industries/dairy/trust-section/stats/:id" element={<DairyTrustStatEditPage />} />
+          <Route path="/cms/industries/dairy/trust-section/stats/:id/view" element={<DairyTrustStatViewPage />} />
+          <Route path="/cms/industries/dairy/capabilities-section/:id" element={<DairyCapabilityCardEditPage />} />
+          <Route path="/cms/industries/dairy/capabilities-section/:id/view" element={<DairyCapabilityCardViewPage />} />
+          <Route path="/cms/industries/dairy/platform-section/:id" element={<DairyPlatformTileEditPage />} />
+          <Route path="/cms/industries/dairy/platform-section/:id/view" element={<DairyPlatformTileViewPage />} />
+          <Route path="/cms/industries/dairy/benefits-section/:id" element={<DairyBenefitItemEditPage />} />
+          <Route path="/cms/industries/dairy/benefits-section/:id/view" element={<DairyBenefitItemViewPage />} />
+          <Route path="/cms/industries/dairy/coverage-section/:id" element={<DairyCoverageItemEditPage />} />
+          <Route path="/cms/industries/dairy/coverage-section/:id/view" element={<DairyCoverageItemViewPage />} />
+          <Route path="/cms/industries/dairy/faq-section/:id" element={<DairyFaqEntryEditPage />} />
+          <Route path="/cms/industries/dairy/faq-section/:id/view" element={<DairyFaqEntryViewPage />} />
 
           {/* The SFA-DMS page, laid out the same way as the ERP one. */}
           <Route path="/cms/products/sfa-dms" element={<SfaDmsPageLayout />}>

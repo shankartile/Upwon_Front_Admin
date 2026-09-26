@@ -41,7 +41,47 @@ export type HeroImageVariant =
   | 'erpIndustry'
   | 'erpDashboard'
   | 'erpAvatar'
-  | 'erpOutcome';
+  | 'erpOutcome'
+  | 'bakeryHero'
+  | 'bakeryHeroMobile'
+  | 'bakeryStatIcon'
+  | 'bakeryPlatformIcon'
+  | 'bakeryHelpVisual'
+  | 'bakeryCtaDesktop'
+  | 'bakeryCtaMobile'
+  | 'fmcgHero'
+  | 'fmcgHeroMobile'
+  | 'fmcgPlatformIcon'
+  | 'fmcgCtaDesktop'
+  | 'fmcgCtaMobile'
+  | 'sweetsHero'
+  | 'sweetsHeroMobile'
+  | 'sweetsPlatformIcon'
+  | 'sweetsCtaDesktop'
+  | 'sweetsCtaMobile'
+  | 'foodProcessingHero'
+  | 'foodProcessingHeroMobile'
+  | 'foodProcessingTrustPanel'
+  | 'foodProcessingPlatformIcon'
+  | 'foodProcessingCoverage'
+  | 'foodProcessingCtaDesktop'
+  | 'foodProcessingCtaMobile'
+  | 'nonFoodFmcgHero'
+  | 'nonFoodFmcgHeroMobile'
+  | 'nonFoodFmcgCapability'
+  | 'nonFoodFmcgPlatformIcon'
+  | 'nonFoodFmcgCoverageDashboard'
+  | 'nonFoodFmcgCtaDesktop'
+  | 'nonFoodFmcgCtaMobile'
+  | 'dairyHero'
+  | 'dairyHeroMobile'
+  | 'dairyTrustStat'
+  | 'dairyCapabilitiesPanel'
+  | 'dairyPlatformIcon'
+  | 'dairyBenefitsPanel'
+  | 'dairyCoverage'
+  | 'dairyCtaDesktop'
+  | 'dairyCtaMobile';
 
 export interface HeroImageSpec {
   label: string;
@@ -166,6 +206,291 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     height: 1844,
     ratioTolerance: 0.2,
     hint: 'Tall crop, at least 853×1844px. The copy is centred over it, so it needs to stay text-safe.',
+  },
+  // ── Bakery & Confectionery industry page ──────────────────────────────
+  bakeryHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600×566px. Covered by the slider, so a different shape is cropped.',
+  },
+  bakeryHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+  },
+  bakeryStatIcon: {
+    label: 'Icon',
+    width: 200,
+    height: 200,
+    ratioTolerance: 0.25,
+    hint: 'Roughly square, at least 200×200px. Drawn as a small circle, so the edges of a wide image are cropped.',
+  },
+  bakeryPlatformIcon: {
+    label: 'Tile icon',
+    width: 200,
+    height: 180,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 200×180px - it is drawn contained inside the tile. A transparent background matches the shipped set.',
+  },
+  bakeryHelpVisual: {
+    label: 'Diagram',
+    width: 1600,
+    height: 960,
+    ratioTolerance: 0.25,
+    hint: 'Wide landscape, at least 1600×960px. Drawn full width at its natural height.',
+  },
+  bakeryCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 565,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600×565px. The copy sits over its left side, so keep that area light.',
+  },
+  bakeryCtaMobile: {
+    label: 'Mobile artwork',
+    width: 822,
+    height: 1914,
+    ratioTolerance: 0.2,
+    hint: 'Tall crop, at least 822×1914px. The copy sits over its top half, so keep that area light.',
+  },
+  // ── FMCG Distribution industry page ─────────────────────────────────
+  fmcgHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 800,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, about 2:1, at least 1600×800px. Covered by the slider, so a different shape is cropped.',
+  },
+  fmcgHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+  },
+  fmcgPlatformIcon: {
+    label: 'Tile icon',
+    width: 200,
+    height: 180,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 200×180px - it is drawn contained inside the tile. A transparent background matches the shipped set.',
+  },
+  fmcgCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 640,
+    ratioTolerance: 0.2,
+    hint: 'Wide, about 2.5:1, at least 1600×640px. The copy sits over its left side, so keep that panel clear.',
+  },
+  fmcgCtaMobile: {
+    label: 'Mobile artwork',
+    width: 800,
+    height: 460,
+    ratioTolerance: null,
+    hint: 'Optional banner above the copy on phones, at least 800×460px. Left empty, phones get a crop of the desktop artwork.',
+  },
+  // ── Sweets & Namkeen industry page ──────────────────────────────────
+  sweetsHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 565,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600×565px. Covered by the slider, so a different shape is cropped.',
+  },
+  sweetsHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+  },
+  sweetsPlatformIcon: {
+    label: 'Tile icon',
+    width: 200,
+    height: 180,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 200×180px - it is drawn contained inside the tile. A transparent background matches the shipped set.',
+  },
+  sweetsCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 800,
+    ratioTolerance: 0.2,
+    hint: 'Wide, about 2:1, at least 1600×800px. The copy sits over its left side, so keep that panel clear.',
+  },
+  sweetsCtaMobile: {
+    label: 'Mobile artwork',
+    width: 460,
+    height: 960,
+    ratioTolerance: 0.2,
+    hint: 'Tall portrait, at least 460×960px, cropped from the top into the phone banner. Optional — phones fall back to the desktop artwork.',
+  },
+  // ── Food Processing and Non-Food FMCG industry pages ──────────────────
+  foodProcessingHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 565,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600×565px. Covered by the slider, so a different shape is cropped.',
+  },
+  foodProcessingHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+  },
+  foodProcessingTrustPanel: {
+    label: 'Photograph',
+    width: 800,
+    height: 450,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 800×450px. Covered into the left column, anchored left, so keep the subject there.',
+  },
+  foodProcessingPlatformIcon: {
+    label: 'Tile icon',
+    width: 200,
+    height: 180,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 200×180px - it is drawn contained inside the tile.',
+  },
+  foodProcessingCoverage: {
+    label: 'Category art',
+    width: 400,
+    height: 260,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 400×260px - drawn whole, 96px tall. A transparent background matches the shipped set.',
+  },
+  foodProcessingCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 565,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600×565px, drawn at its natural height. The copy sits over its left side, so keep that panel clear.',
+  },
+  foodProcessingCtaMobile: {
+    label: 'Mobile artwork',
+    width: 440,
+    height: 820,
+    ratioTolerance: 0.2,
+    hint: 'Tall portrait, at least 440×820px, cropped from the top into the phone banner. Optional — phones fall back to the desktop artwork.',
+  },
+  nonFoodFmcgHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 565,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600×565px. Covered by the slider, so a different shape is cropped.',
+  },
+  nonFoodFmcgHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+  },
+  nonFoodFmcgCapability: {
+    label: 'Card illustration',
+    width: 300,
+    height: 280,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 300×280px - drawn whole in a 112px-tall frame.',
+  },
+  nonFoodFmcgPlatformIcon: {
+    label: 'Tile icon',
+    width: 200,
+    height: 180,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 200×180px - it is drawn contained inside the tile.',
+  },
+  nonFoodFmcgCoverageDashboard: {
+    label: 'Dashboard image',
+    width: 1200,
+    height: 740,
+    ratioTolerance: 0.2,
+    hint: 'About 1.6:1, at least 1200×740px. Drawn full width at its natural height.',
+  },
+  nonFoodFmcgCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 565,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600×565px, drawn at its natural height. The copy sits over its left side, so keep that panel clear.',
+  },
+  nonFoodFmcgCtaMobile: {
+    label: 'Mobile artwork',
+    width: 440,
+    height: 950,
+    ratioTolerance: 0.2,
+    hint: 'Tall portrait, at least 440×950px, cropped from the top into the phone banner. Optional — phones fall back to the desktop artwork.',
+  },
+  // ── Dairy & Ice Cream industry page ───────────────────────────────────
+  dairyHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 565,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600×565px. Covered by the slider, so a different shape is cropped.',
+  },
+  dairyHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+  },
+  dairyTrustStat: {
+    label: 'Photograph',
+    width: 800,
+    height: 640,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 800×640px. Covered into the photo side of the figure card, so keep the subject central.',
+  },
+  dairyCapabilitiesPanel: {
+    label: 'Collage image',
+    width: 900,
+    height: 930,
+    ratioTolerance: 0.2,
+    hint: 'Near-square, at least 900×930px. Drawn whole beside the capability cards.',
+  },
+  dairyPlatformIcon: {
+    label: 'Tile icon',
+    width: 200,
+    height: 180,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 200×180px - it is drawn contained inside the tile.',
+  },
+  dairyBenefitsPanel: {
+    label: 'Section image',
+    width: 1200,
+    height: 800,
+    ratioTolerance: 0.2,
+    hint: 'About 3:2, at least 1200×800px. Drawn whole beside the benefits.',
+  },
+  dairyCoverage: {
+    label: 'Category image',
+    width: 600,
+    height: 400,
+    ratioTolerance: null,
+    hint: 'Any shape, at least 600×400px - covered into the category card, so keep the subject central.',
+  },
+  dairyCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 565,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600×565px, drawn at its natural height. The copy sits over its left side, so keep that panel clear.',
+  },
+  dairyCtaMobile: {
+    label: 'Mobile artwork',
+    width: 440,
+    height: 950,
+    ratioTolerance: 0.2,
+    hint: 'Tall portrait, at least 440×950px, cropped from the top into the phone banner. Optional — phones fall back to the desktop artwork.',
   },
   fmsFranchiseIcon: {
     label: 'Tab icon',

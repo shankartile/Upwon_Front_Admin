@@ -47,6 +47,21 @@ export const PAGE_SECTION_KEYS = {
    * carry their own eyebrow, headline and subhead.
    */
   fms: ['proof', 'faq', 'cta'],
+  /*
+   * The first industry page. The hero is absent for the same reason it is
+   * everywhere else - each slide carries its own copy.
+   */
+  bakery: ['trust', 'platform', 'helps', 'faq', 'cta'],
+  // The second industry page - the same sections less How UpWON Helps.
+  fmcg: ['trust', 'platform', 'faq', 'cta'],
+  // The third industry page - the same sections as FMCG Distribution.
+  sweets: ['trust', 'platform', 'faq', 'cta'],
+  // The fourth and fifth industry pages, which add the coverage grid - and on
+  // Non-Food FMCG the capability cards and the benefits grid.
+  'food-processing': ['trust', 'platform', 'coverage', 'faq', 'cta'],
+  'non-food-fmcg': ['trust', 'capabilities', 'platform', 'benefits', 'coverage', 'faq', 'cta'],
+  // The sixth industry page - the same sections as Non-Food FMCG.
+  dairy: ['trust', 'capabilities', 'platform', 'benefits', 'coverage', 'faq', 'cta'],
 } as const;
 
 export type PageKey = keyof typeof PAGE_SECTION_KEYS;
