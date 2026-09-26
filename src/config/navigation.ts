@@ -84,7 +84,8 @@
 
 import {
   LayoutDashboard, Boxes, Building2, Trophy, Mail, MessageSquareQuote,
-  HelpCircle, Megaphone, Users, ShieldCheck, Home, Phone, Briefcase, Handshake, Info,
+  HelpCircle, Megaphone, Users, ShieldCheck, Home, Phone, Briefcase, Handshake, Info, Share2,
+  Library,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -134,6 +135,14 @@ const PRODUCT_PAGES: NavChild[] = [
   { label: 'Vendor Portal Page' },
 ];
 
+/**
+ * The resource pages, each edited on its own screen.
+ *
+ * Only Blog so far: the public /blog page - its hero, the topic intro, the
+ * category chips and the posts - at /cms/resources/blog.
+ */
+const RESOURCE_PAGES: NavChild[] = [{ label: 'Blog', to: '/cms/resources/blog' }];
+
 export const navigation: NavGroup[] = [
   { items: [{ label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard }] },
   {
@@ -161,6 +170,16 @@ export const navigation: NavGroup[] = [
       // belongs at the end of that run for the same reason the other three are in
       // it: a page whose tabs are content, with one inbox among them.
       { label: 'About Us', to: '/cms/about', icon: Info },
+      // The contact lines and social icons in the public site's footer. Directly
+      // below About Us, as the user asked - the footer is on every page rather
+      // than one, so it closes the run of page areas instead of joining it.
+      { label: 'Social Media Links', to: '/cms/social-media-links', icon: Share2 },
+      // The site's reading material, one child per resource page. Below About
+      // Us, as the user asked - after Social Media Links, which already held the
+      // slot directly under it. A disclosure like Products, not a link: Blog is
+      // the first resource page with admin-driven content, and the others join
+      // it here as they become editable.
+      { label: 'Resource Page', icon: Library, children: RESOURCE_PAGES },
       { label: 'Testimonials', to: '/cms/testimonials', icon: MessageSquareQuote },
       { label: 'FAQs', to: '/cms/faqs', icon: HelpCircle },
     ],
