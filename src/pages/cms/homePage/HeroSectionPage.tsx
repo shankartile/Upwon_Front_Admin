@@ -184,7 +184,9 @@ export default function HeroSectionPage({
             : `Add the first slide to start the ${carousel}.`
         }
         actionsHeader="Actions"
-        actionsWidth="140px"
+        // View + edit + delete + toggle need the extra room; at 140px the four
+        // overflow the cell and push the whole table into a horizontal scroll.
+        actionsWidth={hasViewPage ? '180px' : '140px'}
         pagination={{
           page,
           pageSize,
@@ -269,10 +271,17 @@ export default function HeroSectionPage({
                     {row.eyebrow}
                   </p>
                 )}
-                <p className="truncate font-medium text-charcoal dark:text-cream-100">
+                <p
+                  className="truncate font-medium text-charcoal dark:text-cream-100"
+                  title={plainHeading(row.heading)}
+                >
                   {plainHeading(row.heading)}
                 </p>
-                <p className="line-clamp-2 text-xs leading-snug text-charcoal-light dark:text-navy-300">
+                {/* One line with an ellipsis; the full text is on hover. */}
+                <p
+                  className="truncate text-xs leading-snug text-charcoal-light dark:text-navy-300"
+                  title={row.subtext}
+                >
                   {row.subtext}
                 </p>
               </div>

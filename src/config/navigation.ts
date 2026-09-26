@@ -84,7 +84,7 @@
 
 import {
   LayoutDashboard, Boxes, Building2, Trophy, Mail, MessageSquareQuote,
-  HelpCircle, Megaphone, Users, ShieldCheck, Home, Phone, Briefcase, Handshake, Info,
+  HelpCircle, Megaphone, Users, ShieldCheck, Home, Phone, Briefcase, Handshake, Info, Award,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -145,6 +145,8 @@ export const navigation: NavGroup[] = [
       { label: 'Products', icon: Boxes, children: PRODUCT_PAGES },
       { label: 'Industries', to: '/cms/industries', icon: Building2 },
       { label: 'Case Studies', to: '/cms/case-studies', icon: Trophy },
+      // The public /clients page - above Insider, the order the site's header uses.
+      { label: 'Clients', to: '/cms/clients', icon: Award },
       // The site still serves it at /newsletter; only the admin name changed.
       { label: 'Insider', to: '/cms/insider', icon: Mail },
       // The public /contact page, section by section.

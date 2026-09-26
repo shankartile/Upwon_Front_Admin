@@ -162,6 +162,22 @@ import IssuesPage from './pages/cms/insider/IssuesPage';
 import IssueEditPage from './pages/cms/insider/IssueEditPage';
 import StoryEditPage from './pages/cms/insider/StoryEditPage';
 import FeatureSectionPage from './pages/cms/insider/FeatureSectionPage';
+import ClientsPageLayout from './pages/cms/clients/ClientsPageLayout';
+import { CLIENTS_HERO_SECTION } from './pages/cms/clients/clientsHeroSection';
+import ClientsHeroSlideViewPage from './pages/cms/clients/HeroSlideViewPage';
+import ClientsCasesSectionPage from './pages/cms/clients/CasesSectionPage';
+import ClientsCaseCardEditPage from './pages/cms/clients/CaseCardEditPage';
+import ClientsCaseCardViewPage from './pages/cms/clients/CaseCardViewPage';
+import ClientsCaseStudyManagePage from './pages/cms/clients/CaseStudyManagePage';
+import ClientsRosterSectionPage from './pages/cms/clients/RosterSectionPage';
+import ClientsRosterLogoEditPage from './pages/cms/clients/RosterLogoEditPage';
+import ClientsRosterLogoViewPage from './pages/cms/clients/RosterLogoViewPage';
+import ClientsNetworkSectionPage from './pages/cms/clients/NetworkSectionPage';
+import ClientsNetworkStateEditPage from './pages/cms/clients/NetworkStateEditPage';
+import ClientsNetworkStateViewPage from './pages/cms/clients/NetworkStateViewPage';
+import ClientsTestimonialsSectionPage from './pages/cms/clients/TestimonialsSectionPage';
+import ClientsTestimonialEditPage from './pages/cms/clients/TestimonialEditPage';
+import ClientsTestimonialViewPage from './pages/cms/clients/TestimonialViewPage';
 
 import ContactPageLayout from './pages/cms/contact/ContactPageLayout';
 import ContactHeroSectionPage from './pages/cms/contact/ContactHeroSectionPage';
@@ -679,6 +695,55 @@ export default function App() {
 
           <Route path="/cms/case-studies" element={<CaseStudiesListPage />} />
           <Route path="/cms/case-studies/:id" element={<CaseStudyEditPage />} />
+
+          {/*
+            The public /clients page, one tab per section. The hero tab and its
+            slide form are the home hero screens again, driven by the Clients
+            config - `key`ed like the Insider ones below, for the same reason.
+          */}
+          <Route path="/cms/clients" element={<ClientsPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route
+              path="hero-section"
+              element={<HeroSectionPage key="clients" config={CLIENTS_HERO_SECTION} />}
+            />
+            <Route path="cases-section" element={<ClientsCasesSectionPage />} />
+            <Route path="roster-section" element={<ClientsRosterSectionPage />} />
+            <Route path="network-section" element={<ClientsNetworkSectionPage />} />
+            <Route path="testimonials-section" element={<ClientsTestimonialsSectionPage />} />
+          </Route>
+          <Route
+            path="/cms/clients/hero-section/:id"
+            element={<HeroSlideEditPage key="clients" config={CLIENTS_HERO_SECTION} />}
+          />
+          <Route path="/cms/clients/hero-section/:id/view" element={<ClientsHeroSlideViewPage />} />
+          <Route path="/cms/clients/cases-section/:id" element={<ClientsCaseCardEditPage />} />
+          <Route
+            path="/cms/clients/cases-section/:id/view"
+            element={<ClientsCaseCardViewPage />}
+          />
+          <Route
+            path="/cms/clients/cases-section/:id/manage"
+            element={<ClientsCaseStudyManagePage />}
+          />
+          <Route path="/cms/clients/roster-section/:id" element={<ClientsRosterLogoEditPage />} />
+          <Route
+            path="/cms/clients/roster-section/:id/view"
+            element={<ClientsRosterLogoViewPage />}
+          />
+          <Route path="/cms/clients/network-section/:id" element={<ClientsNetworkStateEditPage />} />
+          <Route
+            path="/cms/clients/network-section/:id/view"
+            element={<ClientsNetworkStateViewPage />}
+          />
+          <Route
+            path="/cms/clients/testimonials-section/:id"
+            element={<ClientsTestimonialEditPage />}
+          />
+          <Route
+            path="/cms/clients/testimonials-section/:id/view"
+            element={<ClientsTestimonialViewPage />}
+          />
 
           {/*
             Insider (the admin name for what the site serves at /newsletter),
