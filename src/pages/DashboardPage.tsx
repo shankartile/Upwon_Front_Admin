@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  ArrowRight, ArrowUpRight, BarChart3, Boxes, Building2, Calendar, Download,
+  ArrowRight, ArrowUpRight, BarChart3, Calendar, Download,
   Eye, FileText, Inbox, Mail, MessageSquareQuote, Plus, RefreshCcw, Sparkles,
   TrendingUp, Users, Zap,
 } from 'lucide-react';
@@ -14,8 +14,7 @@ import { Avatar } from '../components/ui/Avatar';
 import { TrafficChart } from '../components/dashboard/TrafficChart';
 import { dashboardService, type DashboardStats } from '../services/dashboardService';
 import {
-  leadsService, pagesService, productsService, industriesService,
-  caseStudiesService, testimonialsService,
+  leadsService, pagesService, caseStudiesService, testimonialsService,
 } from '../services';
 import { useAuth } from '../context/AuthContext';
 import { compactNumber, relativeTime } from '../lib/formatters';
@@ -46,13 +45,11 @@ export default function DashboardPage() {
 
   const loadAll = async () => {
     setRefreshing(true);
-    const [s, activity, allLeads, pages, products, industries, cases, testimonials] = await Promise.all([
+    const [s, activity, allLeads, pages, cases, testimonials] = await Promise.all([
       dashboardService.stats(),
       dashboardService.recentActivity(),
       leadsService.list(),
       pagesService.list(),
-      productsService.list(),
-      industriesService.list(),
       caseStudiesService.list(),
       testimonialsService.list(),
     ]);
@@ -67,8 +64,6 @@ export default function DashboardPage() {
     });
     setBuckets([
       { label: 'Pages', ...countByStatus(pages), to: '/cms/pages', icon: FileText, tone: 'navy' },
-      { label: 'Products', ...countByStatus(products), to: '/cms/products', icon: Boxes, tone: 'orange' },
-      { label: 'Industries', ...countByStatus(industries), to: '/cms/industries', icon: Building2, tone: 'teal' },
       { label: 'Case Studies', ...countByStatus(cases), to: '/cms/case-studies', icon: Sparkles, tone: 'gold' },
       { label: 'Testimonials', ...countByStatus(testimonials), to: '/cms/testimonials', icon: MessageSquareQuote, tone: 'navy' },
     ]);
@@ -236,8 +231,8 @@ export default function DashboardPage() {
           action={<Link to="/cms/pages" className="text-xs text-orange-700 dark:text-orange-400 hover:underline">Manage content →</Link>}
         />
         <CardBody>
-          <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-            {(buckets ?? Array.from({ length: 5 }, () => null)).map((b, i) =>
+          <div className="grid gap-3 grid-cols-2 md:grid-cols-3">
+            {(buckets ?? Array.from({ length: 3 }, () => null)).map((b, i) =>
               b ? <BucketTile key={b.label} b={b} /> : <Skeleton key={i} className="h-28 rounded-xl" />,
             )}
           </div>
@@ -283,7 +278,6 @@ export default function DashboardPage() {
           <CardBody>
             <div className="grid grid-cols-2 gap-2">
               <QuickAction icon={<Plus className="w-4 h-4" />} label="New page" to="/cms/pages/new" />
-              <QuickAction icon={<Boxes className="w-4 h-4" />} label="New product" to="/cms/products/new" />
               <QuickAction icon={<Sparkles className="w-4 h-4" />} label="Case study" to="/cms/case-studies/new" />
               <QuickAction icon={<Mail className="w-4 h-4" />} label="Insider news" to="/cms/insider/news/new" />
               <QuickAction icon={<Inbox className="w-4 h-4" />} label="View leads" to="/cms/leads/demo" />

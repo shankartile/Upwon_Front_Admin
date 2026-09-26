@@ -42,6 +42,43 @@ export type HeroImageVariant =
   | 'posHeroMobile'
   | 'posCtaDesktop'
   | 'posCtaMobile'
+  | 'engineeringHero'
+  | 'engineeringHeroMobile'
+  | 'engineeringPlatform'
+  | 'engineeringCoverage'
+  | 'engineeringCtaDesktop'
+  | 'engineeringCtaMobile'
+  | 'beverageHero'
+  | 'beverageHeroMobile'
+  | 'beverageTrustPhoto'
+  | 'beverageCapabilitiesBackground'
+  | 'beverageCapabilityScreenshot'
+  | 'beveragePlatformBackground'
+  | 'beverageCtaDesktop'
+  | 'beverageCtaMobile'
+  | 'spicesAgroHero'
+  | 'spicesAgroHeroMobile'
+  | 'spicesAgroTrustPanel'
+  | 'spicesAgroCapabilitiesBackground'
+  | 'spicesAgroPlatformBackground'
+  | 'spicesAgroCoverageTile'
+  | 'spicesAgroCtaDesktop'
+  | 'spicesAgroCtaMobile'
+  | 'qsrFranchiseHero'
+  | 'qsrFranchiseHeroMobile'
+  | 'qsrFranchiseTrustPhoto'
+  | 'qsrFranchiseCapabilitiesArtwork'
+  | 'qsrFranchisePlatformArtwork'
+  | 'qsrFranchiseCoveragePhoto'
+  | 'qsrFranchiseCtaDesktop'
+  | 'qsrFranchiseCtaMobile'
+  | 'whyUpwonHeroDesktop'
+  | 'whyUpwonHeroMobile'
+  | 'whyUpwonIndustryPhoto'
+  | 'whyUpwonProofArtwork'
+  | 'whyUpwonResultsHub'
+  | 'whyUpwonCtaDesktop'
+  | 'whyUpwonCtaMobile'
   | 'erpCtaDesktop'
   | 'erpCtaMobile'
   | 'erpIndustry'
@@ -232,6 +269,265 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     height: 1200,
     ratioTolerance: 0.2,
     hint: 'Portrait crop, at least 800x1200px. Optional — phones fall back to the desktop image.',
+  },
+  engineeringHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600x566px. Covered, so a differently shaped upload is cropped rather than letterboxed.',
+  },
+  engineeringHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800x1200px. Optional — phones fall back to the desktop image.',
+  },
+  engineeringPlatform: {
+    label: 'Illustration',
+    width: 1536,
+    height: 1024,
+    ratioTolerance: 0.2,
+    hint: 'Landscape 3:2, at least 1536x1024px. Drawn at its own ratio between the copy and the list.',
+  },
+  engineeringCoverage: {
+    label: 'Background illustration',
+    width: 1536,
+    height: 1024,
+    ratioTolerance: 0.2,
+    hint: 'Landscape 3:2, at least 1536x1024px. Its left and bottom edges fade into the page, so keep the subject top right.',
+  },
+  engineeringCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 599,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600x599px. The copy is laid over its left side, so keep that panel empty.',
+  },
+  engineeringCtaMobile: {
+    label: 'Mobile artwork',
+    width: 440,
+    height: 956,
+    ratioTolerance: 0.2,
+    hint: 'Portrait, at least 440x956px. Covered into a short banner from the top, so keep the subject high.',
+  },
+  beverageHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600x566px. Covered, so a differently shaped upload is cropped rather than letterboxed.',
+  },
+  beverageHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800x1200px. Optional — phones fall back to the desktop image.',
+  },
+  beverageTrustPhoto: {
+    label: 'Photo',
+    width: 600,
+    height: 400,
+    ratioTolerance: null,
+    hint: 'At least 600x400px. Covered into a short box on phones and a tall one on desktop, so keep the subject central.',
+  },
+  beverageCapabilitiesBackground: {
+    label: 'Background',
+    width: 1200,
+    height: 400,
+    ratioTolerance: null,
+    hint: 'At least 1200x400px, a soft wash. It covers the whole section, so keep it light enough for the copy on top.',
+  },
+  beverageCapabilityScreenshot: {
+    label: 'Screenshot',
+    width: 1200,
+    height: 760,
+    ratioTolerance: 0.2,
+    hint: 'Landscape, about 1580x1000px. Shown in a fixed frame of that shape, so a differently shaped image is cropped.',
+  },
+  beveragePlatformBackground: {
+    label: 'Background',
+    width: 1200,
+    height: 400,
+    ratioTolerance: null,
+    hint: 'At least 1200x400px, wide. It covers the section anchored on its right, so keep the subject there and the left side clear for the copy.',
+  },
+  beverageCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 565,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, about 2111x745px (at least 1600x565). The copy is laid over its left side, so keep that panel empty.',
+  },
+  beverageCtaMobile: {
+    label: 'Mobile artwork',
+    width: 424,
+    height: 927,
+    ratioTolerance: 0.2,
+    hint: 'Portrait, about 848x1854px (at least 424x927). Covered into a short banner from the top, so keep the subject high.',
+  },
+  spicesAgroHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600x566px. Covered, so a differently shaped upload is cropped rather than letterboxed.',
+  },
+  spicesAgroHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800x1200px. Optional — phones fall back to the desktop image.',
+  },
+  spicesAgroTrustPanel: {
+    label: 'Screenshot',
+    width: 1100,
+    height: 733,
+    ratioTolerance: 0.2,
+    hint: 'Landscape 3:2, about 1536x1024px (at least 1100x733). Drawn at its own shape under the logos.',
+  },
+  spicesAgroCapabilitiesBackground: {
+    label: 'Background',
+    width: 1200,
+    height: 400,
+    ratioTolerance: null,
+    hint: 'At least 1200x400px, wide. It surrounds the dark panel, so keep the edges interesting and the middle quiet.',
+  },
+  spicesAgroPlatformBackground: {
+    label: 'Background',
+    width: 1200,
+    height: 400,
+    ratioTolerance: null,
+    hint: 'At least 1200x400px, wide and soft. It covers the whole section behind the heading and the cards.',
+  },
+  spicesAgroCoverageTile: {
+    label: 'Photo',
+    width: 264,
+    height: 264,
+    ratioTolerance: 0.3,
+    hint: 'Roughly square, at least 264x264px. Cropped into a circle, so keep the subject in the middle.',
+  },
+  spicesAgroCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 570,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600x570px. The copy is laid over its left side, so keep that panel empty.',
+  },
+  spicesAgroCtaMobile: {
+    label: 'Mobile artwork',
+    width: 440,
+    height: 956,
+    ratioTolerance: 0.2,
+    hint: 'Portrait, at least 440x956px. Covered into a short banner from the top, so keep the subject high.',
+  },
+  qsrFranchiseHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600x566px. Covered, so a differently shaped upload is cropped rather than letterboxed.',
+  },
+  qsrFranchiseHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800x1200px. Optional — phones fall back to the desktop image.',
+  },
+  qsrFranchiseTrustPhoto: {
+    label: 'Photo',
+    width: 800,
+    height: 600,
+    ratioTolerance: null,
+    hint: 'At least 800x600px, about 1600x1000 is ideal. Covered into its tile, so keep the subject central.',
+  },
+  qsrFranchiseCapabilitiesArtwork: {
+    label: 'Artwork',
+    width: 700,
+    height: 1016,
+    ratioTolerance: 0.2,
+    hint: 'Portrait, about 1041x1511px (at least 700x1016). Drawn at its own shape beside the cards.',
+  },
+  qsrFranchisePlatformArtwork: {
+    label: 'Artwork',
+    width: 600,
+    height: 972,
+    ratioTolerance: 0.2,
+    hint: 'Portrait, about 632x1024px (at least 600x972). Drawn at its own shape beside the copy.',
+  },
+  qsrFranchiseCoveragePhoto: {
+    label: 'Photo',
+    width: 300,
+    height: 220,
+    ratioTolerance: null,
+    hint: 'At least 300x220px, about 400x300 is ideal. Covered into the card, so keep the subject central.',
+  },
+  qsrFranchiseCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 544,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, about 2151x731px (at least 1600x544). The copy is laid over its left side, so keep that panel empty.',
+  },
+  qsrFranchiseCtaMobile: {
+    label: 'Mobile artwork',
+    width: 440,
+    height: 956,
+    ratioTolerance: 0.2,
+    hint: 'Portrait, at least 440x956px. Covered into a short banner from the top, so keep the subject high.',
+  },
+  whyUpwonHeroDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 640,
+    ratioTolerance: 0.2,
+    hint: 'Wide, about 1983x793px (at least 1600x640). The copy sits over its left half, so keep that side empty.',
+  },
+  whyUpwonHeroMobile: {
+    label: 'Mobile artwork',
+    width: 600,
+    height: 1058,
+    ratioTolerance: 0.2,
+    hint: 'Portrait, about 944x1665px (at least 600x1058). The copy runs over its lower part, so keep the subject high.',
+  },
+  whyUpwonIndustryPhoto: {
+    label: 'Photo',
+    width: 280,
+    height: 220,
+    ratioTolerance: null,
+    hint: 'At least 280x220px, about 300x440 is typical. Covered into a short, wide frame, so keep the subject central.',
+  },
+  whyUpwonProofArtwork: {
+    label: 'Artwork',
+    width: 1200,
+    height: 800,
+    ratioTolerance: 0.1,
+    hint: 'Landscape 3:2, about 1536x1024px (at least 1200x800). The callouts are pinned to the connectors drawn into it, so keep them where the current artwork has them.',
+  },
+  whyUpwonResultsHub: {
+    label: 'Hub artwork',
+    width: 600,
+    height: 600,
+    ratioTolerance: 0.15,
+    hint: 'Near-square, about 1263x1246px (at least 600x600). Drawn up to 300px wide in the third card.',
+  },
+  whyUpwonCtaDesktop: {
+    label: 'Desktop artwork',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide and dark, about 2109x746px (at least 1600x566). The light copy sits over its left side, so keep that panel empty and dark.',
+  },
+  whyUpwonCtaMobile: {
+    label: 'Mobile artwork',
+    width: 600,
+    height: 1303,
+    ratioTolerance: 0.2,
+    hint: 'Portrait and dark, about 851x1848px (at least 600x1303). The copy runs over its lower part, so keep the subject high.',
   },
   posCtaDesktop: {
     label: 'Desktop artwork',

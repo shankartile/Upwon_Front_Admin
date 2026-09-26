@@ -62,6 +62,17 @@ export const PAGE_SECTION_KEYS = {
    * carry their own eyebrow, headline and subhead.
    */
   pos: ['faq', 'cta'],
+  /*
+   * The first industry page. The hero is absent here too: its slides each
+   * carry their own copy.
+   */
+  'engineering-manufacturing': ['trust', 'capabilities', 'platform', 'coverage', 'faq', 'cta'],
+  /* The second industry page, built section by section. */
+  beverage: ['trust', 'capabilities', 'platform', 'coverage', 'faq', 'cta'],
+  /* The third industry page, built section by section. */
+  'spices-agro': ['trust', 'capabilities', 'platform', 'coverage', 'faq', 'cta'],
+  'qsr-franchise': ['trust', 'capabilities', 'platform', 'coverage', 'faq', 'cta'],
+  'why-upwon': ['hero', 'industries', 'testimonials', 'proof', 'outcomes', 'cta'],
 } as const;
 
 export type PageKey = keyof typeof PAGE_SECTION_KEYS;

@@ -84,7 +84,7 @@
 
 import {
   LayoutDashboard, Boxes, Building2, Trophy, Mail, MessageSquareQuote,
-  HelpCircle, Megaphone, Users, ShieldCheck, Home, Phone, Briefcase, Handshake, Info,
+  HelpCircle, Megaphone, Users, ShieldCheck, Home, Phone, Briefcase, Handshake, Info, Award,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -114,6 +114,8 @@ export interface NavItem {
 export interface NavChild {
   label: string;
   to?: string;
+  /** Match `to` exactly, so a parent path is not lit while on a sibling below it. */
+  end?: boolean;
 }
 
 export interface NavGroup { label?: string; items: NavItem[] }
@@ -134,6 +136,25 @@ const PRODUCT_PAGES: NavChild[] = [
   { label: 'Vendor Portal Page' },
 ];
 
+/**
+ * The industry landing pages, in the order the marketing site lists them.
+ *
+ * Same convention as PRODUCT_PAGES: only the ones with sections built carry a
+ * `to`; the rest are placeholders until their screens exist.
+ */
+const INDUSTRY_PAGES: NavChild[] = [
+  { label: 'Engineering & Manufacturing', to: '/cms/industries/engineering-manufacturing' },
+  { label: 'Bakery & Confectionery' },
+  { label: 'FMCG Distribution' },
+  { label: 'Sweets & Namkeen' },
+  { label: 'Food Processing' },
+  { label: 'Non-Food FMCG' },
+  { label: 'Dairy' },
+  { label: 'QSR & Franchise', to: '/cms/industries/qsr-franchise' },
+  { label: 'Spices & Agro', to: '/cms/industries/spices-agro' },
+  { label: 'Beverage', to: '/cms/industries/beverage' },
+];
+
 export const navigation: NavGroup[] = [
   { items: [{ label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard }] },
   {
@@ -143,7 +164,10 @@ export const navigation: NavGroup[] = [
       // No `to`: each product page is edited on its own screen, so the parent
       // opens the list rather than a combined one.
       { label: 'Products', icon: Boxes, children: PRODUCT_PAGES },
-      { label: 'Industries', to: '/cms/industries', icon: Building2 },
+      // Like Products: each industry page is edited on its own screen.
+      { label: 'Industries', icon: Building2, children: INDUSTRY_PAGES },
+      // The public /why-upwon page, section by section.
+      { label: 'Why UpWon', to: '/cms/why-upwon', icon: Award },
       { label: 'Case Studies', to: '/cms/case-studies', icon: Trophy },
       // The site still serves it at /newsletter; only the admin name changed.
       { label: 'Insider', to: '/cms/insider', icon: Mail },

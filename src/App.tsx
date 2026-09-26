@@ -44,7 +44,7 @@ import ErpTrustSectionPage from './pages/cms/erpPage/TrustSectionPage';
 import ErpTrustEntryEditPage from './pages/cms/erpPage/TrustEntryEditPage';
 import ErpTrustEntryViewPage from './pages/cms/erpPage/TrustEntryViewPage';
 import ErpRecognitionSectionPage from './pages/cms/erpPage/RecognitionSectionPage';
-// Aliased: /cms/industries already has an IndustryEditPage of its own.
+// Aliased: named for the ERP page, whose industry list has its own editor.
 import ErpIndustryEditPage from './pages/cms/erpPage/IndustryEditPage';
 import ErpIndustryViewPage from './pages/cms/erpPage/IndustryViewPage';
 import ErpBenefitsSectionPage from './pages/cms/erpPage/BenefitsSectionPage';
@@ -76,6 +76,109 @@ import PosFaqSectionPage from './pages/cms/posPage/FaqSectionPage';
 import PosFaqEntryEditPage from './pages/cms/posPage/FaqEntryEditPage';
 import PosFaqEntryViewPage from './pages/cms/posPage/FaqEntryViewPage';
 import PosCtaSectionPage from './pages/cms/posPage/CtaSectionPage';
+import EngineeringManufacturingPageLayout from './pages/cms/engineeringManufacturingPage/EngineeringManufacturingPageLayout';
+import EngineeringHeroSectionPage from './pages/cms/engineeringManufacturingPage/HeroSectionPage';
+import EngineeringHeroSlideEditPage from './pages/cms/engineeringManufacturingPage/HeroSlideEditPage';
+import EngineeringHeroSlideViewPage from './pages/cms/engineeringManufacturingPage/HeroSlideViewPage';
+import EngineeringTrustSectionPage from './pages/cms/engineeringManufacturingPage/TrustSectionPage';
+import EngineeringTrustCardEditPage from './pages/cms/engineeringManufacturingPage/TrustCardEditPage';
+import EngineeringTrustCardViewPage from './pages/cms/engineeringManufacturingPage/TrustCardViewPage';
+import EngineeringTrustLogoEditPage from './pages/cms/engineeringManufacturingPage/TrustLogoEditPage';
+import EngineeringTrustLogoViewPage from './pages/cms/engineeringManufacturingPage/TrustLogoViewPage';
+import EngineeringCapabilitiesSectionPage from './pages/cms/engineeringManufacturingPage/CapabilitiesSectionPage';
+import EngineeringCapabilityEditPage from './pages/cms/engineeringManufacturingPage/CapabilityEditPage';
+import EngineeringCapabilityViewPage from './pages/cms/engineeringManufacturingPage/CapabilityViewPage';
+import EngineeringPlatformSectionPage from './pages/cms/engineeringManufacturingPage/PlatformSectionPage';
+import EngineeringPlatformWorkflowEditPage from './pages/cms/engineeringManufacturingPage/PlatformWorkflowEditPage';
+import EngineeringPlatformWorkflowViewPage from './pages/cms/engineeringManufacturingPage/PlatformWorkflowViewPage';
+import EngineeringCoverageSectionPage from './pages/cms/engineeringManufacturingPage/CoverageSectionPage';
+import EngineeringCoverageCategoryEditPage from './pages/cms/engineeringManufacturingPage/CoverageCategoryEditPage';
+import EngineeringCoverageCategoryViewPage from './pages/cms/engineeringManufacturingPage/CoverageCategoryViewPage';
+import EngineeringFaqSectionPage from './pages/cms/engineeringManufacturingPage/FaqSectionPage';
+import EngineeringFaqEntryEditPage from './pages/cms/engineeringManufacturingPage/FaqEntryEditPage';
+import EngineeringFaqEntryViewPage from './pages/cms/engineeringManufacturingPage/FaqEntryViewPage';
+import EngineeringCtaSectionPage from './pages/cms/engineeringManufacturingPage/CtaSectionPage';
+import BeveragePageLayout from './pages/cms/beveragePage/BeveragePageLayout';
+import BeverageHeroSectionPage from './pages/cms/beveragePage/HeroSectionPage';
+import BeverageHeroSlideEditPage from './pages/cms/beveragePage/HeroSlideEditPage';
+import BeverageHeroSlideViewPage from './pages/cms/beveragePage/HeroSlideViewPage';
+import BeverageTrustSectionPage from './pages/cms/beveragePage/TrustSectionPage';
+import BeverageTrustStatEditPage from './pages/cms/beveragePage/TrustStatEditPage';
+import BeverageTrustStatViewPage from './pages/cms/beveragePage/TrustStatViewPage';
+import BeverageTrustLogoEditPage from './pages/cms/beveragePage/TrustLogoEditPage';
+import BeverageTrustLogoViewPage from './pages/cms/beveragePage/TrustLogoViewPage';
+import BeverageCapabilitiesSectionPage from './pages/cms/beveragePage/CapabilitiesSectionPage';
+import BeverageCapabilityEditPage from './pages/cms/beveragePage/CapabilityEditPage';
+import BeverageCapabilityViewPage from './pages/cms/beveragePage/CapabilityViewPage';
+import BeveragePlatformSectionPage from './pages/cms/beveragePage/PlatformSectionPage';
+import BeveragePlatformWorkflowEditPage from './pages/cms/beveragePage/PlatformWorkflowEditPage';
+import BeveragePlatformWorkflowViewPage from './pages/cms/beveragePage/PlatformWorkflowViewPage';
+import BeverageCoverageSectionPage from './pages/cms/beveragePage/CoverageSectionPage';
+import BeverageCoverageCategoryEditPage from './pages/cms/beveragePage/CoverageCategoryEditPage';
+import BeverageCoverageCategoryViewPage from './pages/cms/beveragePage/CoverageCategoryViewPage';
+import BeverageFaqSectionPage from './pages/cms/beveragePage/FaqSectionPage';
+import BeverageFaqEntryEditPage from './pages/cms/beveragePage/FaqEntryEditPage';
+import BeverageFaqEntryViewPage from './pages/cms/beveragePage/FaqEntryViewPage';
+import BeverageCtaSectionPage from './pages/cms/beveragePage/CtaSectionPage';
+import SpicesAgroPageLayout from './pages/cms/spicesAgroPage/SpicesAgroPageLayout';
+import SpicesAgroHeroSectionPage from './pages/cms/spicesAgroPage/HeroSectionPage';
+import SpicesAgroHeroSlideEditPage from './pages/cms/spicesAgroPage/HeroSlideEditPage';
+import SpicesAgroHeroSlideViewPage from './pages/cms/spicesAgroPage/HeroSlideViewPage';
+import SpicesAgroTrustSectionPage from './pages/cms/spicesAgroPage/TrustSectionPage';
+import SpicesAgroTrustLogoEditPage from './pages/cms/spicesAgroPage/TrustLogoEditPage';
+import SpicesAgroTrustLogoViewPage from './pages/cms/spicesAgroPage/TrustLogoViewPage';
+import SpicesAgroCapabilitiesSectionPage from './pages/cms/spicesAgroPage/CapabilitiesSectionPage';
+import SpicesAgroCapabilityEditPage from './pages/cms/spicesAgroPage/CapabilityEditPage';
+import SpicesAgroCapabilityViewPage from './pages/cms/spicesAgroPage/CapabilityViewPage';
+import SpicesAgroPlatformSectionPage from './pages/cms/spicesAgroPage/PlatformSectionPage';
+import SpicesAgroPlatformGroupEditPage from './pages/cms/spicesAgroPage/PlatformGroupEditPage';
+import SpicesAgroPlatformGroupViewPage from './pages/cms/spicesAgroPage/PlatformGroupViewPage';
+import SpicesAgroCoverageSectionPage from './pages/cms/spicesAgroPage/CoverageSectionPage';
+import SpicesAgroCoverageCategoryEditPage from './pages/cms/spicesAgroPage/CoverageCategoryEditPage';
+import SpicesAgroCoverageCategoryViewPage from './pages/cms/spicesAgroPage/CoverageCategoryViewPage';
+import SpicesAgroFaqSectionPage from './pages/cms/spicesAgroPage/FaqSectionPage';
+import SpicesAgroFaqEntryEditPage from './pages/cms/spicesAgroPage/FaqEntryEditPage';
+import SpicesAgroFaqEntryViewPage from './pages/cms/spicesAgroPage/FaqEntryViewPage';
+import SpicesAgroCtaSectionPage from './pages/cms/spicesAgroPage/CtaSectionPage';
+import QsrFranchisePageLayout from './pages/cms/qsrFranchisePage/QsrFranchisePageLayout';
+import QsrFranchiseHeroSectionPage from './pages/cms/qsrFranchisePage/HeroSectionPage';
+import QsrFranchiseHeroSlideEditPage from './pages/cms/qsrFranchisePage/HeroSlideEditPage';
+import QsrFranchiseHeroSlideViewPage from './pages/cms/qsrFranchisePage/HeroSlideViewPage';
+import QsrFranchiseTrustSectionPage from './pages/cms/qsrFranchisePage/TrustSectionPage';
+import QsrFranchiseTrustLogoEditPage from './pages/cms/qsrFranchisePage/TrustLogoEditPage';
+import QsrFranchiseTrustLogoViewPage from './pages/cms/qsrFranchisePage/TrustLogoViewPage';
+import QsrFranchiseTrustStatEditPage from './pages/cms/qsrFranchisePage/TrustStatEditPage';
+import QsrFranchiseTrustStatViewPage from './pages/cms/qsrFranchisePage/TrustStatViewPage';
+import QsrFranchiseCapabilitiesSectionPage from './pages/cms/qsrFranchisePage/CapabilitiesSectionPage';
+import QsrFranchiseCapabilityEditPage from './pages/cms/qsrFranchisePage/CapabilityEditPage';
+import QsrFranchiseCapabilityViewPage from './pages/cms/qsrFranchisePage/CapabilityViewPage';
+import QsrFranchisePlatformSectionPage from './pages/cms/qsrFranchisePage/PlatformSectionPage';
+import QsrFranchisePlatformWorkflowEditPage from './pages/cms/qsrFranchisePage/PlatformWorkflowEditPage';
+import QsrFranchisePlatformWorkflowViewPage from './pages/cms/qsrFranchisePage/PlatformWorkflowViewPage';
+import QsrFranchiseCoverageSectionPage from './pages/cms/qsrFranchisePage/CoverageSectionPage';
+import QsrFranchiseCoverageCategoryEditPage from './pages/cms/qsrFranchisePage/CoverageCategoryEditPage';
+import QsrFranchiseCoverageCategoryViewPage from './pages/cms/qsrFranchisePage/CoverageCategoryViewPage';
+import QsrFranchiseFaqSectionPage from './pages/cms/qsrFranchisePage/FaqSectionPage';
+import QsrFranchiseFaqEntryEditPage from './pages/cms/qsrFranchisePage/FaqEntryEditPage';
+import QsrFranchiseFaqEntryViewPage from './pages/cms/qsrFranchisePage/FaqEntryViewPage';
+import QsrFranchiseCtaSectionPage from './pages/cms/qsrFranchisePage/CtaSectionPage';
+import WhyUpwonPageLayout from './pages/cms/whyUpwonPage/WhyUpwonPageLayout';
+import WhyUpwonHeroSectionPage from './pages/cms/whyUpwonPage/HeroSectionPage';
+import WhyUpwonIndustriesSectionPage from './pages/cms/whyUpwonPage/IndustriesSectionPage';
+import WhyUpwonIndustryEditPage from './pages/cms/whyUpwonPage/IndustryEditPage';
+import WhyUpwonIndustryViewPage from './pages/cms/whyUpwonPage/IndustryViewPage';
+import WhyUpwonTestimonialsSectionPage from './pages/cms/whyUpwonPage/TestimonialsSectionPage';
+import WhyUpwonTestimonialEditPage from './pages/cms/whyUpwonPage/TestimonialEditPage';
+import WhyUpwonTestimonialViewPage from './pages/cms/whyUpwonPage/TestimonialViewPage';
+import WhyUpwonClientLogoEditPage from './pages/cms/whyUpwonPage/ClientLogoEditPage';
+import WhyUpwonClientLogoViewPage from './pages/cms/whyUpwonPage/ClientLogoViewPage';
+import WhyUpwonProofSectionPage from './pages/cms/whyUpwonPage/ProofSectionPage';
+import WhyUpwonProofCalloutEditPage from './pages/cms/whyUpwonPage/ProofCalloutEditPage';
+import WhyUpwonProofCalloutViewPage from './pages/cms/whyUpwonPage/ProofCalloutViewPage';
+import WhyUpwonResultsSectionPage from './pages/cms/whyUpwonPage/ResultsSectionPage';
+import WhyUpwonResultEditPage from './pages/cms/whyUpwonPage/ResultEditPage';
+import WhyUpwonResultViewPage from './pages/cms/whyUpwonPage/ResultViewPage';
+import WhyUpwonCtaSectionPage from './pages/cms/whyUpwonPage/CtaSectionPage';
 import FmsFranchiseSectionPage from './pages/cms/fmsPage/FranchiseSectionPage';
 import FmsVideoSectionPage from './pages/cms/fmsPage/VideoSectionPage';
 import FmsIntegrationsSectionPage from './pages/cms/fmsPage/IntegrationsSectionPage';
@@ -150,8 +253,6 @@ import ErpFaqEntryEditPage from './pages/cms/erpPage/FaqEntryEditPage';
 import ErpFaqEntryViewPage from './pages/cms/erpPage/FaqEntryViewPage';
 import ErpCtaSectionPage from './pages/cms/erpPage/CtaSectionPage';
 
-import IndustriesListPage from './pages/cms/industries/IndustriesListPage';
-import IndustryEditPage from './pages/cms/industries/IndustryEditPage';
 
 import CaseStudiesListPage from './pages/cms/caseStudies/CaseStudiesListPage';
 import CaseStudyEditPage from './pages/cms/caseStudies/CaseStudyEditPage';
@@ -674,8 +775,331 @@ export default function App() {
             element={<ErpFaqEntryViewPage />}
           />
 
-          <Route path="/cms/industries" element={<IndustriesListPage />} />
-          <Route path="/cms/industries/:id" element={<IndustryEditPage />} />
+          {/*
+            The Engineering & Manufacturing industry page, laid out the same way
+            as the product pages.
+          */}
+          <Route
+            path="/cms/industries/engineering-manufacturing"
+            element={<EngineeringManufacturingPageLayout />}
+          >
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<EngineeringHeroSectionPage />} />
+            <Route path="trust-section" element={<EngineeringTrustSectionPage />} />
+            <Route path="capabilities-section" element={<EngineeringCapabilitiesSectionPage />} />
+            <Route path="platform-section" element={<EngineeringPlatformSectionPage />} />
+            <Route path="coverage-section" element={<EngineeringCoverageSectionPage />} />
+            <Route path="faq-section" element={<EngineeringFaqSectionPage />} />
+            <Route path="cta-section" element={<EngineeringCtaSectionPage />} />
+          </Route>
+          {/* Entry forms sit outside the layout so they get the full width. */}
+          <Route
+            path="/cms/industries/engineering-manufacturing/hero-section/:id"
+            element={<EngineeringHeroSlideEditPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/hero-section/:id/view"
+            element={<EngineeringHeroSlideViewPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/trust-section/cards/:id"
+            element={<EngineeringTrustCardEditPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/trust-section/cards/:id/view"
+            element={<EngineeringTrustCardViewPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/trust-section/logos/:id"
+            element={<EngineeringTrustLogoEditPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/trust-section/logos/:id/view"
+            element={<EngineeringTrustLogoViewPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/capabilities-section/:id"
+            element={<EngineeringCapabilityEditPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/capabilities-section/:id/view"
+            element={<EngineeringCapabilityViewPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/platform-section/workflows/:id"
+            element={<EngineeringPlatformWorkflowEditPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/platform-section/workflows/:id/view"
+            element={<EngineeringPlatformWorkflowViewPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/coverage-section/categories/:id"
+            element={<EngineeringCoverageCategoryEditPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/coverage-section/categories/:id/view"
+            element={<EngineeringCoverageCategoryViewPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/faq-section/:id"
+            element={<EngineeringFaqEntryEditPage />}
+          />
+          <Route
+            path="/cms/industries/engineering-manufacturing/faq-section/:id/view"
+            element={<EngineeringFaqEntryViewPage />}
+          />
+
+          {/* The Beverages & Juices industry page, laid out the same way. */}
+          <Route path="/cms/industries/beverage" element={<BeveragePageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<BeverageHeroSectionPage />} />
+            <Route path="trust-section" element={<BeverageTrustSectionPage />} />
+            <Route path="capabilities-section" element={<BeverageCapabilitiesSectionPage />} />
+            <Route path="platform-section" element={<BeveragePlatformSectionPage />} />
+            <Route path="coverage-section" element={<BeverageCoverageSectionPage />} />
+            <Route path="faq-section" element={<BeverageFaqSectionPage />} />
+            <Route path="cta-section" element={<BeverageCtaSectionPage />} />
+          </Route>
+          {/* Entry forms sit outside the layout so they get the full width. */}
+          <Route
+            path="/cms/industries/beverage/hero-section/:id"
+            element={<BeverageHeroSlideEditPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/hero-section/:id/view"
+            element={<BeverageHeroSlideViewPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/trust-section/stats/:id"
+            element={<BeverageTrustStatEditPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/trust-section/stats/:id/view"
+            element={<BeverageTrustStatViewPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/trust-section/logos/:id"
+            element={<BeverageTrustLogoEditPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/trust-section/logos/:id/view"
+            element={<BeverageTrustLogoViewPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/capabilities-section/capabilities/:id"
+            element={<BeverageCapabilityEditPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/capabilities-section/capabilities/:id/view"
+            element={<BeverageCapabilityViewPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/platform-section/workflows/:id"
+            element={<BeveragePlatformWorkflowEditPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/platform-section/workflows/:id/view"
+            element={<BeveragePlatformWorkflowViewPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/coverage-section/categories/:id"
+            element={<BeverageCoverageCategoryEditPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/coverage-section/categories/:id/view"
+            element={<BeverageCoverageCategoryViewPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/faq-section/:id"
+            element={<BeverageFaqEntryEditPage />}
+          />
+          <Route
+            path="/cms/industries/beverage/faq-section/:id/view"
+            element={<BeverageFaqEntryViewPage />}
+          />
+
+          {/* The Spices & Agro Processing industry page, laid out the same way. */}
+          <Route path="/cms/industries/spices-agro" element={<SpicesAgroPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<SpicesAgroHeroSectionPage />} />
+            <Route path="trust-section" element={<SpicesAgroTrustSectionPage />} />
+            <Route path="capabilities-section" element={<SpicesAgroCapabilitiesSectionPage />} />
+            <Route path="platform-section" element={<SpicesAgroPlatformSectionPage />} />
+            <Route path="coverage-section" element={<SpicesAgroCoverageSectionPage />} />
+            <Route path="faq-section" element={<SpicesAgroFaqSectionPage />} />
+            <Route path="cta-section" element={<SpicesAgroCtaSectionPage />} />
+          </Route>
+          {/* Entry forms sit outside the layout so they get the full width. */}
+          <Route
+            path="/cms/industries/spices-agro/hero-section/:id"
+            element={<SpicesAgroHeroSlideEditPage />}
+          />
+          <Route
+            path="/cms/industries/spices-agro/hero-section/:id/view"
+            element={<SpicesAgroHeroSlideViewPage />}
+          />
+          <Route
+            path="/cms/industries/spices-agro/trust-section/logos/:id"
+            element={<SpicesAgroTrustLogoEditPage />}
+          />
+          <Route
+            path="/cms/industries/spices-agro/trust-section/logos/:id/view"
+            element={<SpicesAgroTrustLogoViewPage />}
+          />
+          <Route
+            path="/cms/industries/spices-agro/capabilities-section/capabilities/:id"
+            element={<SpicesAgroCapabilityEditPage />}
+          />
+          <Route
+            path="/cms/industries/spices-agro/capabilities-section/capabilities/:id/view"
+            element={<SpicesAgroCapabilityViewPage />}
+          />
+          <Route
+            path="/cms/industries/spices-agro/platform-section/groups/:id"
+            element={<SpicesAgroPlatformGroupEditPage />}
+          />
+          <Route
+            path="/cms/industries/spices-agro/platform-section/groups/:id/view"
+            element={<SpicesAgroPlatformGroupViewPage />}
+          />
+          <Route
+            path="/cms/industries/spices-agro/coverage-section/categories/:id"
+            element={<SpicesAgroCoverageCategoryEditPage />}
+          />
+          <Route
+            path="/cms/industries/spices-agro/coverage-section/categories/:id/view"
+            element={<SpicesAgroCoverageCategoryViewPage />}
+          />
+          <Route
+            path="/cms/industries/spices-agro/faq-section/:id"
+            element={<SpicesAgroFaqEntryEditPage />}
+          />
+          <Route
+            path="/cms/industries/spices-agro/faq-section/:id/view"
+            element={<SpicesAgroFaqEntryViewPage />}
+          />
+
+          {/* The QSR & Franchise F&B industry page, laid out the same way. */}
+          <Route path="/cms/industries/qsr-franchise" element={<QsrFranchisePageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<QsrFranchiseHeroSectionPage />} />
+            <Route path="trust-section" element={<QsrFranchiseTrustSectionPage />} />
+            <Route path="capabilities-section" element={<QsrFranchiseCapabilitiesSectionPage />} />
+            <Route path="platform-section" element={<QsrFranchisePlatformSectionPage />} />
+            <Route path="coverage-section" element={<QsrFranchiseCoverageSectionPage />} />
+            <Route path="faq-section" element={<QsrFranchiseFaqSectionPage />} />
+            <Route path="cta-section" element={<QsrFranchiseCtaSectionPage />} />
+          </Route>
+          {/* Entry forms sit outside the layout so they get the full width. */}
+          <Route
+            path="/cms/industries/qsr-franchise/hero-section/:id"
+            element={<QsrFranchiseHeroSlideEditPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/hero-section/:id/view"
+            element={<QsrFranchiseHeroSlideViewPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/trust-section/logos/:id"
+            element={<QsrFranchiseTrustLogoEditPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/trust-section/logos/:id/view"
+            element={<QsrFranchiseTrustLogoViewPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/trust-section/stats/:id"
+            element={<QsrFranchiseTrustStatEditPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/trust-section/stats/:id/view"
+            element={<QsrFranchiseTrustStatViewPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/capabilities-section/capabilities/:id"
+            element={<QsrFranchiseCapabilityEditPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/capabilities-section/capabilities/:id/view"
+            element={<QsrFranchiseCapabilityViewPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/platform-section/workflows/:id"
+            element={<QsrFranchisePlatformWorkflowEditPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/platform-section/workflows/:id/view"
+            element={<QsrFranchisePlatformWorkflowViewPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/coverage-section/categories/:id"
+            element={<QsrFranchiseCoverageCategoryEditPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/coverage-section/categories/:id/view"
+            element={<QsrFranchiseCoverageCategoryViewPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/faq-section/:id"
+            element={<QsrFranchiseFaqEntryEditPage />}
+          />
+          <Route
+            path="/cms/industries/qsr-franchise/faq-section/:id/view"
+            element={<QsrFranchiseFaqEntryViewPage />}
+          />
+
+          {/* The Why UpWon page, laid out the same way as the industry pages. */}
+          <Route path="/cms/why-upwon" element={<WhyUpwonPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<WhyUpwonHeroSectionPage />} />
+            <Route path="industries-section" element={<WhyUpwonIndustriesSectionPage />} />
+            <Route path="testimonials-section" element={<WhyUpwonTestimonialsSectionPage />} />
+            <Route path="proof-section" element={<WhyUpwonProofSectionPage />} />
+            <Route path="results-section" element={<WhyUpwonResultsSectionPage />} />
+            <Route path="cta-section" element={<WhyUpwonCtaSectionPage />} />
+          </Route>
+          {/* Entry forms sit outside the layout so they get the full width. */}
+          <Route
+            path="/cms/why-upwon/industries-section/industries/:id"
+            element={<WhyUpwonIndustryEditPage />}
+          />
+          <Route
+            path="/cms/why-upwon/industries-section/industries/:id/view"
+            element={<WhyUpwonIndustryViewPage />}
+          />
+          <Route
+            path="/cms/why-upwon/testimonials-section/testimonials/:id"
+            element={<WhyUpwonTestimonialEditPage />}
+          />
+          <Route
+            path="/cms/why-upwon/testimonials-section/testimonials/:id/view"
+            element={<WhyUpwonTestimonialViewPage />}
+          />
+          <Route
+            path="/cms/why-upwon/testimonials-section/logos/:id"
+            element={<WhyUpwonClientLogoEditPage />}
+          />
+          <Route
+            path="/cms/why-upwon/testimonials-section/logos/:id/view"
+            element={<WhyUpwonClientLogoViewPage />}
+          />
+          <Route
+            path="/cms/why-upwon/proof-section/callouts/:id"
+            element={<WhyUpwonProofCalloutEditPage />}
+          />
+          <Route
+            path="/cms/why-upwon/proof-section/callouts/:id/view"
+            element={<WhyUpwonProofCalloutViewPage />}
+          />
+          <Route
+            path="/cms/why-upwon/results-section/results/:id"
+            element={<WhyUpwonResultEditPage />}
+          />
+          <Route
+            path="/cms/why-upwon/results-section/results/:id/view"
+            element={<WhyUpwonResultViewPage />}
+          />
 
           <Route path="/cms/case-studies" element={<CaseStudiesListPage />} />
           <Route path="/cms/case-studies/:id" element={<CaseStudyEditPage />} />
