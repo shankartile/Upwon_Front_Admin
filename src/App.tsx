@@ -186,6 +186,17 @@ import AboutNumbersSectionPage from './pages/cms/about/AboutNumbersSectionPage';
 import AboutCtaSectionPage from './pages/cms/about/AboutCtaSectionPage';
 import DiscoveryCallApplicationsPage from './pages/cms/about/DiscoveryCallApplicationsPage';
 
+import SocialMediaLinksLayout from './pages/cms/socialMediaLinks/SocialMediaLinksLayout';
+import ContactLinesPage from './pages/cms/socialMediaLinks/ContactLinesPage';
+import SocialLinksPage from './pages/cms/socialMediaLinks/SocialLinksPage';
+
+import BlogPageLayout from './pages/cms/blog/BlogPageLayout';
+import BlogHeroSectionPage from './pages/cms/blog/BlogHeroSectionPage';
+import BlogTopicsSectionPage from './pages/cms/blog/BlogTopicsSectionPage';
+import BlogCategoriesPage from './pages/cms/blog/BlogCategoriesPage';
+import BlogPostsPage from './pages/cms/blog/BlogPostsPage';
+import BlogPostEditPage from './pages/cms/blog/BlogPostEditPage';
+
 import LeadsInboxPage from './pages/cms/leads/LeadsInboxPage';
 
 import TestimonialsPage from './pages/cms/library/TestimonialsPage';
@@ -822,6 +833,50 @@ export default function App() {
             <Route path="cta-section" element={<AboutCtaSectionPage />} />
             <Route path="discovery-calls" element={<DiscoveryCallApplicationsPage />} />
           </Route>
+
+          {/*
+            Social Media Links: the public site's footer, on every page. Exactly
+            two tabs, because exactly two things in it are admin-driven - the
+            contact lines under the brand block and the social icons under them.
+            The link columns and the copyright stay in the website's own code.
+
+            Contact Details leads and is what /cms/social-media-links opens on:
+            it is seeded with what the footer already shows, and there is no
+            inbox here to argue for another order - see SocialMediaLinksLayout.
+
+            Both tabs manage their list in a Modal on the same screen, so there
+            is no /cms/social-media-links/contact-lines/:id.
+          */}
+          <Route path="/cms/social-media-links" element={<SocialMediaLinksLayout />}>
+            <Route index element={<Navigate to="contact-lines" replace />} />
+            <Route path="contact-lines" element={<ContactLinesPage />} />
+            <Route path="social-links" element={<SocialLinksPage />} />
+          </Route>
+
+          {/*
+            Resource Page -> Blog: the public /blog page, one tab per band that is
+            admin-driven - the hero slide, the "Insights by Topic" intro, the
+            category chips - plus the posts it lists. Hero Section leads and is
+            what /cms/resources/blog opens on; there is no inbox here to argue
+            for another order - see BlogPageLayout.
+
+            The categories are edited in a Modal on their own tab, but a post is
+            written on a page of its own (a body of up to eighty blocks does not
+            fit in a dialog), so /cms/resources/blog/posts/new and /:id sit
+            outside the layout, the way the Insider story editor does.
+
+            /cms/resources itself has no screen - the sidebar's Resource Page is a
+            disclosure - so the breadcrumb's link to it lands on the Blog area.
+          */}
+          <Route path="/cms/resources" element={<Navigate to="/cms/resources/blog" replace />} />
+          <Route path="/cms/resources/blog" element={<BlogPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<BlogHeroSectionPage />} />
+            <Route path="topics-section" element={<BlogTopicsSectionPage />} />
+            <Route path="categories" element={<BlogCategoriesPage />} />
+            <Route path="posts" element={<BlogPostsPage />} />
+          </Route>
+          <Route path="/cms/resources/blog/posts/:id" element={<BlogPostEditPage />} />
 
           <Route path="/cms/leads/:type" element={<LeadsInboxPage />} />
 
