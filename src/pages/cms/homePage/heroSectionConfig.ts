@@ -21,8 +21,9 @@ import type { ContentStatus } from '../../../types/homePage';
  * exactly as they did before this existed. The Insider one is
  * pages/cms/insider/insiderHeroSection.ts, the Blog one
  * pages/cms/blog/blogHeroSection.ts, the Free Audit one
- * pages/cms/freeAudit/freeAuditHeroSection.ts, and the Knowledgebase one
- * pages/cms/knowledgebase/knowledgebaseHeroSection.ts.
+ * pages/cms/freeAudit/freeAuditHeroSection.ts, the Knowledgebase one
+ * pages/cms/knowledgebase/knowledgebaseHeroSection.ts, and the UpWon vs SAP
+ * one pages/cms/vsSap/vsSapHeroSection.ts.
  */
 
 /** A slide as the list and the form read it: the fields both hero APIs share. */
@@ -36,8 +37,8 @@ export interface HeroSlideRecord {
   imageFileId: string | null;
   image: string | null;
   /**
-   * Absent on a carousel whose phone image is upload-only (the Blog, Free Audit
-   * and Knowledgebase heroes).
+   * Absent on a carousel whose phone image is upload-only (the Blog, Free Audit,
+   * Knowledgebase and UpWon vs SAP heroes).
    */
   mobileImageUrl?: string | null;
   mobileImageFileId: string | null;

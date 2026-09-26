@@ -148,11 +148,15 @@ const PRODUCT_PAGES: NavChild[] = [
  *   Knowledgebase           the public /knowledgebase pages - the hub's hero and
  *                           category cards, and every guide with its FAQs - at
  *                           /cms/resources/knowledgebase.
+ *   UpWon vs SAP            the public /compare/upwon-vs-sap page - its hero,
+ *                           "The straight answer" cards and the capability
+ *                           table - at /cms/resources/upwon-vs-sap.
  */
 const RESOURCE_PAGES: NavChild[] = [
   { label: 'Blog', to: '/cms/resources/blog' },
   { label: 'Free Operational Audit', to: '/cms/resources/free-audit' },
   { label: 'Knowledgebase', to: '/cms/resources/knowledgebase' },
+  { label: 'UpWon vs SAP', to: '/cms/resources/upwon-vs-sap' },
 ];
 
 export const navigation: NavGroup[] = [
@@ -189,9 +193,9 @@ export const navigation: NavGroup[] = [
       // The site's reading material, one child per resource page. Below About
       // Us, as the user asked - after Social Media Links, which already held the
       // slot directly under it. A disclosure like Products, not a link: Blog,
-      // Free Operational Audit and Knowledgebase are the resource pages with
-      // admin-driven content so far, and the others join them here as they
-      // become editable.
+      // Free Operational Audit, Knowledgebase and UpWon vs SAP are the resource
+      // pages with admin-driven content so far, and the others join them here
+      // as they become editable.
       { label: 'Resource Page', icon: Library, children: RESOURCE_PAGES },
       { label: 'Testimonials', to: '/cms/testimonials', icon: MessageSquareQuote },
       { label: 'FAQs', to: '/cms/faqs', icon: HelpCircle },

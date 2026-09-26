@@ -43,13 +43,14 @@ import {
  * use (see PageEditPage), so the list can link to both with one route.
  *
  * Serves every hero carousel through `config` (see heroSectionConfig.ts): the
- * home page one by default, the Insider, Blog, Free Audit and Knowledgebase
- * page ones from their own routes.
+ * home page one by default, the Insider, Blog, Free Audit, Knowledgebase and
+ * UpWon vs SAP page ones from their own routes.
  */
 
 /**
  * Field rules, mirroring the server-side hero section validators - the home,
- * Insider, Blog, Free Audit and Knowledgebase ones share these limits.
+ * Insider, Blog, Free Audit, Knowledgebase and UpWon vs SAP ones share these
+ * limits.
  *
  * Kept as data rather than inline `if`s so one `validateField` covers every
  * text field, and the counter under each input reads its max from the same

@@ -207,6 +207,11 @@ import KnowledgebaseCategoriesPage from './pages/cms/knowledgebase/Knowledgebase
 import KnowledgebaseArticlesPage from './pages/cms/knowledgebase/KnowledgebaseArticlesPage';
 import KnowledgebaseArticleEditPage from './pages/cms/knowledgebase/KnowledgebaseArticleEditPage';
 
+import VsSapLayout from './pages/cms/vsSap/VsSapLayout';
+import { VS_SAP_HERO_SECTION } from './pages/cms/vsSap/vsSapHeroSection';
+import VsSapAnswerSectionPage from './pages/cms/vsSap/VsSapAnswerSectionPage';
+import VsSapComparisonPage from './pages/cms/vsSap/VsSapComparisonPage';
+
 import LeadsInboxPage from './pages/cms/leads/LeadsInboxPage';
 
 import TestimonialsPage from './pages/cms/library/TestimonialsPage';
@@ -959,6 +964,35 @@ export default function App() {
           <Route
             path="/cms/resources/knowledgebase/articles/:id"
             element={<KnowledgebaseArticleEditPage />}
+          />
+
+          {/*
+            Resource Page -> UpWon vs SAP: the public /compare/upwon-vs-sap page.
+            Three tabs, in the order the bands are read down the page: its hero
+            carousel, "The straight answer" band with its two cards, and the
+            capability table. Hero Section leads and is what
+            /cms/resources/upwon-vs-sap opens on; there is no inbox here to argue
+            for another order - see VsSapLayout.
+
+            The hero tab and its slide form are the home hero screens, driven by
+            the UpWon vs SAP config and keyed like the Free Audit ones, and the
+            slide form (/cms/resources/upwon-vs-sap/hero-section/:id, 'new' =
+            create) sits outside the layout the way the Free Audit hero's does. A
+            capability row is edited in a Modal on its own tab, so there is no
+            /cms/resources/upwon-vs-sap/comparison/:id.
+          */}
+          <Route path="/cms/resources/upwon-vs-sap" element={<VsSapLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route
+              path="hero-section"
+              element={<HeroSectionPage key="upwon-vs-sap" config={VS_SAP_HERO_SECTION} />}
+            />
+            <Route path="answer-section" element={<VsSapAnswerSectionPage />} />
+            <Route path="comparison" element={<VsSapComparisonPage />} />
+          </Route>
+          <Route
+            path="/cms/resources/upwon-vs-sap/hero-section/:id"
+            element={<HeroSlideEditPage key="upwon-vs-sap" config={VS_SAP_HERO_SECTION} />}
           />
 
           <Route path="/cms/leads/:type" element={<LeadsInboxPage />} />
