@@ -2,31 +2,21 @@
 
 import { request } from '../lib/http';
 import { createContactSectionService } from './contactSectionService';
-import type {
-  BlogHeroSection,
-  BlogTopicsSection,
-  ReplaceBlogHeroSectionInput,
-  ReplaceBlogTopicsSectionInput,
-} from '../types/blog';
+import type { BlogTopicsSection, ReplaceBlogTopicsSectionInput } from '../types/blog';
 
 /**
- * The two singleton sections of the public /blog page, backed by the real API,
- * plus the icon allowlist the category dialog offers.
+ * The singleton section of the public /blog page, backed by the real API, plus
+ * the icon allowlist the category dialog offers. The hero is a carousel, not a
+ * singleton - see blogHeroSectionService.ts.
  *
- * Mirrors the /hero-section, /topics-section and /icons routes in
- * modules/blog/routes one call per route. Both sections are the Contact page's
- * singleton shape exactly - GET answers `data: null` until the first save, PUT
- * replaces the whole row and creates it on the first save - so they come from
- * the same factory as every other singleton section in the panel.
+ * Mirrors the /topics-section and /icons routes in modules/blog/routes one call
+ * per route. The section is the Contact page's singleton shape exactly - GET
+ * answers `data: null` until the first save, PUT replaces the whole row and
+ * creates it on the first save - so it comes from the same factory as every
+ * other singleton section in the panel.
  *
  * Guarded by blog.read for the reads and blog.update for the writes.
  */
-
-/** The hero slide at the top of /blog: eyebrow, heading, subtext, two button texts. */
-export const heroSection = createContactSectionService<
-  BlogHeroSection,
-  ReplaceBlogHeroSectionInput
->('/blog/hero-section');
 
 /** The "Insights by Topic" intro above the category chips. */
 export const topicsSection = createContactSectionService<

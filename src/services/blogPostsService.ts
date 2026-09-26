@@ -19,8 +19,8 @@ import type {
  * they were created), and the newest one is the featured card, so the order is
  * a consequence of the dates rather than something an admin arranges.
  *
- * Guarded by blog.read for the reads and blog.update for every write. A
- * duplicate slug answers 409 BLOG_POST_SLUG_TAKEN on the `slug` field.
+ * Guarded by blog.read for the reads and blog.update for every write. No slug
+ * is ever sent: the server derives it from the title on create and keeps it.
  */
 const BASE = '/blog/posts';
 

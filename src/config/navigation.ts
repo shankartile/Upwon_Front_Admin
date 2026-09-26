@@ -138,10 +138,22 @@ const PRODUCT_PAGES: NavChild[] = [
 /**
  * The resource pages, each edited on its own screen.
  *
- * Only Blog so far: the public /blog page - its hero, the topic intro, the
- * category chips and the posts - at /cms/resources/blog.
+ *   Blog                    the public /blog page - its hero, the topic intro,
+ *                           the category chips and the posts - at
+ *                           /cms/resources/blog.
+ *   Free Operational Audit  the public /free-audit page - its hero, and the
+ *                           audit requests its form collects - at
+ *                           /cms/resources/free-audit. Directly under Blog, as
+ *                           the user asked.
+ *   Knowledgebase           the public /knowledgebase pages - the hub's hero and
+ *                           category cards, and every guide with its FAQs - at
+ *                           /cms/resources/knowledgebase.
  */
-const RESOURCE_PAGES: NavChild[] = [{ label: 'Blog', to: '/cms/resources/blog' }];
+const RESOURCE_PAGES: NavChild[] = [
+  { label: 'Blog', to: '/cms/resources/blog' },
+  { label: 'Free Operational Audit', to: '/cms/resources/free-audit' },
+  { label: 'Knowledgebase', to: '/cms/resources/knowledgebase' },
+];
 
 export const navigation: NavGroup[] = [
   { items: [{ label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard }] },
@@ -176,9 +188,10 @@ export const navigation: NavGroup[] = [
       { label: 'Social Media Links', to: '/cms/social-media-links', icon: Share2 },
       // The site's reading material, one child per resource page. Below About
       // Us, as the user asked - after Social Media Links, which already held the
-      // slot directly under it. A disclosure like Products, not a link: Blog is
-      // the first resource page with admin-driven content, and the others join
-      // it here as they become editable.
+      // slot directly under it. A disclosure like Products, not a link: Blog,
+      // Free Operational Audit and Knowledgebase are the resource pages with
+      // admin-driven content so far, and the others join them here as they
+      // become editable.
       { label: 'Resource Page', icon: Library, children: RESOURCE_PAGES },
       { label: 'Testimonials', to: '/cms/testimonials', icon: MessageSquareQuote },
       { label: 'FAQs', to: '/cms/faqs', icon: HelpCircle },

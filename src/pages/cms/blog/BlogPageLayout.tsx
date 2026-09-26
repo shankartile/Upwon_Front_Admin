@@ -12,17 +12,18 @@ import { Tabs } from '../../../components/ui/Tabs';
  *
  * Four tabs, in the order the bands are read down the page:
  *
- *   Hero Section    the hero slide at the top - eyebrow, heading, subtext and
- *                   its two buttons.
+ *   Hero Section    the hero carousel at the top - its slides, each an eyebrow,
+ *                   heading, subtext and a desktop + mobile image.
  *   Topics Section  the "Insights by Topic" intro above the filter chips.
  *   Categories      the filter chips themselves, each with its icon, in order.
- *   Posts           the articles - the featured card is simply the newest one.
+ *   Posts           the articles - the LATEST card is simply the newest one.
  *
  * Hero Section leads, and is what /cms/resources/blog opens on: there is no
  * inbox here to argue for another order. A post is written on a page of its own
  * (/cms/resources/blog/posts/new and /:id) rather than in a dialog, because a
  * body of up to eighty blocks does not fit in one - so the post editor sits
- * outside this layout, with its own header and a way back to the Posts tab.
+ * outside this layout, with its own header and a way back to the Posts tab. A
+ * hero slide's form (/cms/resources/blog/hero-section/new and /:id) does too.
  */
 
 const SECTIONS = [

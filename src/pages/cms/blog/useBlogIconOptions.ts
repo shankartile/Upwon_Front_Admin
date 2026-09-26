@@ -6,6 +6,10 @@ import { icons as fetchIcons } from '../../../services/blogSectionsService';
 /**
  * The icon names the category dialog offers, read from GET /blog/icons.
  *
+ * Shared with the Knowledgebase category dialog, which passes its own `load`
+ * (GET /knowledgebase/icons): the server serves the same allowlist there, under
+ * knowledgebase.read rather than blog.read.
+ *
  * Loaded by the dialog rather than by the page, so every open reads it afresh:
  * a list that failed to load is retried simply by closing the dialog and
  * opening it again, which is what the dialog tells the admin to do - the same
@@ -22,14 +26,17 @@ export interface BlogIconOptions {
   failed: boolean;
 }
 
-export function useBlogIconOptions(): BlogIconOptions {
+export function useBlogIconOptions(
+  /** Where the names come from - GET /blog/icons unless a caller says otherwise. */
+  load: () => Promise<string[]> = fetchIcons,
+): BlogIconOptions {
   const [names, setNames] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    fetchIcons()
+    load()
       .then((found) => {
         if (!cancelled) setNames(found);
       })
@@ -42,7 +49,8 @@ export function useBlogIconOptions(): BlogIconOptions {
     return () => {
       cancelled = true;
     };
-  }, []);
+    // Both callers pass a module-level function, so this runs once per open.
+  }, [load]);
 
   return { names, loading, failed };
 }

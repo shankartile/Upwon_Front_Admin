@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ImageOff, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
 import { Select } from '../../../components/ui/Select';
@@ -9,29 +9,28 @@ import { TableToolbar } from '../../../components/table/TableToolbar';
 import { RowActions } from '../../../components/table/RowActions';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 import { useToast } from '../../../context/ToastContext';
-import * as postsService from '../../../services/blogPostsService';
-import * as categoriesService from '../../../services/blogCategoriesService';
+import * as articlesService from '../../../services/knowledgebaseArticlesService';
+import * as categoriesService from '../../../services/knowledgebaseCategoriesService';
 import { errorMessage } from '../../../lib/http';
-import { siteAssetUrl } from '../../../lib/contentUrl';
 import { toChildStatusFilter, type ChildStatusFilter } from '../about/useChildList';
-import { formatPublishedOn } from './blogForm';
-import type { BlogCategory, BlogPost } from '../../../types/blog';
+import { MAX_KB_ARTICLES, formatUpdatedOn } from './knowledgebaseForm';
+import type { KnowledgebaseArticle, KnowledgebaseCategory } from '../../../types/knowledgebase';
 import type { ContentStatus } from '../../../types/homePage';
 
 /**
- * Resource Page -> Blog -> Posts tab: every article on the public /blog page,
- * newest first - the order the site lists them in, with the newest in its
- * "LATEST" card at the top of the listing. That card is not chosen here: it is
- * always the newest live post by publish date, so the table only marks it.
+ * Resource Page -> Knowledgebase -> Articles tab: every guide, newest Updated
+ * date first - the order each category page lists its cards in.
  *
- * NOT a child list: posts have no display order, so there are no arrows here.
- * Moving a post up the page means changing its publish date in the editor. The
- * Sr. No. column (House Rule 4) is therefore just the row's place in that
- * newest-first order, across the whole list rather than the filtered view.
+ * NOT a child list: articles have no display order, so there are no arrows
+ * here. Moving an article up its category page means changing its Updated date
+ * in the editor. The Sr. No. column (House Rule 4) is therefore just the row's
+ * place in that newest-first order, across the whole list rather than the
+ * filtered view.
  *
- * Posts are written on a page of their own (BlogPostEditPage), not in a Modal:
- * a body of up to eighty blocks does not fit in a dialog. Status and delete
- * stay here, behind a confirmation, like every other list in the panel.
+ * Articles are written on a page of their own (KnowledgebaseArticleEditPage),
+ * not in a Modal: a body of up to eighty blocks and twenty FAQs does not fit in
+ * a dialog. Status and delete stay here, behind a confirmation, like every
+ * other list in the panel.
  *
  * The whole set is fetched once and the search, category and status filters
  * apply to the VIEW, so switching a filter is instant and the summary above the
@@ -42,15 +41,19 @@ import type { ContentStatus } from '../../../types/homePage';
 const TABLE_MIN_WIDTH = '1080px';
 
 type Pending =
-  | { kind: 'delete'; record: BlogPost }
-  | { kind: 'status'; record: BlogPost; next: ContentStatus };
+  | { kind: 'delete'; record: KnowledgebaseArticle }
+  | { kind: 'status'; record: KnowledgebaseArticle; next: ContentStatus };
 
-export default function BlogPostsPage() {
+/** An article's public address - its category's slug, then its own. */
+const articlePath = (article: KnowledgebaseArticle): string =>
+  `/knowledgebase/${article.category.slug}/${article.slug}`;
+
+export default function KnowledgebaseArticlesPage() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [articles, setArticles] = useState<KnowledgebaseArticle[]>([]);
+  const [categories, setCategories] = useState<KnowledgebaseCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -63,11 +66,11 @@ export default function BlogPostsPage() {
     try {
       // Both at once: the category list is only the filter's options, but a
       // table whose filter cannot name its categories is not worth showing.
-      const [foundPosts, foundCategories] = await Promise.all([
-        postsService.list(),
+      const [foundArticles, foundCategories] = await Promise.all([
+        articlesService.list(),
         categoriesService.list(),
       ]);
-      setPosts(foundPosts);
+      setArticles(foundArticles);
       setCategories(foundCategories);
       setLoadError(null);
     } catch (error) {
@@ -83,39 +86,36 @@ export default function BlogPostsPage() {
 
   const visible = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return posts.filter((post) => {
-      if (statusFilter !== 'all' && post.status !== statusFilter) return false;
-      if (categoryFilter !== 'all' && post.categoryId !== categoryFilter) return false;
+    return articles.filter((article) => {
+      if (statusFilter !== 'all' && article.status !== statusFilter) return false;
+      if (categoryFilter !== 'all' && article.categoryId !== categoryFilter) return false;
       if (!query) return true;
-      return `${post.title} ${post.slug} ${post.excerpt} ${post.author} ${post.category.label}`
+      return `${article.title} ${article.slug} ${article.excerpt} ${article.category.name}`
         .toLowerCase()
         .includes(query);
     });
-  }, [categoryFilter, posts, search, statusFilter]);
+  }, [articles, categoryFilter, search, statusFilter]);
 
   const positionOf = useMemo(() => {
     const map = new Map<string, number>();
-    posts.forEach((post, index) => map.set(post.id, index + 1));
+    articles.forEach((article, index) => map.set(article.id, index + 1));
     return map;
-  }, [posts]);
+  }, [articles]);
 
-  const activeCount = posts.filter((post) => post.status === 'ACTIVE').length;
+  const activeCount = articles.filter((article) => article.status === 'ACTIVE').length;
 
-  /** The newest ACTIVE post in an ACTIVE category - the site's "LATEST" card. */
-  const latestId = useMemo(() => {
-    const live = new Set(categories.filter((c) => c.status === 'ACTIVE').map((c) => c.id));
-    return posts.find((post) => post.status === 'ACTIVE' && live.has(post.categoryId))?.id ?? null;
-  }, [categories, posts]);
+  const atLimit = articles.length >= MAX_KB_ARTICLES;
+  const noCategories = !loading && !loadError && categories.length === 0;
 
   const runPending = async () => {
     if (!pending) return;
     try {
       if (pending.kind === 'delete') {
-        await postsService.remove(pending.record.id);
-        toast.success('Post deleted');
+        await articlesService.remove(pending.record.id);
+        toast.success('Article deleted');
       } else {
-        await postsService.setStatus(pending.record.id, pending.next);
-        toast.success(pending.next === 'ACTIVE' ? 'Post activated' : 'Post deactivated');
+        await articlesService.setStatus(pending.record.id, pending.next);
+        toast.success(pending.next === 'ACTIVE' ? 'Article activated' : 'Article deactivated');
       }
       await reload();
     } catch (error) {
@@ -129,34 +129,38 @@ export default function BlogPostsPage() {
   const emptyState = (() => {
     if (loadError) {
       return {
-        title: 'Posts could not be loaded',
+        title: 'Articles could not be loaded',
         description:
-          'This list did not load, so it is showing nothing rather than no post having been written. Use Retry above.',
+          'This list did not load, so it is showing nothing rather than no article having been written. Use Retry above.',
       };
     }
-    if (posts.length === 0) {
+    if (articles.length === 0) {
       return {
-        title: 'No posts yet',
-        description: 'Write the first post — it becomes the LATEST card at the top of /blog.',
+        title: 'No articles yet',
+        description: 'Write the first guide — it is listed on its category page on /knowledgebase.',
       };
     }
     return {
-      title: 'No matching posts',
-      description: 'No post matches that search and those filters.',
+      title: 'No matching articles',
+      description: 'No article matches that search and those filters.',
     };
   })();
 
   const summary = (() => {
-    if (loadError) return 'The posts could not be loaded.';
-    if (loading && posts.length === 0) return null;
-    if (posts.length === 0) return 'No posts yet.';
-    return `${activeCount} of ${posts.length} ${
-      posts.length === 1 ? 'post is' : 'posts are'
-    } live, newest first — the newest live one (by publish date) is the LATEST card at the top of /blog.`;
+    if (loadError) return 'The articles could not be loaded.';
+    if (loading && articles.length === 0) return null;
+    if (articles.length === 0) return 'No articles yet.';
+    return `${activeCount} of ${articles.length} ${
+      articles.length === 1 ? 'article is' : 'articles are'
+    } live, newest Updated date first — the order each category page lists them in.`;
   })();
 
-  const openEditor = (post: BlogPost | null) =>
-    navigate(post ? `/cms/resources/blog/posts/${post.id}` : '/cms/resources/blog/posts/new');
+  const openEditor = (article: KnowledgebaseArticle | null) =>
+    navigate(
+      article
+        ? `/cms/resources/knowledgebase/articles/${article.id}`
+        : '/cms/resources/knowledgebase/articles/new',
+    );
 
   return (
     <>
@@ -165,21 +169,25 @@ export default function BlogPostsPage() {
         <Button
           variant="orange"
           leftIcon={<Plus className="h-4 w-4" />}
-          disabled={!loading && !loadError && categories.length === 0}
+          disabled={noCategories || atLimit}
           title={
-            !loading && !loadError && categories.length === 0
-              ? 'Add a category first - every post is filed under one'
-              : undefined
+            noCategories
+              ? 'Add a category first - every article is filed under one'
+              : atLimit
+                ? `The knowledgebase holds at most ${MAX_KB_ARTICLES} articles`
+                : undefined
           }
           onClick={() => openEditor(null)}
         >
-          Add post
+          Add article
         </Button>
       </div>
 
       {loadError && (
         <div className="mb-4 rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm dark:border-orange-900/40 dark:bg-orange-900/10">
-          <p className="font-medium text-orange-800 dark:text-orange-300">Could not load the posts</p>
+          <p className="font-medium text-orange-800 dark:text-orange-300">
+            Could not load the articles
+          </p>
           <p className="mt-1 text-orange-700 dark:text-orange-400">{loadError}</p>
           <Button size="sm" variant="secondary" className="mt-3" onClick={() => void reload()}>
             Retry
@@ -187,7 +195,7 @@ export default function BlogPostsPage() {
         </div>
       )}
 
-      <DataTable<BlogPost>
+      <DataTable<KnowledgebaseArticle>
         data={visible}
         loading={loading}
         minWidth={TABLE_MIN_WIDTH}
@@ -200,7 +208,7 @@ export default function BlogPostsPage() {
           <TableToolbar
             search={search}
             onSearchChange={setSearch}
-            placeholder="Search title or author…"
+            placeholder="Search title or excerpt…"
             right={
               <div className="flex gap-2">
                 <div className="w-52">
@@ -212,7 +220,7 @@ export default function BlogPostsPage() {
                     <option value="all">All categories</option>
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
-                        {category.label}
+                        {category.name}
                       </option>
                     ))}
                   </Select>
@@ -244,12 +252,6 @@ export default function BlogPostsPage() {
             ),
           },
           {
-            key: 'image',
-            header: 'Image',
-            width: '110px',
-            render: (row) => <PostThumb post={row} />,
-          },
-          {
             key: 'title',
             header: 'Title',
             render: (row) => (
@@ -260,16 +262,10 @@ export default function BlogPostsPage() {
                 >
                   {row.title}
                 </span>
-                <span className="flex items-center gap-2">
-                  <code className="truncate text-xs text-charcoal-light dark:text-navy-300">
-                    /blog/{row.slug}
-                  </code>
-                  {row.id === latestId && (
-                    <span title="Shown in the LATEST card at the top of /blog - always the newest live post by publish date.">
-                      <Badge tone="orange">Latest</Badge>
-                    </span>
-                  )}
-                </span>
+                {/* The article's fixed address - derived once, never edited. */}
+                <code className="block truncate text-xs text-charcoal-light dark:text-navy-300">
+                  {articlePath(row)}
+                </code>
               </div>
             ),
           },
@@ -280,19 +276,29 @@ export default function BlogPostsPage() {
             render: (row) => (
               <span
                 className="block truncate text-charcoal-light dark:text-navy-300"
-                title={row.category.label}
+                title={row.category.name}
               >
-                {row.category.label}
+                {row.category.name}
               </span>
             ),
           },
           {
-            key: 'date',
-            header: 'Date',
+            key: 'updated',
+            header: 'Updated',
             width: '130px',
             render: (row) => (
               <span className="tabular-nums text-charcoal-light dark:text-navy-300">
-                {formatPublishedOn(row.publishedOn)}
+                {formatUpdatedOn(row.updatedOn)}
+              </span>
+            ),
+          },
+          {
+            key: 'readTime',
+            header: 'Read time',
+            width: '120px',
+            render: (row) => (
+              <span className="block truncate text-charcoal-light dark:text-navy-300" title={row.readTime}>
+                {row.readTime}
               </span>
             ),
           },
@@ -327,39 +333,21 @@ export default function BlogPostsPage() {
         onConfirm={() => void runPending()}
         title={
           pending?.kind === 'delete'
-            ? 'Delete this post'
+            ? 'Delete this article'
             : pending?.next === 'ACTIVE'
-              ? 'Publish on the blog'
-              : 'Hide from the blog'
+              ? 'Publish on the knowledgebase'
+              : 'Hide from the knowledgebase'
         }
         description={
           pending?.kind === 'delete'
-            ? `"${pending.record.title}" will be permanently removed, and /blog/${pending.record.slug} will stop working. This cannot be undone.`
+            ? `"${pending.record.title}" will be permanently removed, and ${articlePath(pending.record)} will stop working. This cannot be undone.`
             : pending?.next === 'ACTIVE'
-              ? `"${pending.record.title}" will start appearing on the live /blog page${
-                  pending.record.category ? ` under ${pending.record.category.label}` : ''
-                }.`
-              : `"${pending?.record.title}" will be taken off the live /blog page, and its URL will stop working. It is kept here.`
+              ? `"${pending.record.title}" will start appearing on the live site, under ${pending.record.category.name}.`
+              : `"${pending?.record.title}" will be taken off the live site, and its URL will stop working. It is kept here.`
         }
         confirmLabel={pending?.kind === 'delete' ? 'Delete' : 'Confirm'}
         variant={pending?.kind === 'delete' ? 'danger' : 'primary'}
       />
     </>
-  );
-}
-
-/** The post's card image, small - or a plain frame when it has none. */
-function PostThumb({ post }: { post: BlogPost }) {
-  const src = siteAssetUrl(post.resolvedImageUrl);
-  return (
-    <div className="h-12 w-20 overflow-hidden rounded-lg border border-cream-300 bg-cream-100 dark:border-navy-800 dark:bg-navy-950/50">
-      {src ? (
-        <img src={src} alt="" className="h-full w-full object-cover" loading="lazy" />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center text-charcoal-light dark:text-navy-300">
-          <ImageOff className="h-4 w-4" />
-        </div>
-      )}
-    </div>
   );
 }

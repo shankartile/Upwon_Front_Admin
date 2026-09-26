@@ -34,9 +34,7 @@ import {
   BODY_MAX_BLOCKS,
   BODY_MIN_BLOCKS,
   POST_RULES,
-  POST_SLUG_MAX,
   blockError,
-  blogSlugError,
   bodyCountError,
   checkText,
   counterFor,
@@ -45,7 +43,6 @@ import {
   fromBlockDraft,
   publishedOnError,
   toBlockDraft,
-  toBlogSlug,
   todayIso,
   type BlockDraft,
   type PostTextField,
@@ -66,15 +63,14 @@ import type { ContentStatus } from '../../../types/homePage';
  * of its own rather than a dialog, because the body alone can run to eighty
  * blocks.
  *
- * A post is a card in the /blog grid (the newest live one is the featured card)
+ * A post is a card in the /blog grid (the newest live one is the LATEST card)
  * and an article of its own at /blog/<slug>. The form follows that split: the
  * card copy first, with a live preview of the card beside it, then the image
  * both of them show, and finally the article - lead and body.
  *
- * The slug follows the title while a NEW post is being named and stops the
- * moment the admin types one of their own. An existing post's slug never
- * follows the title: it is the post's URL, and old links should keep working
- * unless the admin changes it on purpose.
+ * There is no slug input, and no slug is ever sent: the server derives the
+ * /blog/<slug> address from the title when the post is created and never
+ * changes it, so old links keep working when the title is edited.
  *
  * Both images - the desktop one and its optional phone crop, a pair like the
  * home hero's - are upload only; no image URL is taken anywhere. The seeded
@@ -123,7 +119,6 @@ const mobileWithoutImage = (form: DraftForm): boolean =>
 
 interface DraftForm {
   title: string;
-  slug: string;
   categoryId: string;
   excerpt: string;
   author: string;
@@ -140,7 +135,7 @@ interface DraftForm {
  * The fields errors are reported under - the server's own names, so a 422
  * lands under the right input.
  */
-type FieldName = PostTextField | 'slug' | 'categoryId' | 'publishedOn' | 'body';
+type FieldName = PostTextField | 'categoryId' | 'publishedOn' | 'body';
 
 /**
  * A new post is live by default, dated today, and opens with one empty
@@ -148,7 +143,6 @@ type FieldName = PostTextField | 'slug' | 'categoryId' | 'publishedOn' | 'body';
  */
 const emptyForm = (): DraftForm => ({
   title: '',
-  slug: '',
   categoryId: '',
   excerpt: '',
   author: '',
@@ -163,7 +157,6 @@ const emptyForm = (): DraftForm => ({
 
 const toForm = (post: BlogPost): DraftForm => ({
   title: post.title,
-  slug: post.slug,
   categoryId: post.categoryId,
   excerpt: post.excerpt,
   author: post.author,
@@ -206,10 +199,7 @@ function PostEditor({ postId }: { postId: string }) {
 
   const [post, setPost] = useState<BlogPost | null>(null);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
-  /** Every OTHER post's slug, so a clash shows before the server's 409. */
-  const [takenSlugs, setTakenSlugs] = useState<string[]>([]);
   const [form, setForm] = useState<DraftForm | null>(null);
-  const [slugEdited, setSlugEdited] = useState(!isNew);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [touched, setTouched] = useState<Touched>({});
@@ -217,18 +207,15 @@ function PostEditor({ postId }: { postId: string }) {
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
 
   // The categories come too, even when editing: they are the select's options.
-  // The other posts are read for their slugs only - the uniqueness hint.
   useEffect(() => {
     let cancelled = false;
     Promise.all([
       categoriesService.list(),
-      postsService.list(),
       isNew ? Promise.resolve(null) : postsService.getById(postId),
     ])
-      .then(([foundCategories, allPosts, foundPost]) => {
+      .then(([foundCategories, foundPost]) => {
         if (cancelled) return;
         setCategories(foundCategories);
-        setTakenSlugs(allPosts.filter((other) => other.id !== postId).map((other) => other.slug));
         setPost(foundPost);
         setForm(foundPost ? toForm(foundPost) : emptyForm());
       })
@@ -250,7 +237,6 @@ function PostEditor({ postId }: { postId: string }) {
       result[name] = checkText(POST_RULES[name], form[name]);
     });
 
-    result.slug = blogSlugError(form.slug, { max: POST_SLUG_MAX, taken: takenSlugs });
     result.categoryId = !form.categoryId
       ? 'Choose a category.'
       : categories.some((category) => category.id === form.categoryId)
@@ -262,7 +248,7 @@ function PostEditor({ postId }: { postId: string }) {
     // that block, but still blocks Save through `blocksInvalid` below.
     result.body = bodyCountError(form.blocks);
     return result;
-  }, [categories, form, takenSlugs]);
+  }, [categories, form]);
 
   const blocksInvalid = form ? form.blocks.some((block) => blockError(block) !== null) : false;
   const hasErrors =
@@ -311,10 +297,6 @@ function PostEditor({ postId }: { postId: string }) {
       return next;
     });
   };
-
-  /** The title, and the slug with it while the slug is still derived. */
-  const changeTitle = (title: string) =>
-    patch(slugEdited ? { title } : { title, slug: toBlogSlug(title, POST_SLUG_MAX) });
 
   const setSlot = (name: SlotName, slot: ImageSlot) => {
     // The preview this slot was showing is about to leave the screen, so its
@@ -369,7 +351,6 @@ function PostEditor({ postId }: { postId: string }) {
       // Every field is sent, blanks as null. The two file ids are the only way
       // to set the images: an upload's id, or null for none.
       const body: CreateBlogPostInput = {
-        slug: form.slug.trim(),
         categoryId: form.categoryId,
         title: form.title.trim(),
         excerpt: form.excerpt.trim(),
@@ -409,7 +390,6 @@ function PostEditor({ postId }: { postId: string }) {
     } catch (error) {
       setServerErrors(
         serverFieldErrors(error, {
-          BLOG_POST_SLUG_TAKEN: 'slug',
           MOBILE_IMAGE_WITHOUT_IMAGE: SLOT_FIELD.image,
         }),
       );
@@ -421,7 +401,6 @@ function PostEditor({ postId }: { postId: string }) {
 
   const counter = (name: PostTextField) => counterFor(form[name], POST_RULES[name].max);
   const category = categories.find((c) => c.id === form.categoryId) ?? null;
-  const postUrl = `/blog/${form.slug.trim() || '…'}`;
 
   /** One text input of the rule table, wired the same way for each. */
   const textInput = (name: PostTextField, placeholder: string) => (
@@ -501,32 +480,7 @@ function PostEditor({ postId }: { postId: string }) {
                 invalid={!!errorFor('title')}
                 aria-invalid={!!errorFor('title')}
                 onBlur={() => touch('title')}
-                onChange={(e) => changeTitle(e.target.value)}
-              />
-            </Field>
-
-            <Field
-              label="Slug"
-              required
-              error={errorFor('slug')}
-              hint={
-                slugEdited
-                  ? `The post's URL: ${postUrl}. Lowercase letters, numbers and hyphens. ${counterFor(form.slug, POST_SLUG_MAX)}`
-                  : `Made from the title until you edit it: ${postUrl}. ${counterFor(form.slug, POST_SLUG_MAX)}`
-              }
-            >
-              <Input
-                value={form.slug}
-                placeholder="reduce-wastage-multi-plant-bakery"
-                autoComplete="off"
-                spellCheck={false}
-                invalid={!!errorFor('slug')}
-                aria-invalid={!!errorFor('slug')}
-                onBlur={() => touch('slug')}
-                onChange={(e) => {
-                  setSlugEdited(true);
-                  patch({ slug: e.target.value });
-                }}
+                onChange={(e) => patch({ title: e.target.value })}
               />
             </Field>
 
@@ -561,7 +515,7 @@ function PostEditor({ postId }: { postId: string }) {
                 label="Publish date"
                 required
                 error={errorFor('publishedOn')}
-                hint="The site lists posts newest first; the newest live one is featured."
+                hint="The site lists posts newest first; the newest live one is shown in the LATEST card at the top of /blog."
               >
                 <Input
                   type="date"
@@ -633,7 +587,12 @@ function PostEditor({ postId }: { postId: string }) {
             <CardHeader title="Preview" subtitle="How the card will render in the /blog grid." />
             <CardBody className="space-y-3">
               <PostCardPreview form={form} categoryLabel={category?.label ?? null} />
-              <p className="break-all text-xs text-charcoal-light dark:text-navy-300">{postUrl}</p>
+              {/* A saved post's fixed address; a new one has none until it is created. */}
+              {post && (
+                <p className="break-all text-xs text-charcoal-light dark:text-navy-300">
+                  /blog/{post.slug}
+                </p>
+              )}
             </CardBody>
           </Card>
         </div>

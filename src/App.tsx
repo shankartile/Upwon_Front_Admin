@@ -191,11 +191,21 @@ import ContactLinesPage from './pages/cms/socialMediaLinks/ContactLinesPage';
 import SocialLinksPage from './pages/cms/socialMediaLinks/SocialLinksPage';
 
 import BlogPageLayout from './pages/cms/blog/BlogPageLayout';
-import BlogHeroSectionPage from './pages/cms/blog/BlogHeroSectionPage';
+import { BLOG_HERO_SECTION } from './pages/cms/blog/blogHeroSection';
 import BlogTopicsSectionPage from './pages/cms/blog/BlogTopicsSectionPage';
 import BlogCategoriesPage from './pages/cms/blog/BlogCategoriesPage';
 import BlogPostsPage from './pages/cms/blog/BlogPostsPage';
 import BlogPostEditPage from './pages/cms/blog/BlogPostEditPage';
+
+import FreeAuditLayout from './pages/cms/freeAudit/FreeAuditLayout';
+import { FREE_AUDIT_HERO_SECTION } from './pages/cms/freeAudit/freeAuditHeroSection';
+import FreeAuditApplicationsPage from './pages/cms/freeAudit/FreeAuditApplicationsPage';
+
+import KnowledgebaseLayout from './pages/cms/knowledgebase/KnowledgebaseLayout';
+import { KNOWLEDGEBASE_HERO_SECTION } from './pages/cms/knowledgebase/knowledgebaseHeroSection';
+import KnowledgebaseCategoriesPage from './pages/cms/knowledgebase/KnowledgebaseCategoriesPage';
+import KnowledgebaseArticlesPage from './pages/cms/knowledgebase/KnowledgebaseArticlesPage';
+import KnowledgebaseArticleEditPage from './pages/cms/knowledgebase/KnowledgebaseArticleEditPage';
 
 import LeadsInboxPage from './pages/cms/leads/LeadsInboxPage';
 
@@ -855,15 +865,18 @@ export default function App() {
 
           {/*
             Resource Page -> Blog: the public /blog page, one tab per band that is
-            admin-driven - the hero slide, the "Insights by Topic" intro, the
+            admin-driven - the hero carousel, the "Insights by Topic" intro, the
             category chips - plus the posts it lists. Hero Section leads and is
             what /cms/resources/blog opens on; there is no inbox here to argue
             for another order - see BlogPageLayout.
 
-            The categories are edited in a Modal on their own tab, but a post is
-            written on a page of its own (a body of up to eighty blocks does not
-            fit in a dialog), so /cms/resources/blog/posts/new and /:id sit
-            outside the layout, the way the Insider story editor does.
+            The hero tab and its slide form are the home hero screens, driven by
+            the Blog config and keyed like the Insider ones. The categories are
+            edited in a Modal on their own tab, but a slide and a post are each
+            written on a page of their own (a body of up to eighty blocks does
+            not fit in a dialog), so /cms/resources/blog/hero-section/:id and
+            /cms/resources/blog/posts/:id ('new' = create) sit outside the
+            layout, the way the Insider hero and story editors do.
 
             /cms/resources itself has no screen - the sidebar's Resource Page is a
             disclosure - so the breadcrumb's link to it lands on the Blog area.
@@ -871,12 +884,82 @@ export default function App() {
           <Route path="/cms/resources" element={<Navigate to="/cms/resources/blog" replace />} />
           <Route path="/cms/resources/blog" element={<BlogPageLayout />}>
             <Route index element={<Navigate to="hero-section" replace />} />
-            <Route path="hero-section" element={<BlogHeroSectionPage />} />
+            <Route
+              path="hero-section"
+              element={<HeroSectionPage key="blog" config={BLOG_HERO_SECTION} />}
+            />
             <Route path="topics-section" element={<BlogTopicsSectionPage />} />
             <Route path="categories" element={<BlogCategoriesPage />} />
             <Route path="posts" element={<BlogPostsPage />} />
           </Route>
+          <Route
+            path="/cms/resources/blog/hero-section/:id"
+            element={<HeroSlideEditPage key="blog" config={BLOG_HERO_SECTION} />}
+          />
           <Route path="/cms/resources/blog/posts/:id" element={<BlogPostEditPage />} />
+
+          {/*
+            Resource Page -> Free Operational Audit: the public /free-audit page.
+            Two tabs - its hero carousel, then the inbox its form fills - in the
+            order the user asked for them, so Hero Section is what
+            /cms/resources/free-audit opens on - see FreeAuditLayout.
+
+            The hero tab and its slide form are the home hero screens, driven by
+            the Free Audit config and keyed like the Blog ones, and the slide form
+            (/cms/resources/free-audit/hero-section/:id, 'new' = create) sits
+            outside the layout the way the Blog hero's does. A request opens a
+            detail card on its own tab, so there is no
+            /cms/resources/free-audit/applications/:id.
+          */}
+          <Route path="/cms/resources/free-audit" element={<FreeAuditLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route
+              path="hero-section"
+              element={<HeroSectionPage key="free-audit" config={FREE_AUDIT_HERO_SECTION} />}
+            />
+            <Route path="applications" element={<FreeAuditApplicationsPage />} />
+          </Route>
+          <Route
+            path="/cms/resources/free-audit/hero-section/:id"
+            element={<HeroSlideEditPage key="free-audit" config={FREE_AUDIT_HERO_SECTION} />}
+          />
+
+          {/*
+            Resource Page -> Knowledgebase: the public /knowledgebase pages - the
+            hub, a page per category and an article page per guide. Three tabs,
+            in the order a visitor meets them: the hub's hero carousel, its
+            category cards, then the articles those cards open. Hero Section
+            leads and is what /cms/resources/knowledgebase opens on; there is no
+            inbox here to argue for another order - see KnowledgebaseLayout.
+
+            The hero tab and its slide form are the home hero screens, driven by
+            the Knowledgebase config and keyed like the Blog ones. The categories
+            are edited in a Modal on their own tab, but a slide and an article
+            are each written on a page of their own (a body of up to eighty
+            blocks and its FAQs do not fit in a dialog), so
+            /cms/resources/knowledgebase/hero-section/:id and
+            /cms/resources/knowledgebase/articles/:id ('new' = create) sit
+            outside the layout, the way the Blog hero and post editors do.
+          */}
+          <Route path="/cms/resources/knowledgebase" element={<KnowledgebaseLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route
+              path="hero-section"
+              element={<HeroSectionPage key="knowledgebase" config={KNOWLEDGEBASE_HERO_SECTION} />}
+            />
+            <Route path="categories" element={<KnowledgebaseCategoriesPage />} />
+            <Route path="articles" element={<KnowledgebaseArticlesPage />} />
+          </Route>
+          <Route
+            path="/cms/resources/knowledgebase/hero-section/:id"
+            element={
+              <HeroSlideEditPage key="knowledgebase" config={KNOWLEDGEBASE_HERO_SECTION} />
+            }
+          />
+          <Route
+            path="/cms/resources/knowledgebase/articles/:id"
+            element={<KnowledgebaseArticleEditPage />}
+          />
 
           <Route path="/cms/leads/:type" element={<LeadsInboxPage />} />
 

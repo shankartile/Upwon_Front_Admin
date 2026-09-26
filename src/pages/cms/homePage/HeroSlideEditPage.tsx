@@ -43,12 +43,13 @@ import {
  * use (see PageEditPage), so the list can link to both with one route.
  *
  * Serves every hero carousel through `config` (see heroSectionConfig.ts): the
- * home page one by default, the Insider page one from its own route.
+ * home page one by default, the Insider, Blog, Free Audit and Knowledgebase
+ * page ones from their own routes.
  */
 
 /**
- * Field rules, mirroring the server-side hero section validators - the home
- * and Insider ones share these limits.
+ * Field rules, mirroring the server-side hero section validators - the home,
+ * Insider, Blog, Free Audit and Knowledgebase ones share these limits.
  *
  * Kept as data rather than inline `if`s so one `validateField` covers every
  * text field, and the counter under each input reads its max from the same
@@ -114,7 +115,7 @@ const toForm = (slide: HeroSlideRecord, config: HeroSectionConfig): DraftForm =>
   }),
   mobile: storedImageSlot({
     fileId: slide.mobileImageFileId,
-    url: config.imageUrls ? slide.mobileImageUrl : null,
+    url: config.imageUrls ? (slide.mobileImageUrl ?? null) : null,
     image: slide.mobileImage,
   }),
 });
