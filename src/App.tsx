@@ -76,6 +76,73 @@ import PosFaqSectionPage from './pages/cms/posPage/FaqSectionPage';
 import PosFaqEntryEditPage from './pages/cms/posPage/FaqEntryEditPage';
 import PosFaqEntryViewPage from './pages/cms/posPage/FaqEntryViewPage';
 import PosCtaSectionPage from './pages/cms/posPage/CtaSectionPage';
+import PosProofSectionPage from './pages/cms/posPage/ProofSectionPage';
+import PosProofLogoEditPage from './pages/cms/posPage/ProofLogoEditPage';
+import PosProofLogoViewPage from './pages/cms/posPage/ProofLogoViewPage';
+import PosProofStatEditPage from './pages/cms/posPage/ProofStatEditPage';
+import PosProofStatViewPage from './pages/cms/posPage/ProofStatViewPage';
+import PosRecognitionSectionPage from './pages/cms/posPage/RecognitionSectionPage';
+import PosRecognitionCategoryEditPage from './pages/cms/posPage/RecognitionCategoryEditPage';
+import PosRecognitionCategoryViewPage from './pages/cms/posPage/RecognitionCategoryViewPage';
+import PosVideoSectionPage from './pages/cms/posPage/VideoSectionPage';
+import PosVideoEntryEditPage from './pages/cms/posPage/VideoEntryEditPage';
+import PosVideoEntryViewPage from './pages/cms/posPage/VideoEntryViewPage';
+import PosGrowthSectionPage from './pages/cms/posPage/GrowthSectionPage';
+import PosGrowthTierEditPage from './pages/cms/posPage/GrowthTierEditPage';
+import PosGrowthTierViewPage from './pages/cms/posPage/GrowthTierViewPage';
+import PosGrowthFeatureEditPage from './pages/cms/posPage/GrowthFeatureEditPage';
+import PosGrowthFeatureViewPage from './pages/cms/posPage/GrowthFeatureViewPage';
+import PosSecuritySectionPage from './pages/cms/posPage/SecuritySectionPage';
+import PosSecurityBadgeEditPage from './pages/cms/posPage/SecurityBadgeEditPage';
+import PosSecurityBadgeViewPage from './pages/cms/posPage/SecurityBadgeViewPage';
+import PosSecurityLogoEditPage from './pages/cms/posPage/SecurityLogoEditPage';
+import PosSecurityLogoViewPage from './pages/cms/posPage/SecurityLogoViewPage';
+import PosSecurityAssuranceEditPage from './pages/cms/posPage/SecurityAssuranceEditPage';
+import PosSecurityAssuranceViewPage from './pages/cms/posPage/SecurityAssuranceViewPage';
+import PosAlternativesSectionPage from './pages/cms/posPage/AlternativesSectionPage';
+import PosAlternativesColumnEditPage from './pages/cms/posPage/AlternativesColumnEditPage';
+import PosAlternativesColumnViewPage from './pages/cms/posPage/AlternativesColumnViewPage';
+import PosAlternativesRowEditPage from './pages/cms/posPage/AlternativesRowEditPage';
+import PosAlternativesRowViewPage from './pages/cms/posPage/AlternativesRowViewPage';
+import PosOutcomesSectionPage from './pages/cms/posPage/OutcomesSectionPage';
+import PosOutcomeStoryEditPage from './pages/cms/posPage/OutcomeStoryEditPage';
+import PosOutcomeStoryViewPage from './pages/cms/posPage/OutcomeStoryViewPage';
+import HreasyPageLayout from './pages/cms/hreasyPage/HreasyPageLayout';
+import HreasyHeroSectionPage from './pages/cms/hreasyPage/HeroSectionPage';
+import HreasyHeroSlideEditPage from './pages/cms/hreasyPage/HeroSlideEditPage';
+import HreasyHeroSlideViewPage from './pages/cms/hreasyPage/HeroSlideViewPage';
+import HreasyProofSectionPage from './pages/cms/hreasyPage/ProofSectionPage';
+import HreasyProofTileEditPage from './pages/cms/hreasyPage/ProofTileEditPage';
+import HreasyProofTileViewPage from './pages/cms/hreasyPage/ProofTileViewPage';
+import HreasyProofCellEditPage from './pages/cms/hreasyPage/ProofCellEditPage';
+import HreasyProofCellViewPage from './pages/cms/hreasyPage/ProofCellViewPage';
+import HreasyCapabilitiesSectionPage from './pages/cms/hreasyPage/CapabilitiesSectionPage';
+import HreasyCapabilityModuleEditPage from './pages/cms/hreasyPage/CapabilityModuleEditPage';
+import HreasyCapabilityModuleViewPage from './pages/cms/hreasyPage/CapabilityModuleViewPage';
+import HreasyLifecycleSectionPage from './pages/cms/hreasyPage/LifecycleSectionPage';
+import HreasyLifecycleCardEditPage from './pages/cms/hreasyPage/LifecycleCardEditPage';
+import HreasyLifecycleCardViewPage from './pages/cms/hreasyPage/LifecycleCardViewPage';
+import HreasyPackagesSectionPage from './pages/cms/hreasyPage/PackagesSectionPage';
+import HreasyPackageTierEditPage from './pages/cms/hreasyPage/PackageTierEditPage';
+import HreasyPackageTierViewPage from './pages/cms/hreasyPage/PackageTierViewPage';
+import HreasyPackageFeatureEditPage from './pages/cms/hreasyPage/PackageFeatureEditPage';
+import HreasyPackageFeatureViewPage from './pages/cms/hreasyPage/PackageFeatureViewPage';
+import HreasyAlternativesSectionPage from './pages/cms/hreasyPage/AlternativesSectionPage';
+import HreasyAlternativesColumnEditPage from './pages/cms/hreasyPage/AlternativesColumnEditPage';
+import HreasyAlternativesColumnViewPage from './pages/cms/hreasyPage/AlternativesColumnViewPage';
+import HreasyAlternativesRowEditPage from './pages/cms/hreasyPage/AlternativesRowEditPage';
+import HreasyAlternativesRowViewPage from './pages/cms/hreasyPage/AlternativesRowViewPage';
+import HreasyOutcomesSectionPage from './pages/cms/hreasyPage/OutcomesSectionPage';
+import HreasyOutcomeStoryEditPage from './pages/cms/hreasyPage/OutcomeStoryEditPage';
+import HreasyOutcomeStoryViewPage from './pages/cms/hreasyPage/OutcomeStoryViewPage';
+import HreasyOutcomeStatEditPage from './pages/cms/hreasyPage/OutcomeStatEditPage';
+import HreasyOutcomeStatViewPage from './pages/cms/hreasyPage/OutcomeStatViewPage';
+import HreasyFaqSectionPage from './pages/cms/hreasyPage/FaqSectionPage';
+import HreasyFaqEntryEditPage from './pages/cms/hreasyPage/FaqEntryEditPage';
+import HreasyFaqEntryViewPage from './pages/cms/hreasyPage/FaqEntryViewPage';
+import HreasyCtaSectionPage from './pages/cms/hreasyPage/CtaSectionPage';
+import HreasyCtaTrustItemEditPage from './pages/cms/hreasyPage/CtaTrustItemEditPage';
+import HreasyCtaTrustItemViewPage from './pages/cms/hreasyPage/CtaTrustItemViewPage';
 import FmsFranchiseSectionPage from './pages/cms/fmsPage/FranchiseSectionPage';
 import FmsVideoSectionPage from './pages/cms/fmsPage/VideoSectionPage';
 import FmsIntegrationsSectionPage from './pages/cms/fmsPage/IntegrationsSectionPage';
@@ -426,6 +493,13 @@ export default function App() {
           <Route path="/cms/products/pos" element={<PosPageLayout />}>
             <Route index element={<Navigate to="hero-section" replace />} />
             <Route path="hero-section" element={<PosHeroSectionPage />} />
+            <Route path="proof-section" element={<PosProofSectionPage />} />
+            <Route path="recognition-section" element={<PosRecognitionSectionPage />} />
+            <Route path="video-section" element={<PosVideoSectionPage />} />
+            <Route path="growth-section" element={<PosGrowthSectionPage />} />
+            <Route path="security-section" element={<PosSecuritySectionPage />} />
+            <Route path="alternatives-section" element={<PosAlternativesSectionPage />} />
+            <Route path="outcomes-section" element={<PosOutcomesSectionPage />} />
             <Route path="faq-section" element={<PosFaqSectionPage />} />
             <Route path="cta-section" element={<PosCtaSectionPage />} />
           </Route>
@@ -438,10 +512,235 @@ export default function App() {
             path="/cms/products/pos/hero-section/:id/view"
             element={<PosHeroSlideViewPage />}
           />
+          <Route
+            path="/cms/products/pos/proof-section/logos/:id"
+            element={<PosProofLogoEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/proof-section/logos/:id/view"
+            element={<PosProofLogoViewPage />}
+          />
+          <Route
+            path="/cms/products/pos/proof-section/stats/:id"
+            element={<PosProofStatEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/proof-section/stats/:id/view"
+            element={<PosProofStatViewPage />}
+          />
+          <Route
+            path="/cms/products/pos/recognition-section/:id"
+            element={<PosRecognitionCategoryEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/recognition-section/:id/view"
+            element={<PosRecognitionCategoryViewPage />}
+          />
+          <Route
+            path="/cms/products/pos/video-section/:id"
+            element={<PosVideoEntryEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/video-section/:id/view"
+            element={<PosVideoEntryViewPage />}
+          />
+          <Route
+            path="/cms/products/pos/growth-section/tiers/:id"
+            element={<PosGrowthTierEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/growth-section/tiers/:id/view"
+            element={<PosGrowthTierViewPage />}
+          />
+          <Route
+            path="/cms/products/pos/growth-section/tiers/:tierId/features/:id"
+            element={<PosGrowthFeatureEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/growth-section/tiers/:tierId/features/:id/view"
+            element={<PosGrowthFeatureViewPage />}
+          />
+          <Route
+            path="/cms/products/pos/security-section/badges/:id"
+            element={<PosSecurityBadgeEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/security-section/badges/:id/view"
+            element={<PosSecurityBadgeViewPage />}
+          />
+          <Route
+            path="/cms/products/pos/security-section/logos/:id"
+            element={<PosSecurityLogoEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/security-section/logos/:id/view"
+            element={<PosSecurityLogoViewPage />}
+          />
+          <Route
+            path="/cms/products/pos/security-section/assurances/:id"
+            element={<PosSecurityAssuranceEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/security-section/assurances/:id/view"
+            element={<PosSecurityAssuranceViewPage />}
+          />
+          <Route
+            path="/cms/products/pos/alternatives-section/columns/:id"
+            element={<PosAlternativesColumnEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/alternatives-section/columns/:id/view"
+            element={<PosAlternativesColumnViewPage />}
+          />
+          <Route
+            path="/cms/products/pos/alternatives-section/rows/:id"
+            element={<PosAlternativesRowEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/alternatives-section/rows/:id/view"
+            element={<PosAlternativesRowViewPage />}
+          />
+          <Route
+            path="/cms/products/pos/outcomes-section/stories/:id"
+            element={<PosOutcomeStoryEditPage />}
+          />
+          <Route
+            path="/cms/products/pos/outcomes-section/stories/:id/view"
+            element={<PosOutcomeStoryViewPage />}
+          />
           <Route path="/cms/products/pos/faq-section/:id" element={<PosFaqEntryEditPage />} />
           <Route
             path="/cms/products/pos/faq-section/:id/view"
             element={<PosFaqEntryViewPage />}
+          />
+
+          {/* The HREasy page, laid out the same way as the POS one. */}
+          <Route path="/cms/products/hreasy" element={<HreasyPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<HreasyHeroSectionPage />} />
+            <Route path="proof-section" element={<HreasyProofSectionPage />} />
+            <Route path="capabilities-section" element={<HreasyCapabilitiesSectionPage />} />
+            <Route path="lifecycle-section" element={<HreasyLifecycleSectionPage />} />
+            <Route path="packages-section" element={<HreasyPackagesSectionPage />} />
+            <Route path="alternatives-section" element={<HreasyAlternativesSectionPage />} />
+            <Route path="outcomes-section" element={<HreasyOutcomesSectionPage />} />
+            <Route path="faq-section" element={<HreasyFaqSectionPage />} />
+            <Route path="cta-section" element={<HreasyCtaSectionPage />} />
+          </Route>
+          {/* Entry forms sit outside the layout so they get the full width. */}
+          <Route
+            path="/cms/products/hreasy/hero-section/:id"
+            element={<HreasyHeroSlideEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/hero-section/:id/view"
+            element={<HreasyHeroSlideViewPage />}
+          />
+          {/*
+           * The bento is two lists, so it has two sets of forms: the cards and
+           * the columns that place them.
+           */}
+          <Route
+            path="/cms/products/hreasy/proof-section/tiles/:id"
+            element={<HreasyProofTileEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/proof-section/tiles/:id/view"
+            element={<HreasyProofTileViewPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/proof-section/cells/:id"
+            element={<HreasyProofCellEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/proof-section/cells/:id/view"
+            element={<HreasyProofCellViewPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/capabilities-section/:id"
+            element={<HreasyCapabilityModuleEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/capabilities-section/:id/view"
+            element={<HreasyCapabilityModuleViewPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/lifecycle-section/:id"
+            element={<HreasyLifecycleCardEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/lifecycle-section/:id/view"
+            element={<HreasyLifecycleCardViewPage />}
+          />
+          {/*
+           * The tier row is two lists: the cards, and each card's ticks
+           * nested under it.
+           */}
+          <Route
+            path="/cms/products/hreasy/packages-section/tiers/:id"
+            element={<HreasyPackageTierEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/packages-section/tiers/:id/view"
+            element={<HreasyPackageTierViewPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/packages-section/tiers/:tierId/features/:id"
+            element={<HreasyPackageFeatureEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/packages-section/tiers/:tierId/features/:id/view"
+            element={<HreasyPackageFeatureViewPage />}
+          />
+          {/* The grid is two lists: the columns, and the rows compared across them. */}
+          <Route
+            path="/cms/products/hreasy/alternatives-section/columns/:id"
+            element={<HreasyAlternativesColumnEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/alternatives-section/columns/:id/view"
+            element={<HreasyAlternativesColumnViewPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/alternatives-section/rows/:id"
+            element={<HreasyAlternativesRowEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/alternatives-section/rows/:id/view"
+            element={<HreasyAlternativesRowViewPage />}
+          />
+          {/* The outcome row is two lists: the cards, and each card's figures. */}
+          <Route
+            path="/cms/products/hreasy/outcomes-section/stories/:id"
+            element={<HreasyOutcomeStoryEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/outcomes-section/stories/:id/view"
+            element={<HreasyOutcomeStoryViewPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/outcomes-section/stories/:storyId/stats/:id"
+            element={<HreasyOutcomeStatEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/outcomes-section/stories/:storyId/stats/:id/view"
+            element={<HreasyOutcomeStatViewPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/faq-section/:id"
+            element={<HreasyFaqEntryEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/faq-section/:id/view"
+            element={<HreasyFaqEntryViewPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/cta-section/trust/:id"
+            element={<HreasyCtaTrustItemEditPage />}
+          />
+          <Route
+            path="/cms/products/hreasy/cta-section/trust/:id/view"
+            element={<HreasyCtaTrustItemViewPage />}
           />
 
           {/* The SFA-DMS page, laid out the same way as the ERP one. */}

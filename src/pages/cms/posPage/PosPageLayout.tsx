@@ -10,13 +10,20 @@ import { Tabs } from '../../../components/ui/Tabs';
  * this is a tab strip over those sections rather than one long form.
  *
  * SECTIONS lists only what is editable today. The page renders more than this
- * on the live site - the proof strip, the recognition map, the video, the
- * capabilities, the growth path and the rest; each arrives as its tables and
- * screens are built, and each is one entry here plus its routes.
+ * on the live site - the approach diagram, the capabilities, the comparison
+ * and the rest; each arrives as its tables and screens are built, and each is
+ * one entry here plus its routes.
  */
 
 const SECTIONS = [
   { id: 'hero-section', label: 'Hero Section' },
+  { id: 'proof-section', label: 'Proof Strip' },
+  { id: 'recognition-section', label: 'Category Map' },
+  { id: 'video-section', label: 'Video' },
+  { id: 'growth-section', label: 'Growth Path' },
+  { id: 'security-section', label: 'Security' },
+  { id: 'alternatives-section', label: 'Comparison' },
+  { id: 'outcomes-section', label: 'Outcomes' },
   { id: 'faq-section', label: 'FAQ' },
   { id: 'cta-section', label: 'CTA Section' },
 ] as const;

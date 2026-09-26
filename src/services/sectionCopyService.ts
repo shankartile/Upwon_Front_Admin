@@ -61,7 +61,23 @@ export const PAGE_SECTION_KEYS = {
    * The hero is absent on purpose, as on the other pages: its slides each
    * carry their own eyebrow, headline and subhead.
    */
-  pos: ['faq', 'cta'],
+  /*
+   * 'capabilities' heads the module showcase — the nav list whose panel is one
+   * composite image. 'lifecycle' heads the card grid below it. They list the
+   * same seven stages and are two different sections.
+   */
+  hreasy: ['proof', 'capabilities', 'lifecycle', 'faq', 'cta'],
+  pos: [
+    'proof',
+    'recognition',
+    'video',
+    'packages',
+    'establishers',
+    'alternatives',
+    'outcomes',
+    'faq',
+    'cta',
+  ],
 } as const;
 
 export type PageKey = keyof typeof PAGE_SECTION_KEYS;

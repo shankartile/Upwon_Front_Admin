@@ -40,6 +40,16 @@ export type HeroImageVariant =
   | 'fmsOutcomePhoto'
   | 'posHero'
   | 'posHeroMobile'
+  | 'hreasyHero'
+  | 'hreasyHeroMobile'
+  | 'hreasyCtaBanner'
+  | 'hreasyCapabilityPanel'
+  | 'hreasyLifecycleCard'
+  | 'hreasyOutcomeLogo'
+  | 'posOutcomeLogo'
+  | 'posOutcomePhoto'
+  | 'posSecurityShield'
+  | 'posSecurityIllustration'
   | 'posCtaDesktop'
   | 'posCtaMobile'
   | 'erpCtaDesktop'
@@ -232,6 +242,92 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     height: 1200,
     ratioTolerance: 0.2,
     hint: 'Portrait crop, at least 800x1200px. Optional — phones fall back to the desktop image.',
+  },
+  hreasyHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600x566px. The copy sits over it, so keep the centre clear.',
+  },
+  hreasyHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800x1200px. Optional — phones fall back to the desktop image.',
+  },
+  hreasyCtaBanner: {
+    label: 'Banner image',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600x566px. One image, not a pair — the band centres its copy over it at every size.',
+  },
+  /*
+   * A capability panel's artwork — the composite carrying that stage's
+   * heading, line, dashboard mock and flow. No ratio rule: the seven the
+   * section ships do not agree on a height, and the panel draws them
+   * contained rather than cropped.
+   */
+  hreasyCapabilityPanel: {
+    label: 'Panel artwork',
+    width: 1200,
+    height: 800,
+    ratioTolerance: null,
+    hint: 'At least 1200x800px, any shape. The whole right-hand panel — its heading, line and screenshot are all part of this image.',
+  },
+  /*
+   * The photograph at the top of a capability card. Drawn object-cover into a
+   * 4:3 box, so a differently shaped upload is cropped — hence a ratio rule
+   * here, where the switcher's contained panel needs none.
+   */
+  hreasyLifecycleCard: {
+    label: 'Card photograph',
+    width: 800,
+    height: 600,
+    ratioTolerance: 0.2,
+    hint: 'Landscape, at least 800x600px (4:3). Cropped to fit the card, so keep the subject centred.',
+  },
+  /*
+   * The brand mark on an outcome card. Drawn object-contain at a fixed
+   * height, so a wordmark and a roundel both render correctly — hence no
+   * ratio rule.
+   */
+  hreasyOutcomeLogo: {
+    label: 'Brand mark',
+    width: 260,
+    height: 56,
+    ratioTolerance: null,
+    hint: 'At least 260px wide, any shape — the card draws it contained at a fixed height.',
+  },
+  posOutcomeLogo: {
+    label: 'Brand mark',
+    width: 200,
+    height: 32,
+    ratioTolerance: null,
+    hint: 'At least 200px wide, any shape — the card draws it contained at a fixed height.',
+  },
+  posOutcomePhoto: {
+    label: 'Photograph',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Landscape, at least 1600x566px. It fills the left panel of the card, cropped to fit.',
+  },
+  posSecurityShield: {
+    label: 'Shield image',
+    width: 402,
+    height: 373,
+    ratioTolerance: 0.2,
+    hint: 'Roughly square, at least 402x373px. Optional — without it the two badge columns close up.',
+  },
+  posSecurityIllustration: {
+    label: 'Illustration',
+    width: 1400,
+    height: 950,
+    ratioTolerance: 0.2,
+    hint: 'Landscape, at least 1400x950px. Optional — both illustrations are hidden on small screens.',
   },
   posCtaDesktop: {
     label: 'Desktop artwork',
