@@ -23,9 +23,9 @@ import { Tabs } from '../../../components/ui/Tabs';
  * list that is seeded with what the footer already shows, while Social Links
  * starts empty. There is no inbox here, so nothing argues for another order.
  *
- * Both tabs manage their list in a Modal on the same screen, so nothing lives
- * outside this layout and there is no route matching
- * /cms/social-media-links/contact-lines/:id.
+ * Both tabs edit their list in a Modal on the same screen. A row's read-only
+ * view (…/contact-lines/:id/view, …/social-links/:id/view) sits outside this
+ * layout, and its Edit comes back here to open that Modal on the row.
  */
 
 const SECTIONS = [

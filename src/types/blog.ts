@@ -6,13 +6,14 @@ export type { ContentStatus };
 
 /**
  * The Resource Page -> Blog area, mirroring the backend module at
- * src/modules/blog (migration 049_blog.sql).
+ * src/modules/blog (migrations 049_blog.sql and 050_blog_hero_slides.sql).
  *
  * Four resources, one per tab of the admin screen, each backing one band of the
  * public /blog page:
  *
- *   hero section    blog_hero_section - the single hero slide: eyebrow, heading,
- *                   subtext and its two buttons' text. A singleton.
+ *   hero section    blog_hero_slides - the hero carousel, a route-for-route copy
+ *                   of the Insider hero: eyebrow, heading, subtext and a desktop
+ *                   + mobile upload per slide, in display order.
  *   topics section  blog_topics_section - the "INSIGHTS BY TOPIC / Pick the Lane
  *                   **You Operate In.**" intro above the filter chips. A singleton.
  *   categories      blog_categories - the filter chips, each with its icon, in
@@ -25,35 +26,56 @@ export type { ContentStatus };
  * Guarded by blog.read for every read and blog.update for every write.
  */
 
-// -- singleton sections -----------------------------------------------------
+// -- hero section -----------------------------------------------------------
 
 /**
- * GET /blog/hero-section. `null` (the whole section, not a field) until the
- * first save - the site keeps its built-in hero slide until then.
- *
- * Only the two buttons' text is authored; where they go is fixed on the site
- * (/demo and /knowledgebase).
+ * A Blog hero slide as the admin API returns it (ResolvedBlogHeroSlide on the
+ * server): the Insider hero slide plus an eyebrow, without imageAlt or a mobile
+ * URL. No buttons - the site fixes both (/demo and /knowledgebase).
  */
-export interface BlogHeroSection {
+export interface BlogHeroSlide {
+  id: string;
   /** The small line above the headline, e.g. THE UPWON BLOG. */
   eyebrow: string;
+  /** Plain text, no accent markers. An em-dash splits setup from payoff. */
   heading: string;
   subtext: string;
-  primaryCtaLabel: string;
-  secondaryCtaLabel: string;
+  /**
+   * The site path the seeded slide carries. Read-only: never accepted on write,
+   * and cleared by any imageFileId the slide is sent (a file or null).
+   */
+  imageUrl: string | null;
+  /** The desktop upload. */
+  imageFileId: string | null;
+  /** The desktop image to render - the upload, else the seeded path. */
+  image: string | null;
+  /** The phone upload. */
+  mobileImageFileId: string | null;
+  /** The phone upload resolved. Null means the desktop image serves phones. */
+  mobileImage: string | null;
+  displayOrder: number;
+  status: ContentStatus;
+  createdBy: string | null;
   updatedBy: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
-/** PUT /blog/hero-section - a full replace, every field required. */
-export interface ReplaceBlogHeroSectionInput {
+/** POST body. `displayOrder` omitted means "append to the end". */
+export interface CreateBlogHeroSlideInput {
   eyebrow: string;
   heading: string;
   subtext: string;
-  primaryCtaLabel: string;
-  secondaryCtaLabel: string;
+  imageFileId?: string | null;
+  mobileImageFileId?: string | null;
+  displayOrder?: number;
+  status?: ContentStatus;
 }
+
+/** PUT body. Absent leaves a field untouched; `null` clears an image. */
+export type UpdateBlogHeroSlideInput = Partial<CreateBlogHeroSlideInput>;
+
+// -- topics section ---------------------------------------------------------
 
 /**
  * GET /blog/topics-section - the intro above the category chips. `null` until
@@ -148,7 +170,10 @@ export interface BlogPostCategoryRef {
  */
 export interface BlogPost {
   id: string;
-  /** The /blog/<slug> URL. Unique across every post. */
+  /**
+   * The /blog/<slug> URL. Unique across every post, and read-only: the server
+   * derives it from the title on create and never changes it.
+   */
   slug: string;
   categoryId: string;
   category: BlogPostCategoryRef;
@@ -194,10 +219,10 @@ export interface BlogPostFilters {
 
 /**
  * POST /blog/posts. The editor always sends every key, blanks as null, so what
- * is saved is exactly what the form showed.
+ * is saved is exactly what the form showed. No slug: the server derives it
+ * from the title.
  */
 export interface CreateBlogPostInput {
-  slug: string;
   categoryId: string;
   title: string;
   excerpt: string;

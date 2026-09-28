@@ -10,16 +10,20 @@ import type { ContentStatus } from '../../../types/homePage';
 /**
  * One hero carousel, described as data.
  *
- * HeroSectionPage and HeroSlideEditPage were written for the home page hero.
- * The Insider page hero is the same thing - an ordered list of slides, each
- * with copy and a desktop + mobile background - behind a route-for-route copy
- * of the same API. So rather than copying both screens, they take one of
- * these: everything that differs between the two carousels lives here, and
- * everything else is the same code.
+ * HeroSectionPage, HeroSlideEditPage and HeroSlideViewPage were written for
+ * the home page hero. The Insider page hero is the same thing - an ordered list
+ * of slides, each with copy and a desktop + mobile background - behind a
+ * route-for-route copy of the same API. So rather than copying the screens,
+ * they take one of these: everything that differs between the carousels lives
+ * here, and everything else is the same code.
  *
  * HOME_HERO_SECTION is the default, so the home routes pass nothing and behave
  * exactly as they did before this existed. The Insider one is
- * pages/cms/insider/insiderHeroSection.ts.
+ * pages/cms/insider/insiderHeroSection.ts, the Blog one
+ * pages/cms/blog/blogHeroSection.ts, the Free Audit one
+ * pages/cms/freeAudit/freeAuditHeroSection.ts, the Knowledgebase one
+ * pages/cms/knowledgebase/knowledgebaseHeroSection.ts, and the UpWon vs SAP
+ * one pages/cms/vsSap/vsSapHeroSection.ts.
  */
 
 /** A slide as the list and the form read it: the fields both hero APIs share. */
@@ -32,10 +36,20 @@ export interface HeroSlideRecord {
   imageUrl: string | null;
   imageFileId: string | null;
   image: string | null;
-  mobileImageUrl: string | null;
+  /**
+   * Absent on a carousel whose phone image is upload-only (the Blog, Free Audit,
+   * Knowledgebase and UpWon vs SAP heroes).
+   */
+  mobileImageUrl?: string | null;
   mobileImageFileId: string | null;
   mobileImage: string | null;
   status: ContentStatus;
+  /**
+   * The slide's place in the carousel, from 0. Every hero API returns it; it is
+   * optional here only because the list never reads it (the table numbers rows
+   * by position). The view screen shows it as "Position in carousel".
+   */
+  displayOrder?: number;
   /** Shown in the list's Updated column. */
   updatedAt: string;
 }
@@ -89,9 +103,11 @@ export interface HeroSectionConfig {
   /**
    * Whether a read-only view screen is routed at `${basePath}/:id/view`.
    *
-   * The home hero has one (HeroSlideViewPage); the Insider hero does not, so
-   * its list sends a row click straight to the form and leaves out the eye
-   * action rather than linking a route that is not there.
+   * Every carousel has one now - HeroSlideViewPage, driven by this same
+   * config - so every list shows the eye action and opens a row on it. The
+   * flag stays so a new carousel can be wired up before its /view route is:
+   * false sends a row click straight to the form and leaves out the eye action
+   * rather than linking a route that is not there.
    */
   hasViewPage: boolean;
   imageSpecs: Record<HeroSlot, ImageSpec>;

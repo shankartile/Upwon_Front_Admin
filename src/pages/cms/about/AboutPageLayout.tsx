@@ -40,11 +40,10 @@ import { Tabs } from '../../../components/ui/Tabs';
  * than about_page.read - so an admin without that permission sees the tab's own
  * refusal rather than the records.
  *
- * Every tab is a self-contained screen: the five sections are one form and Save
- * each (the People and Number tabs manage their lists in a Modal on the same
- * screen), and a booking opens a detail card rather than a page. So nothing lives
- * outside this layout, and there is no route matching
- * /cms/about/discovery-calls/:id.
+ * The five sections are one form and Save each (the People and Number tabs
+ * manage their lists in a Modal on the same screen). A booking opens its
+ * read-only view, /cms/about/discovery-calls/:id/view, which sits outside this
+ * layout - the only screen of this area that does.
  */
 
 const SECTIONS = [

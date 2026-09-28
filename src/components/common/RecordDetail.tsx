@@ -1,28 +1,15 @@
 import type { ReactNode } from 'react';
 
 /**
- * The pieces a record's detail card is built from.
- *
- * Both inboxes in this panel - contact enquiries and vacancy applications -
- * open a row into a centred Modal that reads the same way: a stack of labelled
- * lines, an em dash where an optional field was left blank, and a value that
- * is a link only when a safe href could be built for it. These began as
- * ContactEnquiriesPage's own and moved here when the Career inbox needed the
- * identical card, so the two never drift apart.
+ * Small pieces the inboxes share for visitor-submitted values: an em dash where
+ * an optional field was left blank, and a value that is a link only when a safe
+ * href could be built for it. The inbox tables use the dash; the inboxes'
+ * read-only view screens (…/:id/view) use the link, for the mailto: and tel: of
+ * a submission.
  *
  * Presentation only. The hrefs themselves come from lib/contactLinks, which is
  * where the checking lives.
  */
-
-/** One labelled line in a detail card. */
-export function DetailRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="border-b hairline py-3 first:pt-0">
-      <p className="text-xs uppercase tracking-wider text-charcoal-light dark:text-navy-300">{label}</p>
-      <div className="mt-1 break-words text-sm text-charcoal dark:text-cream-100">{children}</div>
-    </div>
-  );
-}
 
 /** An em dash, so an empty optional field reads as answered-with-nothing. */
 export function Blank() {

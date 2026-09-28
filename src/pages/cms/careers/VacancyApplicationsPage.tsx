@@ -1,34 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Download, Loader2 } from 'lucide-react';
 import { DataTable } from '../../../components/table/DataTable';
 import { TableToolbar } from '../../../components/table/TableToolbar';
 import { RowActions } from '../../../components/table/RowActions';
-import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
-import { Modal } from '../../../components/ui/Modal';
 import { Select } from '../../../components/ui/Select';
-import { Skeleton } from '../../../components/ui/Skeleton';
-import { Blank, DetailRow, LinkedValue } from '../../../components/common/RecordDetail';
+import { Blank } from '../../../components/common/RecordDetail';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { useToast } from '../../../context/ToastContext';
 import * as applicationsService from '../../../services/careersApplicationsService';
 import * as vacanciesService from '../../../services/careersVacanciesService';
 import { errorMessage } from '../../../lib/http';
-import { mailtoHref, telHref } from '../../../lib/contactLinks';
 import { oneOf } from '../../../lib/fieldRules';
 import { fmtDate } from '../../../lib/formatters';
+import { saveBlob } from '../../../lib/saveBlob';
 import { DEFAULT_PAGE_SIZE } from '../../../config/constants';
 import type {
   ApplicationStatus,
-  CareerApplication,
   CareerApplicationSummary,
   CareerVacancy,
 } from '../../../types/careers';
-import {
-  APPLICATION_STATUSES,
-  APPLICATION_STATUS_LABELS,
-  APPLICATION_STATUS_TONES,
-} from './careersForm';
+import { APPLICATION_STATUSES, APPLICATION_STATUS_LABELS } from './careersForm';
+import { ApplicationStatusBadge } from './ApplicationStatusBadge';
 
 /**
  * Career -> Vacancy Applications tab: the inbox.
@@ -36,9 +30,10 @@ import {
  * The sibling tab authors job adverts. This one runs the other way: every row
  * was written by somebody applying through the popup on the public /careers
  * page, so there is no Save, no "New" button and no edit screen behind a row.
- * A row opens a detail card, and the only thing an admin may change about an
- * application is where it has got to - the status control in that card, which
- * saves the moment it is changed.
+ * A row, and its eye action, open the application's read-only view
+ * (CareerApplicationViewPage), and the only thing an admin may change about an
+ * application is where it has got to - the status control on that screen,
+ * which saves the moment it is changed.
  *
  * There is no delete. The server exposes none: an inbox that cannot lose a
  * candidate by accident is the safer default, and nobody asked for one.
@@ -46,7 +41,8 @@ import {
  * Table patterns follow ContactEnquiriesPage, the panel's other inbox: Sr. No.
  * first, searching and paging on the SERVER rather than in hooks/useTable
  * (this list grows with however many people apply, so it can never be fetched
- * whole), a centred Modal for the detail, and a toast after every write.
+ * whole), a view screen of its own for the detail, and a toast after every
+ * write.
  *
  * SAFETY: every value here is candidate-controlled text. It is all rendered as
  * text (React escapes it), never as markup, and the only hrefs built from it
@@ -70,39 +66,12 @@ type StatusFilter = 'all' | ApplicationStatus;
 /** The filter's value, narrowed rather than cast - see lib/fieldRules' oneOf. */
 const STATUS_FILTERS: readonly StatusFilter[] = ['all', ...APPLICATION_STATUSES];
 
-/**
- * Hands the fetched bytes to the browser as a download.
- *
- * The resume route is behind `authenticate`, so the file arrives as a blob in
- * JavaScript rather than as a navigation - this is what turns it back into a
- * saved file. `download` forces a save rather than a render, which matters for
- * a PDF: a browser will happily display one inline, and a document from a
- * stranger is not something to render in the admin panel's own origin.
- */
-function saveBlob(blob: Blob, fileName: string): void {
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = fileName;
-  anchor.rel = 'noopener';
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  // Revoked on the next tick: revoking it synchronously can beat the click.
-  setTimeout(() => URL.revokeObjectURL(url), 0);
-}
-
-/** The status, worded and toned the same way everywhere it appears. */
-function StatusBadge({ status }: { status: ApplicationStatus }) {
-  return (
-    <Badge tone={APPLICATION_STATUS_TONES[status]} dot>
-      {APPLICATION_STATUS_LABELS[status]}
-    </Badge>
-  );
-}
+/** Where a row's read-only view lives - CareerApplicationViewPage. */
+const VIEW_PATH = '/cms/careers/applications';
 
 export default function VacancyApplicationsPage() {
   const toast = useToast();
+  const navigate = useNavigate();
 
   const [rows, setRows] = useState<CareerApplicationSummary[]>([]);
   const [total, setTotal] = useState(0);
@@ -130,17 +99,11 @@ export default function VacancyApplicationsPage() {
    */
   const [vacancies, setVacancies] = useState<CareerVacancy[]>([]);
 
-  const [active, setActive] = useState<CareerApplicationSummary | null>(null);
-  const [detail, setDetail] = useState<CareerApplication | null>(null);
-  const [detailError, setDetailError] = useState<string | null>(null);
-  const [savingStatus, setSavingStatus] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
-  // Both reads can be overtaken - a search typed faster than the network
-  // answers, a card opened on a second row before the first one loads. The
-  // counters let a stale answer be dropped rather than painted over a newer one.
+  // A search typed faster than the network answers can be overtaken; the
+  // counter lets a stale answer be dropped rather than painted over a newer one.
   const listSeq = useRef(0);
-  const detailSeq = useRef(0);
 
   const reload = useCallback(async () => {
     const seq = ++listSeq.current;
@@ -192,63 +155,8 @@ export default function VacancyApplicationsPage() {
     };
   }, []);
 
-  /**
-   * Opens the detail card for the row that was clicked, then replaces it with
-   * the server's copy.
-   *
-   * The row already carries most of what the card shows, so it opens filled
-   * rather than empty. The fetch is for the fields the list deliberately
-   * leaves out - the location, the covering message and the triage pair - and
-   * it is also how the card finds out the application was changed elsewhere.
-   */
-  const openDetail = useCallback(async (row: CareerApplicationSummary) => {
-    const seq = ++detailSeq.current;
-    setActive(row);
-    setDetail(null);
-    setDetailError(null);
-    try {
-      const full = await applicationsService.getById(row.id);
-      if (seq === detailSeq.current) setDetail(full);
-    } catch (error) {
-      if (seq === detailSeq.current) setDetailError(errorMessage(error));
-    }
-  }, []);
-
-  const closeDetail = useCallback(() => {
-    detailSeq.current += 1;
-    setActive(null);
-    setDetail(null);
-    setDetailError(null);
-  }, []);
-
-  /**
-   * Saves the status immediately - there is no Save button on this card,
-   * because there is nothing else on it to save.
-   */
-  const changeStatus = async (id: string, next: ApplicationStatus) => {
-    setSavingStatus(true);
-    try {
-      const updated = await applicationsService.setStatus(id, next);
-      setDetail(updated);
-      setActive((current) =>
-        current && current.id === id ? { ...current, status: updated.status } : current,
-      );
-      setRows((current) =>
-        current.map((row) => (row.id === id ? { ...row, status: updated.status } : row)),
-      );
-      toast.success(
-        'Status updated',
-        `${updated.fullName} is now ${APPLICATION_STATUS_LABELS[updated.status].toLowerCase()}.`,
-      );
-      // With a status filter on, the row may no longer belong in this view -
-      // the server decides that, so the list is re-read rather than guessed at.
-      if (statusFilter !== 'all') await reload();
-    } catch (error) {
-      toast.error('Could not update status', errorMessage(error));
-    } finally {
-      setSavingStatus(false);
-    }
-  };
+  /** Opens a row's read-only view, where its status is also changed. */
+  const openView = (row: CareerApplicationSummary) => navigate(`${VIEW_PATH}/${row.id}/view`);
 
   /**
    * Fetches the CV with the access token and saves it. Deliberately not an
@@ -269,9 +177,6 @@ export default function VacancyApplicationsPage() {
 
   const filtering =
     search.trim().length > 0 || statusFilter !== 'all' || vacancyFilter !== 'all';
-  // What the card renders: the server's copy once it arrives, the clicked row
-  // until then. The submitted fields are identical in both.
-  const shown: CareerApplicationSummary | null = detail ?? active;
 
   return (
     <>
@@ -372,7 +277,7 @@ export default function VacancyApplicationsPage() {
             ? 'Nothing matches this search or these filters. Try clearing one of them.'
             : 'Nothing has arrived yet. Applications submitted through the Apply Now form on /careers will show up here.'
         }
-        onRowClick={(r) => void openDetail(r)}
+        onRowClick={openView}
         actionsHeader="Actions"
         actionsWidth="90px"
         columns={[
@@ -498,188 +403,11 @@ export default function VacancyApplicationsPage() {
             key: 'status',
             header: 'Status',
             width: '130px',
-            render: (r) => <StatusBadge status={r.status} />,
+            render: (r) => <ApplicationStatusBadge status={r.status} />,
           },
         ]}
-        rowActions={(r) => <RowActions onView={() => void openDetail(r)} />}
+        rowActions={(r) => <RowActions onView={() => openView(r)} />}
       />
-
-      {/*
-        A centred card rather than a side panel, matching the contact enquiry
-        inbox: the application is read on its own, not against the table behind
-        it. Capped and scrolled inside, so a long covering message never pushes
-        the actions off-screen.
-      */}
-      <Modal
-        open={!!shown}
-        onClose={closeDetail}
-        size="xl"
-        title={shown?.fullName ?? 'Application'}
-        description={
-          shown
-            ? `Applied for ${shown.vacancyTitle} · ${fmtDate(shown.createdAt, "d MMM yyyy 'at' h:mm a")}`
-            : undefined
-        }
-        footer={
-          <>
-            <Button variant="secondary" onClick={closeDetail}>
-              Close
-            </Button>
-            {shown?.resume && (
-              <Button
-                variant="orange"
-                loading={downloadingId === shown.id}
-                leftIcon={<Download className="h-4 w-4" />}
-                onClick={() => void downloadResume(shown)}
-              >
-                Download resume
-              </Button>
-            )}
-          </>
-        }
-      >
-        {shown && (
-          <div className="max-h-[70vh] overflow-y-auto pr-1">
-            {/*
-              The status control leads the card: it is the only thing on this
-              screen an admin can change, and it saves the moment it changes.
-            */}
-            <div className="mb-4 flex flex-col gap-2 rounded-xl border border-cream-300 bg-cream-100 p-3 sm:flex-row sm:items-center sm:justify-between dark:border-navy-800 dark:bg-navy-950/40">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-charcoal-light dark:text-navy-300">
-                  Status
-                </p>
-                <p className="mt-1 text-xs text-charcoal-light dark:text-navy-300">
-                  {detail?.statusUpdatedAt
-                    ? `Last changed ${fmtDate(detail.statusUpdatedAt, "d MMM yyyy 'at' h:mm a")}${
-                        detail.statusUpdatedBy ? ` by ${detail.statusUpdatedBy}` : ''
-                      }.`
-                    : 'Not triaged yet. Changing this saves immediately.'}
-                </p>
-              </div>
-              <div className="w-full sm:w-48">
-                <Select
-                  value={shown.status}
-                  disabled={savingStatus}
-                  aria-label="Application status"
-                  onChange={(e) => {
-                    const next = oneOf(APPLICATION_STATUSES, e.target.value, shown.status);
-                    if (next !== shown.status) void changeStatus(shown.id, next);
-                  }}
-                >
-                  {APPLICATION_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {APPLICATION_STATUS_LABELS[status]}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-            </div>
-
-            <DetailRow label="Candidate name">{shown.fullName}</DetailRow>
-
-            <DetailRow label="Vacancy">
-              {shown.vacancyTitle}
-              {shown.vacancyId === null && (
-                <p className="mt-0.5 text-xs text-charcoal-light dark:text-navy-300">
-                  This role has since been deleted. The title is the one it was advertised with.
-                </p>
-              )}
-            </DetailRow>
-
-            <DetailRow label="Email">
-              {/* The one place this value becomes a URL, and only after it has
-                  been re-checked as an address. */}
-              <LinkedValue href={mailtoHref(shown.email)}>{shown.email}</LinkedValue>
-            </DetailRow>
-
-            <DetailRow label="Phone">
-              <LinkedValue href={telHref(shown.phone)}>{shown.phone}</LinkedValue>
-            </DetailRow>
-
-            {/* Location and the message are detail-only, so they wait for the
-                fetch - a skeleton rather than a blank, which would read as
-                "they left it empty". */}
-            <DetailRow label="Location">
-              {detailError ? (
-                <span className="text-xs text-orange-700 dark:text-orange-400">{detailError}</span>
-              ) : !detail ? (
-                <Skeleton className="h-3 w-40" />
-              ) : (
-                detail.location
-              )}
-            </DetailRow>
-
-            <DetailRow label="Experience">{shown.experience}</DetailRow>
-
-            <DetailRow label="Resume">
-              {shown.resume ? (
-                <button
-                  type="button"
-                  onClick={() => void downloadResume(shown)}
-                  disabled={downloadingId === shown.id}
-                  className="inline-flex items-center gap-1.5 text-navy-700 underline underline-offset-2 hover:text-orange-600 disabled:opacity-40 dark:text-cream-100 dark:hover:text-orange-400"
-                >
-                  {downloadingId === shown.id ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Download className="h-3.5 w-3.5" />
-                  )}
-                  {shown.resume.fileName}
-                </button>
-              ) : (
-                <>
-                  <Blank />
-                  <p className="mt-0.5 text-xs text-charcoal-light dark:text-navy-300">
-                    The stored file is no longer available.
-                  </p>
-                </>
-              )}
-            </DetailRow>
-
-            <DetailRow label="Message">
-              {detailError ? (
-                <span className="text-xs text-orange-700 dark:text-orange-400">{detailError}</span>
-              ) : !detail ? (
-                <Skeleton className="h-3 w-64" />
-              ) : detail.message ? (
-                // In full and unwrapped-by-hand: whitespace-pre-wrap keeps the
-                // paragraphs the candidate typed. Still text, never markup.
-                <p className="whitespace-pre-wrap">{detail.message}</p>
-              ) : (
-                <Blank />
-              )}
-            </DetailRow>
-
-            <DetailRow label="Received">
-              {fmtDate(shown.createdAt, "d MMM yyyy 'at' h:mm a")}
-            </DetailRow>
-
-            {/*
-              Where it came from, for telling a real application from a filed
-              one. Only the detail endpoint returns these two, so they arrive a
-              moment after the card opens.
-            */}
-            <div className="pt-3">
-              <p className="text-xs uppercase tracking-wider text-charcoal-light dark:text-navy-300">
-                Submitted from
-              </p>
-              {detailError ? (
-                <p className="mt-1 text-xs text-orange-700 dark:text-orange-400">{detailError}</p>
-              ) : !detail ? (
-                <Skeleton className="mt-2 h-3 w-48" />
-              ) : (
-                <div className="mt-1 space-y-0.5 text-xs text-charcoal-light dark:text-navy-300">
-                  <p className="break-all">IP: {detail.submittedIp ?? 'not recorded'}</p>
-                  <p className="break-all">
-                    Browser: {detail.submittedUserAgent ?? 'not recorded'}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </Modal>
     </>
   );
 }

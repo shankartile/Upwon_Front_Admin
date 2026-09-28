@@ -494,6 +494,7 @@ import InsiderPageLayout from './pages/cms/insider/InsiderPageLayout';
 import { INSIDER_HERO_SECTION } from './pages/cms/insider/insiderHeroSection';
 import IssuesPage from './pages/cms/insider/IssuesPage';
 import IssueEditPage from './pages/cms/insider/IssueEditPage';
+import IssueViewPage from './pages/cms/insider/IssueViewPage';
 import StoryEditPage from './pages/cms/insider/StoryEditPage';
 import FeatureSectionPage from './pages/cms/insider/FeatureSectionPage';
 import ClientsPageLayout from './pages/cms/clients/ClientsPageLayout';
@@ -518,14 +519,18 @@ import ContactHeroSectionPage from './pages/cms/contact/ContactHeroSectionPage';
 import ContactFormSectionPage from './pages/cms/contact/ContactFormSectionPage';
 import ContactDetailsPage from './pages/cms/contact/ContactDetailsPage';
 import ContactEnquiriesPage from './pages/cms/contact/ContactEnquiriesPage';
+import ContactEnquiryViewPage from './pages/cms/contact/ContactEnquiryViewPage';
 
 import CareerPageLayout from './pages/cms/careers/CareerPageLayout';
 import VacancyApplicationsPage from './pages/cms/careers/VacancyApplicationsPage';
+import CareerApplicationViewPage from './pages/cms/careers/CareerApplicationViewPage';
 import VacancyManagementPage from './pages/cms/careers/VacancyManagementPage';
 import VacancyEditPage from './pages/cms/careers/VacancyEditPage';
+import VacancyViewPage from './pages/cms/careers/VacancyViewPage';
 
 import PartnerProgramLayout from './pages/cms/partnerProgram/PartnerProgramLayout';
 import PartnerProgramApplicationsPage from './pages/cms/partnerProgram/PartnerProgramApplicationsPage';
+import PartnerApplicationViewPage from './pages/cms/partnerProgram/PartnerApplicationViewPage';
 import PartnerProgramHeroSectionPage from './pages/cms/partnerProgram/PartnerProgramHeroSectionPage';
 
 import AboutPageLayout from './pages/cms/about/AboutPageLayout';
@@ -535,17 +540,41 @@ import AboutTeamSectionPage from './pages/cms/about/AboutTeamSectionPage';
 import AboutNumbersSectionPage from './pages/cms/about/AboutNumbersSectionPage';
 import AboutCtaSectionPage from './pages/cms/about/AboutCtaSectionPage';
 import DiscoveryCallApplicationsPage from './pages/cms/about/DiscoveryCallApplicationsPage';
+import DiscoveryCallViewPage from './pages/cms/about/DiscoveryCallViewPage';
 
 import SocialMediaLinksLayout from './pages/cms/socialMediaLinks/SocialMediaLinksLayout';
 import ContactLinesPage from './pages/cms/socialMediaLinks/ContactLinesPage';
 import SocialLinksPage from './pages/cms/socialMediaLinks/SocialLinksPage';
+import ContactLineViewPage from './pages/cms/socialMediaLinks/ContactLineViewPage';
+import SocialLinkViewPage from './pages/cms/socialMediaLinks/SocialLinkViewPage';
 
 import BlogPageLayout from './pages/cms/blog/BlogPageLayout';
-import BlogHeroSectionPage from './pages/cms/blog/BlogHeroSectionPage';
+import { BLOG_HERO_SECTION } from './pages/cms/blog/blogHeroSection';
 import BlogTopicsSectionPage from './pages/cms/blog/BlogTopicsSectionPage';
 import BlogCategoriesPage from './pages/cms/blog/BlogCategoriesPage';
+import BlogCategoryViewPage from './pages/cms/blog/BlogCategoryViewPage';
 import BlogPostsPage from './pages/cms/blog/BlogPostsPage';
 import BlogPostEditPage from './pages/cms/blog/BlogPostEditPage';
+import BlogPostViewPage from './pages/cms/blog/BlogPostViewPage';
+
+import FreeAuditLayout from './pages/cms/freeAudit/FreeAuditLayout';
+import { FREE_AUDIT_HERO_SECTION } from './pages/cms/freeAudit/freeAuditHeroSection';
+import FreeAuditApplicationsPage from './pages/cms/freeAudit/FreeAuditApplicationsPage';
+import FreeAuditApplicationViewPage from './pages/cms/freeAudit/FreeAuditApplicationViewPage';
+
+import KnowledgebaseLayout from './pages/cms/knowledgebase/KnowledgebaseLayout';
+import { KNOWLEDGEBASE_HERO_SECTION } from './pages/cms/knowledgebase/knowledgebaseHeroSection';
+import KnowledgebaseCategoriesPage from './pages/cms/knowledgebase/KnowledgebaseCategoriesPage';
+import KnowledgebaseCategoryViewPage from './pages/cms/knowledgebase/KnowledgebaseCategoryViewPage';
+import KnowledgebaseArticlesPage from './pages/cms/knowledgebase/KnowledgebaseArticlesPage';
+import KnowledgebaseArticleEditPage from './pages/cms/knowledgebase/KnowledgebaseArticleEditPage';
+import KnowledgebaseArticleViewPage from './pages/cms/knowledgebase/KnowledgebaseArticleViewPage';
+
+import VsSapLayout from './pages/cms/vsSap/VsSapLayout';
+import { VS_SAP_HERO_SECTION } from './pages/cms/vsSap/vsSapHeroSection';
+import VsSapAnswerSectionPage from './pages/cms/vsSap/VsSapAnswerSectionPage';
+import VsSapComparisonPage from './pages/cms/vsSap/VsSapComparisonPage';
+import VsSapCapabilityViewPage from './pages/cms/vsSap/VsSapCapabilityViewPage';
 
 import LeadsInboxPage from './pages/cms/leads/LeadsInboxPage';
 
@@ -1935,10 +1964,10 @@ export default function App() {
           {/*
             Insider (the admin name for what the site serves at /newsletter),
             one tab per section of that page - laid out like the home page.
-            The hero tab and its slide form are the home hero screens, driven
-            by the Insider config; the `key`s make React mount them afresh
-            rather than reuse the home instances, whose state belongs to the
-            other carousel.
+            The hero tab, its slide form and its slide view are the home hero
+            screens, driven by the Insider config; the `key`s make React mount
+            them afresh rather than reuse the home instances, whose state
+            belongs to the other carousel.
           */}
           <Route path="/cms/insider" element={<InsiderPageLayout />}>
             <Route index element={<Navigate to="hero-section" replace />} />
@@ -1950,12 +1979,20 @@ export default function App() {
             <Route path="feature-section" element={<FeatureSectionPage />} />
           </Route>
 
-          {/* Forms outside the tab layout, as on the home page. 'new' = create. */}
+          {/*
+            Forms and read-only views outside the tab layout, as on the home
+            page. 'new' = create; …/view is what a row's eye action opens.
+          */}
           <Route
             path="/cms/insider/hero-section/:id"
             element={<HeroSlideEditPage key="insider" config={INSIDER_HERO_SECTION} />}
           />
+          <Route
+            path="/cms/insider/hero-section/:id/view"
+            element={<HeroSlideViewPage key="insider" config={INSIDER_HERO_SECTION} />}
+          />
           <Route path="/cms/insider/news/:id" element={<IssueEditPage />} />
+          <Route path="/cms/insider/news/:id/view" element={<IssueViewPage />} />
           <Route path="/cms/insider/news/:issueId/stories/:storyId" element={<StoryEditPage />} />
 
           {/*
@@ -1995,9 +2032,11 @@ export default function App() {
             inbox of what visitors submitted through it, so it is the last tab
             and not the one this area opens on - an admin who came to edit copy
             should not land on a list of strangers' contact details. A row opens
-            a detail card rather than a page, so it needs no route of its own
-            either, which is why there is nothing here matching
-            /cms/contact/enquiries/:id.
+            the enquiry's read-only view, /cms/contact/enquiries/:id/view, which
+            sits outside the layout. There is no edit screen - an enquiry is the
+            visitor's words, not ours to change - so /cms/contact/enquiries/:id
+            redirects to the view, which is where the breadcrumb's link to it
+            lands too.
           */}
           <Route path="/cms/contact" element={<ContactPageLayout />}>
             {/* The inbox leads the tab strip, so it is also what /cms/contact opens on. */}
@@ -2007,6 +2046,11 @@ export default function App() {
             <Route path="contact-details" element={<ContactDetailsPage />} />
             <Route path="enquiries" element={<ContactEnquiriesPage />} />
           </Route>
+          <Route path="/cms/contact/enquiries/:id/view" element={<ContactEnquiryViewPage />} />
+          <Route
+            path="/cms/contact/enquiries/:id"
+            element={<RedirectWithParams to="/cms/contact/enquiries/:id/view" />}
+          />
 
           {/*
             Career: exactly two tabs, both lists rather than sections of a
@@ -2018,6 +2062,12 @@ export default function App() {
             and a half-written job advert should not be one click from being
             abandoned. 'new' is the create sentinel, matching the other CMS
             edit screens.
+
+            Each row also has a read-only view outside the layout: a vacancy's
+            at /cms/careers/vacancies/:id/view (Edit goes to the form), an
+            application's at /cms/careers/applications/:id/view, where its
+            status is changed. An application has no form, so
+            /cms/careers/applications/:id redirects to its view.
           */}
           <Route path="/cms/careers" element={<CareerPageLayout />}>
             <Route index element={<Navigate to="applications" replace />} />
@@ -2025,6 +2075,15 @@ export default function App() {
             <Route path="vacancies" element={<VacancyManagementPage />} />
           </Route>
           <Route path="/cms/careers/vacancies/:id" element={<VacancyEditPage />} />
+          <Route path="/cms/careers/vacancies/:id/view" element={<VacancyViewPage />} />
+          <Route
+            path="/cms/careers/applications/:id/view"
+            element={<CareerApplicationViewPage />}
+          />
+          <Route
+            path="/cms/careers/applications/:id"
+            element={<RedirectWithParams to="/cms/careers/applications/:id/view" />}
+          />
 
           {/*
             Partner Program: the public /partners page. Exactly two tabs, because
@@ -2033,16 +2092,25 @@ export default function App() {
             economics block and the FAQ are artwork in the website's own code.
 
             The inbox leads the strip and is what /cms/partner-program opens on,
-            like the Contact and Career areas - see PartnerProgramLayout. Both
-            tabs are singleton screens (one form, and a detail card behind a row),
-            so nothing lives outside this layout and there is no route matching
-            /cms/partner-program/applications/:id.
+            like the Contact and Career areas - see PartnerProgramLayout. The
+            hero tab is a singleton form; an application opens its read-only
+            view, /cms/partner-program/applications/:id/view, outside this
+            layout. There is no form behind it, so
+            /cms/partner-program/applications/:id redirects to the view.
           */}
           <Route path="/cms/partner-program" element={<PartnerProgramLayout />}>
             <Route index element={<Navigate to="applications" replace />} />
             <Route path="applications" element={<PartnerProgramApplicationsPage />} />
             <Route path="hero-section" element={<PartnerProgramHeroSectionPage />} />
           </Route>
+          <Route
+            path="/cms/partner-program/applications/:id/view"
+            element={<PartnerApplicationViewPage />}
+          />
+          <Route
+            path="/cms/partner-program/applications/:id"
+            element={<RedirectWithParams to="/cms/partner-program/applications/:id/view" />}
+          />
 
           {/*
             About Us: the public /about page, one tab per band the user asked to
@@ -2060,9 +2128,10 @@ export default function App() {
 
             Every tab is self-contained: the People and Number tabs manage their
             ordered lists in a Modal on the same screen as the section copy, so
-            there is no /cms/about/team-section/:id, and a booking opens a detail
-            card rather than a page, so there is nothing matching
-            /cms/about/discovery-calls/:id either.
+            there is no /cms/about/team-section/:id. A booking opens its
+            read-only view, /cms/about/discovery-calls/:id/view, outside this
+            layout; there is no form behind it, so
+            /cms/about/discovery-calls/:id redirects to the view.
           */}
           <Route path="/cms/about" element={<AboutPageLayout />}>
             {/* The inbox leads the tab strip, so it is what /cms/about opens on. */}
@@ -2074,6 +2143,11 @@ export default function App() {
             <Route path="cta-section" element={<AboutCtaSectionPage />} />
             <Route path="discovery-calls" element={<DiscoveryCallApplicationsPage />} />
           </Route>
+          <Route path="/cms/about/discovery-calls/:id/view" element={<DiscoveryCallViewPage />} />
+          <Route
+            path="/cms/about/discovery-calls/:id"
+            element={<RedirectWithParams to="/cms/about/discovery-calls/:id/view" />}
+          />
 
           {/*
             Social Media Links: the public site's footer, on every page. Exactly
@@ -2085,26 +2159,53 @@ export default function App() {
             it is seeded with what the footer already shows, and there is no
             inbox here to argue for another order - see SocialMediaLinksLayout.
 
-            Both tabs manage their list in a Modal on the same screen, so there
-            is no /cms/social-media-links/contact-lines/:id.
+            Both tabs edit their list in a Modal on the same screen, so there is
+            no form route. Each row has a read-only view outside the layout
+            (…/contact-lines/:id/view, …/social-links/:id/view), whose Edit comes
+            back to the tab and opens that Modal on the row; …/:id redirects to
+            the view.
           */}
           <Route path="/cms/social-media-links" element={<SocialMediaLinksLayout />}>
             <Route index element={<Navigate to="contact-lines" replace />} />
             <Route path="contact-lines" element={<ContactLinesPage />} />
             <Route path="social-links" element={<SocialLinksPage />} />
           </Route>
+          <Route
+            path="/cms/social-media-links/contact-lines/:id/view"
+            element={<ContactLineViewPage />}
+          />
+          <Route
+            path="/cms/social-media-links/contact-lines/:id"
+            element={<RedirectWithParams to="/cms/social-media-links/contact-lines/:id/view" />}
+          />
+          <Route
+            path="/cms/social-media-links/social-links/:id/view"
+            element={<SocialLinkViewPage />}
+          />
+          <Route
+            path="/cms/social-media-links/social-links/:id"
+            element={<RedirectWithParams to="/cms/social-media-links/social-links/:id/view" />}
+          />
 
           {/*
             Resource Page -> Blog: the public /blog page, one tab per band that is
-            admin-driven - the hero slide, the "Insights by Topic" intro, the
+            admin-driven - the hero carousel, the "Insights by Topic" intro, the
             category chips - plus the posts it lists. Hero Section leads and is
             what /cms/resources/blog opens on; there is no inbox here to argue
             for another order - see BlogPageLayout.
 
-            The categories are edited in a Modal on their own tab, but a post is
-            written on a page of its own (a body of up to eighty blocks does not
-            fit in a dialog), so /cms/resources/blog/posts/new and /:id sit
-            outside the layout, the way the Insider story editor does.
+            The hero tab and its slide form are the home hero screens, driven by
+            the Blog config and keyed like the Insider ones. The categories are
+            edited in a Modal on their own tab, but a slide and a post are each
+            written on a page of their own (a body of up to eighty blocks does
+            not fit in a dialog), so /cms/resources/blog/hero-section/:id and
+            /cms/resources/blog/posts/:id ('new' = create) sit outside the
+            layout, the way the Insider hero and story editors do.
+
+            A slide, a category and a post each have a read-only view at
+            …/:id/view too - what a row's eye action opens. A category's Edit
+            comes back to its tab and opens the Modal there, and
+            /cms/resources/blog/categories/:id redirects to its view.
 
             /cms/resources itself has no screen - the sidebar's Resource Page is a
             disclosure - so the breadcrumb's link to it lands on the Blog area.
@@ -2112,12 +2213,176 @@ export default function App() {
           <Route path="/cms/resources" element={<Navigate to="/cms/resources/blog" replace />} />
           <Route path="/cms/resources/blog" element={<BlogPageLayout />}>
             <Route index element={<Navigate to="hero-section" replace />} />
-            <Route path="hero-section" element={<BlogHeroSectionPage />} />
+            <Route
+              path="hero-section"
+              element={<HeroSectionPage key="blog" config={BLOG_HERO_SECTION} />}
+            />
             <Route path="topics-section" element={<BlogTopicsSectionPage />} />
             <Route path="categories" element={<BlogCategoriesPage />} />
             <Route path="posts" element={<BlogPostsPage />} />
           </Route>
+          <Route
+            path="/cms/resources/blog/hero-section/:id"
+            element={<HeroSlideEditPage key="blog" config={BLOG_HERO_SECTION} />}
+          />
+          <Route
+            path="/cms/resources/blog/hero-section/:id/view"
+            element={<HeroSlideViewPage key="blog" config={BLOG_HERO_SECTION} />}
+          />
+          <Route
+            path="/cms/resources/blog/categories/:id/view"
+            element={<BlogCategoryViewPage />}
+          />
+          <Route
+            path="/cms/resources/blog/categories/:id"
+            element={<RedirectWithParams to="/cms/resources/blog/categories/:id/view" />}
+          />
           <Route path="/cms/resources/blog/posts/:id" element={<BlogPostEditPage />} />
+          <Route path="/cms/resources/blog/posts/:id/view" element={<BlogPostViewPage />} />
+
+          {/*
+            Resource Page -> Free Operational Audit: the public /free-audit page.
+            Two tabs - its hero carousel, then the inbox its form fills - in the
+            order the user asked for them, so Hero Section is what
+            /cms/resources/free-audit opens on - see FreeAuditLayout.
+
+            The hero tab and its slide form are the home hero screens, driven by
+            the Free Audit config and keyed like the Blog ones, and the slide form
+            (/cms/resources/free-audit/hero-section/:id, 'new' = create) sits
+            outside the layout the way the Blog hero's does, beside the slide's
+            read-only view (…/hero-section/:id/view). A request opens its
+            read-only view, /cms/resources/free-audit/applications/:id/view;
+            there is no form behind it, so …/applications/:id redirects there.
+          */}
+          <Route path="/cms/resources/free-audit" element={<FreeAuditLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route
+              path="hero-section"
+              element={<HeroSectionPage key="free-audit" config={FREE_AUDIT_HERO_SECTION} />}
+            />
+            <Route path="applications" element={<FreeAuditApplicationsPage />} />
+          </Route>
+          <Route
+            path="/cms/resources/free-audit/hero-section/:id"
+            element={<HeroSlideEditPage key="free-audit" config={FREE_AUDIT_HERO_SECTION} />}
+          />
+          <Route
+            path="/cms/resources/free-audit/hero-section/:id/view"
+            element={<HeroSlideViewPage key="free-audit" config={FREE_AUDIT_HERO_SECTION} />}
+          />
+          <Route
+            path="/cms/resources/free-audit/applications/:id/view"
+            element={<FreeAuditApplicationViewPage />}
+          />
+          <Route
+            path="/cms/resources/free-audit/applications/:id"
+            element={<RedirectWithParams to="/cms/resources/free-audit/applications/:id/view" />}
+          />
+
+          {/*
+            Resource Page -> Knowledgebase: the public /knowledgebase pages - the
+            hub, a page per category and an article page per guide. Three tabs,
+            in the order a visitor meets them: the hub's hero carousel, its
+            category cards, then the articles those cards open. Hero Section
+            leads and is what /cms/resources/knowledgebase opens on; there is no
+            inbox here to argue for another order - see KnowledgebaseLayout.
+
+            The hero tab and its slide form are the home hero screens, driven by
+            the Knowledgebase config and keyed like the Blog ones. The categories
+            are edited in a Modal on their own tab, but a slide and an article
+            are each written on a page of their own (a body of up to eighty
+            blocks and its FAQs do not fit in a dialog), so
+            /cms/resources/knowledgebase/hero-section/:id and
+            /cms/resources/knowledgebase/articles/:id ('new' = create) sit
+            outside the layout, the way the Blog hero and post editors do.
+
+            A slide, a category and an article each have a read-only view at
+            …/:id/view too, as on the Blog; a category's Edit comes back to its
+            tab and opens the Modal there, and
+            /cms/resources/knowledgebase/categories/:id redirects to its view.
+          */}
+          <Route path="/cms/resources/knowledgebase" element={<KnowledgebaseLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route
+              path="hero-section"
+              element={<HeroSectionPage key="knowledgebase" config={KNOWLEDGEBASE_HERO_SECTION} />}
+            />
+            <Route path="categories" element={<KnowledgebaseCategoriesPage />} />
+            <Route path="articles" element={<KnowledgebaseArticlesPage />} />
+          </Route>
+          <Route
+            path="/cms/resources/knowledgebase/hero-section/:id"
+            element={
+              <HeroSlideEditPage key="knowledgebase" config={KNOWLEDGEBASE_HERO_SECTION} />
+            }
+          />
+          <Route
+            path="/cms/resources/knowledgebase/hero-section/:id/view"
+            element={
+              <HeroSlideViewPage key="knowledgebase" config={KNOWLEDGEBASE_HERO_SECTION} />
+            }
+          />
+          <Route
+            path="/cms/resources/knowledgebase/categories/:id/view"
+            element={<KnowledgebaseCategoryViewPage />}
+          />
+          <Route
+            path="/cms/resources/knowledgebase/categories/:id"
+            element={<RedirectWithParams to="/cms/resources/knowledgebase/categories/:id/view" />}
+          />
+          <Route
+            path="/cms/resources/knowledgebase/articles/:id"
+            element={<KnowledgebaseArticleEditPage />}
+          />
+          <Route
+            path="/cms/resources/knowledgebase/articles/:id/view"
+            element={<KnowledgebaseArticleViewPage />}
+          />
+
+          {/*
+            Resource Page -> UpWon vs SAP: the public /compare/upwon-vs-sap page.
+            Three tabs, in the order the bands are read down the page: its hero
+            carousel, "The straight answer" band with its two cards, and the
+            capability table. Hero Section leads and is what
+            /cms/resources/upwon-vs-sap opens on; there is no inbox here to argue
+            for another order - see VsSapLayout.
+
+            The hero tab and its slide form are the home hero screens, driven by
+            the UpWon vs SAP config and keyed like the Free Audit ones, and the
+            slide form (/cms/resources/upwon-vs-sap/hero-section/:id, 'new' =
+            create) sits outside the layout the way the Free Audit hero's does,
+            beside the slide's read-only view (…/hero-section/:id/view). A
+            capability row is edited in a Modal on its own tab, so there is no
+            form at /cms/resources/upwon-vs-sap/comparison/:id: a row has a
+            read-only view at …/comparison/:id/view instead, whose Edit comes
+            back to the tab and opens the Modal there, and …/comparison/:id
+            redirects to that view.
+          */}
+          <Route path="/cms/resources/upwon-vs-sap" element={<VsSapLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route
+              path="hero-section"
+              element={<HeroSectionPage key="upwon-vs-sap" config={VS_SAP_HERO_SECTION} />}
+            />
+            <Route path="answer-section" element={<VsSapAnswerSectionPage />} />
+            <Route path="comparison" element={<VsSapComparisonPage />} />
+          </Route>
+          <Route
+            path="/cms/resources/upwon-vs-sap/hero-section/:id"
+            element={<HeroSlideEditPage key="upwon-vs-sap" config={VS_SAP_HERO_SECTION} />}
+          />
+          <Route
+            path="/cms/resources/upwon-vs-sap/hero-section/:id/view"
+            element={<HeroSlideViewPage key="upwon-vs-sap" config={VS_SAP_HERO_SECTION} />}
+          />
+          <Route
+            path="/cms/resources/upwon-vs-sap/comparison/:id/view"
+            element={<VsSapCapabilityViewPage />}
+          />
+          <Route
+            path="/cms/resources/upwon-vs-sap/comparison/:id"
+            element={<RedirectWithParams to="/cms/resources/upwon-vs-sap/comparison/:id/view" />}
+          />
 
           <Route path="/cms/leads/:type" element={<LeadsInboxPage />} />
 

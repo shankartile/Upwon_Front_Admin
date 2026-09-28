@@ -30,7 +30,8 @@ import {
  * their own page (HeroSlideEditPage), reached from here.
  *
  * Serves every hero carousel through `config` (see heroSectionConfig.ts): the
- * home page one by default, the Insider page one from its own route.
+ * home page one by default, the Insider, Blog, Free Audit, Knowledgebase and
+ * UpWon vs SAP page ones from their own routes.
  */
 
 type StatusFilter = 'all' | ContentStatus;
@@ -141,9 +142,9 @@ export default function HeroSectionPage({
   /**
    * Opens a row.
    *
-   * The read-only view where the carousel has one, otherwise the form: the
-   * Insider hero has no /view route, and linking one would land on a blank
-   * route rather than on the slide.
+   * The read-only view where the carousel has one (every carousel does now -
+   * see hasViewPage), otherwise the form, so a row is never linked to a /view
+   * route that is not there.
    */
   const openRow = (id: string) =>
     navigate(hasViewPage ? `${basePath}/${id}/view` : `${basePath}/${id}`);

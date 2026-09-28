@@ -4,7 +4,6 @@ import {
   checkHeading,
   checkText,
   counterFor,
-  toSlug,
   type TextRule,
 } from '../../../lib/fieldRules';
 import type { ImageSpec } from '../../../lib/heroImageSpec';
@@ -20,28 +19,15 @@ import type { BlogBodyBlock, BlogBodyBlockType } from '../../../types/blog';
  * same numbers and cannot drift apart. The server stays the authority; these
  * turn its 422s into inline feedback while typing.
  *
+ * The hero is not here: its slides are edited on the shared hero slide form,
+ * which carries its own rules - see blogHeroSection.ts.
+ *
  * The checks themselves are lib/fieldRules', re-exported so the blog screens
  * have one place to import from.
  */
 
 export { checkHeading, checkText, counterFor };
 export type { TextRule };
-
-// -- hero section -------------------------------------------------------------
-
-/**
- * Mirrors validators/hero-section.validator.ts - every field required. The
- * buttons are text only: the site fixes where each one goes.
- */
-export const HERO_RULES = {
-  eyebrow: { label: 'Eyebrow', min: 2, max: 60, required: true },
-  heading: { label: 'Heading', min: 3, max: 160, required: true },
-  subtext: { label: 'Subtext', min: 3, max: 300, required: true },
-  primaryCtaLabel: { label: 'Primary button text', min: 2, max: 40, required: true },
-  secondaryCtaLabel: { label: 'Secondary button text', min: 2, max: 40, required: true },
-} as const satisfies Record<string, TextRule>;
-
-export type HeroTextField = keyof typeof HERO_RULES;
 
 // -- topics section -----------------------------------------------------------
 
@@ -69,58 +55,12 @@ export type CategoryField = keyof typeof CATEGORY_RULES | 'icon' | 'status';
 /** MAX_BLOG_CATEGORIES on the server - the create that would go over is a 409. */
 export const MAX_BLOG_CATEGORIES = 12;
 
-// -- post slugs ---------------------------------------------------------------
-
-/** The post slug column's cap - the /blog/<slug> URL segment. */
-export const POST_SLUG_MAX = 120;
-
-/** The shortest slug the server accepts. */
-export const BLOG_SLUG_MIN = 2;
-
-/** SLUG_PATTERN on the server - lowercase words joined by single hyphens. */
-const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-
-/**
- * lib/fieldRules' toSlug, capped at this column's own length instead of the
- * shared 100 - the cap can land just after a hyphen, hence the trailing trim.
- */
-export const toBlogSlug = (text: string, max: number): string =>
-  toSlug(text).slice(0, max).replace(/-+$/, '');
-
-/**
- * A slug the admin typed (or that was derived for them), checked against the
- * grammar the URL has to obey, and against the other rows' slugs already on
- * screen, so a clash shows before the server's 409 does.
- *
- * lib/fieldRules' slugError is not reused because its cap is the shared 100,
- * and this column's is 120.
- *
- * @returns null when valid, otherwise the message to show under the input.
- */
-export function blogSlugError(
-  raw: string,
-  opts: { max: number; taken?: readonly string[]; label?: string },
-): string | null {
-  const label = opts.label ?? 'Slug';
-  const value = raw.trim();
-
-  if (!value) return `${label} is required.`;
-  if (value.length < BLOG_SLUG_MIN) {
-    return `${label} must be at least ${BLOG_SLUG_MIN} characters.`;
-  }
-  if (value.length > opts.max) {
-    return `${label} must be ${opts.max} characters or fewer (currently ${value.length}).`;
-  }
-  if (!SLUG_PATTERN.test(value)) {
-    return `${label} may use lowercase letters, numbers and single hyphens only, e.g. warehouse-audit.`;
-  }
-  if (opts.taken?.includes(value)) return `${label} is already used by another entry.`;
-  return null;
-}
-
 // -- posts --------------------------------------------------------------------
 
-/** Mirrors validators/posts.validator.ts's text fields. */
+/**
+ * Mirrors validators/posts.validator.ts's text fields. There is no slug: the
+ * server derives a post's /blog/<slug> address from the title on create.
+ */
 export const POST_RULES = {
   title: { label: 'Title', min: 3, max: 200, required: true },
   excerpt: { label: 'Excerpt', min: 3, max: 400, required: true },
@@ -337,9 +277,9 @@ export const BLOG_POST_ENTITY_TYPE = 'blog_post_image';
 /**
  * A client-side mirror of modules/blog/utils/blog-image-spec.ts, checked by the
  * same checkImageDimensions as every other image slot so failures read the same
- * everywhere. The grid card's image box is aspect-[16/9] and the featured card's
+ * everywhere. The grid card's image box is aspect-[16/9] and the LATEST card's
  * 16/10, so a 16:9 landscape with a generous tolerance fits both - at 1200px
- * wide because the featured card and the post page show it far larger than the
+ * wide because the LATEST card and the post page show it far larger than the
  * Insider story card. The server is the authority; keep the numbers in step
  * with it.
  */

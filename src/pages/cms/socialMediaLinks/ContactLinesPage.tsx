@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
@@ -7,6 +8,7 @@ import { IconGlyph } from '../../../components/forms/IconPicker';
 import { DataTable } from '../../../components/table/DataTable';
 import { TableToolbar } from '../../../components/table/TableToolbar';
 import { RowActions } from '../../../components/table/RowActions';
+import { useEditRequest } from '../../../hooks/useEditRequest';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 import * as contactLinesService from '../../../services/socialContactLinesService';
 import { toChildStatusFilter, useChildList } from '../about/useChildList';
@@ -33,10 +35,16 @@ import type { SocialContactLine } from '../../../types/socialMediaLinks';
  *                      shown - so deleting the last line brings those back.
  *   rows, none Active  the site shows NO contact lines. Everything switched off
  *                      is a decision, not an absence, so it is respected.
+ *
+ * A row, and its eye action, open the line's read-only view (ContactLineViewPage);
+ * that screen's Edit comes back here and opens the dialog on the same row.
  */
 
 /** Column widths, summed, so the table scrolls sideways rather than cropping. */
 const TABLE_MIN_WIDTH = '940px';
+
+/** Where a row's read-only view lives - ContactLineViewPage. */
+const VIEW_PATH = '/cms/social-media-links/contact-lines';
 
 export default function ContactLinesPage() {
   const lines = useChildList<SocialContactLine>({
@@ -48,6 +56,14 @@ export default function ContactLinesPage() {
 
   /** The dialog, and the line it is about. `line: null` means "add one". */
   const [editor, setEditor] = useState<{ line: SocialContactLine | null } | null>(null);
+
+  const navigate = useNavigate();
+
+  /** A row, and its eye action, open the line's read-only view (ContactLineViewPage). */
+  const openView = (row: SocialContactLine) => navigate(`${VIEW_PATH}/${row.id}/view`);
+
+  // That view's Edit comes back here with the row's id - open the dialog on it.
+  useEditRequest(lines.rows, lines.loading, (row) => setEditor({ line: row }));
 
   /** What an empty table means - three answers, not two. See the table below. */
   const emptyState = (() => {
@@ -158,7 +174,7 @@ export default function ContactLinesPage() {
         emptyDescription={emptyState.description}
         actionsHeader="Actions"
         actionsWidth="200px"
-        onRowClick={(row) => setEditor({ line: row })}
+        onRowClick={openView}
         toolbar={
           <TableToolbar
             search={lines.search}
@@ -244,6 +260,7 @@ export default function ContactLinesPage() {
         ]}
         rowActions={(row) => (
           <RowActions
+            onView={() => openView(row)}
             onEdit={() => setEditor({ line: row })}
             onDelete={() => lines.setPending({ kind: 'delete', record: row })}
             toggle={{

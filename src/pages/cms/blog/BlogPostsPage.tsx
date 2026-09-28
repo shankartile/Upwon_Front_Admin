@@ -20,13 +20,17 @@ import type { ContentStatus } from '../../../types/homePage';
 
 /**
  * Resource Page -> Blog -> Posts tab: every article on the public /blog page,
- * newest first - the order the site lists them in, with the newest as its
- * featured card.
+ * newest first - the order the site lists them in, with the newest in its
+ * "LATEST" card at the top of the listing. That card is not chosen here: it is
+ * always the newest live post by publish date, so the table only marks it.
  *
  * NOT a child list: posts have no display order, so there are no arrows here.
  * Moving a post up the page means changing its publish date in the editor. The
  * Sr. No. column (House Rule 4) is therefore just the row's place in that
  * newest-first order, across the whole list rather than the filtered view.
+ *
+ * A row, and its eye action, open the post's read-only view (BlogPostViewPage)
+ * first, the way the hero slide list does.
  *
  * Posts are written on a page of their own (BlogPostEditPage), not in a Modal:
  * a body of up to eighty blocks does not fit in a dialog. Status and delete
@@ -100,8 +104,8 @@ export default function BlogPostsPage() {
 
   const activeCount = posts.filter((post) => post.status === 'ACTIVE').length;
 
-  /** The newest ACTIVE post in an ACTIVE category - the one the site features. */
-  const featuredId = useMemo(() => {
+  /** The newest ACTIVE post in an ACTIVE category - the site's "LATEST" card. */
+  const latestId = useMemo(() => {
     const live = new Set(categories.filter((c) => c.status === 'ACTIVE').map((c) => c.id));
     return posts.find((post) => post.status === 'ACTIVE' && live.has(post.categoryId))?.id ?? null;
   }, [categories, posts]);
@@ -136,7 +140,7 @@ export default function BlogPostsPage() {
     if (posts.length === 0) {
       return {
         title: 'No posts yet',
-        description: 'Write the first post — it becomes the featured card on /blog.',
+        description: 'Write the first post — it becomes the LATEST card at the top of /blog.',
       };
     }
     return {
@@ -151,11 +155,14 @@ export default function BlogPostsPage() {
     if (posts.length === 0) return 'No posts yet.';
     return `${activeCount} of ${posts.length} ${
       posts.length === 1 ? 'post is' : 'posts are'
-    } live, newest first — the newest live one is the featured card on /blog.`;
+    } live, newest first — the newest live one (by publish date) is the LATEST card at the top of /blog.`;
   })();
 
   const openEditor = (post: BlogPost | null) =>
     navigate(post ? `/cms/resources/blog/posts/${post.id}` : '/cms/resources/blog/posts/new');
+
+  /** A row, and its eye action, open the post's read-only view (BlogPostViewPage). */
+  const openView = (row: BlogPost) => navigate(`/cms/resources/blog/posts/${row.id}/view`);
 
   return (
     <>
@@ -194,12 +201,12 @@ export default function BlogPostsPage() {
         emptyDescription={emptyState.description}
         actionsHeader="Actions"
         actionsWidth="200px"
-        onRowClick={(row) => openEditor(row)}
+        onRowClick={(row) => openView(row)}
         toolbar={
           <TableToolbar
             search={search}
             onSearchChange={setSearch}
-            placeholder="Search title, slug or author…"
+            placeholder="Search title or author…"
             right={
               <div className="flex gap-2">
                 <div className="w-52">
@@ -263,7 +270,11 @@ export default function BlogPostsPage() {
                   <code className="truncate text-xs text-charcoal-light dark:text-navy-300">
                     /blog/{row.slug}
                   </code>
-                  {row.id === featuredId && <Badge tone="orange">Featured</Badge>}
+                  {row.id === latestId && (
+                    <span title="Shown in the LATEST card at the top of /blog - always the newest live post by publish date.">
+                      <Badge tone="orange">Latest</Badge>
+                    </span>
+                  )}
                 </span>
               </div>
             ),
@@ -304,6 +315,7 @@ export default function BlogPostsPage() {
         ]}
         rowActions={(row) => (
           <RowActions
+            onView={() => openView(row)}
             onEdit={() => openEditor(row)}
             onDelete={() => setPending({ kind: 'delete', record: row })}
             toggle={{

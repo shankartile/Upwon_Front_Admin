@@ -21,10 +21,9 @@ import { Tabs } from '../../../components/ui/Tabs';
  * partner_applications.read permission rather than the one that lets somebody
  * reword a heading.
  *
- * Both tabs are singleton screens: the hero is one form and Save, and an
- * application opens a detail card rather than a page. So there is nothing to
- * edit outside this layout, and no route matching
- * /cms/partner-program/applications/:id.
+ * The hero is one form and Save. An application opens its read-only view,
+ * /cms/partner-program/applications/:id/view, which sits outside this layout;
+ * there is nothing to edit there - it is the visitor's own submission.
  */
 
 const SECTIONS = [
