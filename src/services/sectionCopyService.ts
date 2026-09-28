@@ -78,6 +78,20 @@ export const PAGE_SECTION_KEYS = {
     'faq',
     'cta',
   ],
+  /*
+   * The WMS page. The hero is absent on purpose, as on every other product
+   * page: its slides each carry their own eyebrow, headline and subhead.
+   *
+   * Only the sections built so far — the rest of the page is still static,
+   * and each key arrives with its section.
+   */
+  wms: ['proof', 'recognition', 'capabilities', 'outcomes', 'faq', 'cta'],
+  /*
+   * The Vendor Portal page. The hero is absent on purpose, as on every other
+   * product page: its slides each carry their own eyebrow, headline and
+   * subhead.
+   */
+  vms: ['proof', 'capabilities', 'outcomes', 'faq', 'cta'],
 } as const;
 
 export type PageKey = keyof typeof PAGE_SECTION_KEYS;

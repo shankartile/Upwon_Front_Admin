@@ -131,8 +131,8 @@ const PRODUCT_PAGES: NavChild[] = [
   { label: 'FMS Page', to: '/cms/products/fms' },
   { label: 'POS Page', to: '/cms/products/pos' },
   { label: 'HREasy Page', to: '/cms/products/hreasy' },
-  { label: 'WMS Page' },
-  { label: 'Vendor Portal Page' },
+  { label: 'WMS Page', to: '/cms/products/wms' },
+  { label: 'Vendor Portal Page', to: '/cms/products/vendor-portal' },
 ];
 
 /**

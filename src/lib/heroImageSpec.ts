@@ -46,6 +46,20 @@ export type HeroImageVariant =
   | 'hreasyCapabilityPanel'
   | 'hreasyLifecycleCard'
   | 'hreasyOutcomeLogo'
+  | 'wmsHero'
+  | 'wmsHeroMobile'
+  | 'wmsCtaDesktop'
+  | 'wmsCtaMobile'
+  | 'wmsProofSlide'
+  | 'wmsRecognitionCard'
+  | 'wmsCapabilityPanel'
+  | 'vmsHero'
+  | 'vmsHeroMobile'
+  | 'vmsProofImage'
+  | 'vmsCapabilityImage'
+  | 'vmsOutcomePoster'
+  | 'vmsCtaDesktop'
+  | 'vmsCtaMobile'
   | 'posOutcomeLogo'
   | 'posOutcomePhoto'
   | 'posSecurityShield'
@@ -300,6 +314,118 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     height: 56,
     ratioTolerance: null,
     hint: 'At least 260px wide, any shape — the card draws it contained at a fixed height.',
+  },
+  wmsHero: {
+    label: 'Desktop image',
+    width: 1600,
+    height: 566,
+    ratioTolerance: 0.2,
+    hint: 'Wide banner, at least 1600×566px. The copy sits over it, so keep the centre clear.',
+  },
+  wmsHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+  },
+  wmsCtaDesktop: {
+    label: 'Desktop photograph',
+    width: 1600,
+    height: 900,
+    ratioTolerance: 0.2,
+    hint: 'Wide landscape, at least 1600×900px. The copy sits over its left half under a wash, so keep the subject on the right.',
+  },
+  wmsCtaMobile: {
+    label: 'Mobile photograph',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop photograph, which crops hard.',
+  },
+  wmsProofSlide: {
+    label: 'Stat card',
+    width: 1100,
+    height: 800,
+    ratioTolerance: 0.2,
+    hint: 'Roughly 11:8, at least 1100×800px. Cropped to fill the card, so a different shape loses an edge — and the figure is inside the artwork.',
+  },
+  /*
+   * The illustration at the top of a warehouse-type card. Drawn
+   * object-contain in a fixed band, so any shape sits correctly.
+   */
+  wmsRecognitionCard: {
+    label: 'Card illustration',
+    width: 600,
+    height: 400,
+    ratioTolerance: null,
+    hint: 'At least 600×400px, any shape. Shown whole rather than cropped, with the title underneath.',
+  },
+  /*
+   * The composite beside a capability band. Contained, like the HREasy panel,
+   * so a taller or shorter artwork simply occupies less of the band.
+   */
+  wmsCapabilityPanel: {
+    label: 'Panel artwork',
+    width: 1200,
+    height: 700,
+    ratioTolerance: null,
+    hint: 'Landscape, at least 1200×700px, any shape. Shown whole beside the text — the caption inside the artwork is part of the image.',
+  },
+  // ── Vendor Portal (VMS) page ────────────────────────────────────────────
+  /*
+   * No ratio rule: the five shipped slides do not agree on a shape - three
+   * are about 3:2 and one is nearly 2:1 - so a rule tight enough to be useful
+   * would reject the section's own artwork.
+   */
+  vmsHero: {
+    label: 'Desktop image',
+    width: 1500,
+    height: 880,
+    ratioTolerance: null,
+    hint: 'At least 1500×880px, any shape. Covered, so keep the subject away from the edges.',
+  },
+  vmsHeroMobile: {
+    label: 'Mobile image',
+    width: 800,
+    height: 1200,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+  },
+  vmsProofImage: {
+    label: 'Tile picture',
+    width: 1700,
+    height: 880,
+    ratioTolerance: 0.2,
+    hint: 'Roughly 2:1, at least 1700×880px. Cropped to fill the tile whatever its column span.',
+  },
+  vmsCapabilityImage: {
+    label: 'Card screenshot',
+    width: 1600,
+    height: 850,
+    ratioTolerance: 0.2,
+    hint: 'Landscape, at least 1600×850px (about 1.9:1). Cropped to fill the card, so keep the detail centred.',
+  },
+  vmsOutcomePoster: {
+    label: 'Poster image',
+    width: 1280,
+    height: 720,
+    ratioTolerance: 0.2,
+    hint: '16:9, at least 1280×720px — the still shown before the video plays.',
+  },
+  vmsCtaDesktop: {
+    label: 'Desktop photograph',
+    width: 2100,
+    height: 740,
+    ratioTolerance: 0.2,
+    hint: 'Wide, at least 2100×740px. The copy sits over its left third, so keep that side clear.',
+  },
+  vmsCtaMobile: {
+    label: 'Mobile photograph',
+    width: 440,
+    height: 956,
+    ratioTolerance: 0.2,
+    hint: 'Portrait crop, at least 440×956px. Optional — phones fall back to the desktop photograph.',
   },
   posOutcomeLogo: {
     label: 'Brand mark',

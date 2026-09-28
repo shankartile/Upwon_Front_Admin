@@ -143,6 +143,47 @@ import HreasyFaqEntryViewPage from './pages/cms/hreasyPage/FaqEntryViewPage';
 import HreasyCtaSectionPage from './pages/cms/hreasyPage/CtaSectionPage';
 import HreasyCtaTrustItemEditPage from './pages/cms/hreasyPage/CtaTrustItemEditPage';
 import HreasyCtaTrustItemViewPage from './pages/cms/hreasyPage/CtaTrustItemViewPage';
+import WmsPageLayout from './pages/cms/wmsPage/WmsPageLayout';
+import WmsHeroSectionPage from './pages/cms/wmsPage/HeroSectionPage';
+import WmsHeroSlideEditPage from './pages/cms/wmsPage/HeroSlideEditPage';
+import WmsHeroSlideViewPage from './pages/cms/wmsPage/HeroSlideViewPage';
+import WmsFaqSectionPage from './pages/cms/wmsPage/FaqSectionPage';
+import WmsFaqEntryEditPage from './pages/cms/wmsPage/FaqEntryEditPage';
+import WmsFaqEntryViewPage from './pages/cms/wmsPage/FaqEntryViewPage';
+import WmsCtaSectionPage from './pages/cms/wmsPage/CtaSectionPage';
+import WmsCtaTrustItemEditPage from './pages/cms/wmsPage/CtaTrustItemEditPage';
+import WmsCtaTrustItemViewPage from './pages/cms/wmsPage/CtaTrustItemViewPage';
+import WmsProofSectionPage from './pages/cms/wmsPage/ProofSectionPage';
+import WmsProofCardEditPage from './pages/cms/wmsPage/ProofCardEditPage';
+import WmsProofCardViewPage from './pages/cms/wmsPage/ProofCardViewPage';
+import WmsProofSlideEditPage from './pages/cms/wmsPage/ProofSlideEditPage';
+import WmsProofSlideViewPage from './pages/cms/wmsPage/ProofSlideViewPage';
+import WmsRecognitionSectionPage from './pages/cms/wmsPage/RecognitionSectionPage';
+import WmsRecognitionCardEditPage from './pages/cms/wmsPage/RecognitionCardEditPage';
+import WmsRecognitionCardViewPage from './pages/cms/wmsPage/RecognitionCardViewPage';
+import WmsCapabilitiesSectionPage from './pages/cms/wmsPage/CapabilitiesSectionPage';
+import WmsCapabilityModuleEditPage from './pages/cms/wmsPage/CapabilityModuleEditPage';
+import WmsCapabilityModuleViewPage from './pages/cms/wmsPage/CapabilityModuleViewPage';
+import WmsOutcomesSectionPage from './pages/cms/wmsPage/OutcomesSectionPage';
+import WmsOutcomeCardEditPage from './pages/cms/wmsPage/OutcomeCardEditPage';
+import WmsOutcomeCardViewPage from './pages/cms/wmsPage/OutcomeCardViewPage';
+import VendorPortalPageLayout from './pages/cms/vendorPortalPage/VendorPortalPageLayout';
+import VmsHeroSectionPage from './pages/cms/vendorPortalPage/HeroSectionPage';
+import VmsHeroSlideEditPage from './pages/cms/vendorPortalPage/HeroSlideEditPage';
+import VmsHeroSlideViewPage from './pages/cms/vendorPortalPage/HeroSlideViewPage';
+import VmsProofSectionPage from './pages/cms/vendorPortalPage/ProofSectionPage';
+import VmsProofTileEditPage from './pages/cms/vendorPortalPage/ProofTileEditPage';
+import VmsProofTileViewPage from './pages/cms/vendorPortalPage/ProofTileViewPage';
+import VmsCapabilitiesSectionPage from './pages/cms/vendorPortalPage/CapabilitiesSectionPage';
+import VmsCapabilityCardEditPage from './pages/cms/vendorPortalPage/CapabilityCardEditPage';
+import VmsCapabilityCardViewPage from './pages/cms/vendorPortalPage/CapabilityCardViewPage';
+import VmsOutcomesSectionPage from './pages/cms/vendorPortalPage/OutcomesSectionPage';
+import VmsOutcomeVideoEditPage from './pages/cms/vendorPortalPage/OutcomeVideoEditPage';
+import VmsOutcomeVideoViewPage from './pages/cms/vendorPortalPage/OutcomeVideoViewPage';
+import VmsFaqSectionPage from './pages/cms/vendorPortalPage/FaqSectionPage';
+import VmsFaqEntryEditPage from './pages/cms/vendorPortalPage/FaqEntryEditPage';
+import VmsFaqEntryViewPage from './pages/cms/vendorPortalPage/FaqEntryViewPage';
+import VmsCtaSectionPage from './pages/cms/vendorPortalPage/CtaSectionPage';
 import FmsFranchiseSectionPage from './pages/cms/fmsPage/FranchiseSectionPage';
 import FmsVideoSectionPage from './pages/cms/fmsPage/VideoSectionPage';
 import FmsIntegrationsSectionPage from './pages/cms/fmsPage/IntegrationsSectionPage';
@@ -752,6 +793,130 @@ export default function App() {
           <Route
             path="/cms/products/hreasy/cta-section/trust/:id/view"
             element={<HreasyCtaTrustItemViewPage />}
+          />
+
+          {/* The WMS page. Three sections so far — the rest of it is static. */}
+          <Route path="/cms/products/wms" element={<WmsPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<WmsHeroSectionPage />} />
+            <Route path="proof-section" element={<WmsProofSectionPage />} />
+            <Route path="recognition-section" element={<WmsRecognitionSectionPage />} />
+            <Route path="capabilities-section" element={<WmsCapabilitiesSectionPage />} />
+            <Route path="outcomes-section" element={<WmsOutcomesSectionPage />} />
+            <Route path="faq-section" element={<WmsFaqSectionPage />} />
+            <Route path="cta-section" element={<WmsCtaSectionPage />} />
+          </Route>
+          {/* Entry forms sit outside the layout so they get the full width. */}
+          <Route path="/cms/products/wms/hero-section/:id" element={<WmsHeroSlideEditPage />} />
+          <Route
+            path="/cms/products/wms/hero-section/:id/view"
+            element={<WmsHeroSlideViewPage />}
+          />
+          {/* The proof row is two lists: the cards, and each card's slides. */}
+          <Route
+            path="/cms/products/wms/proof-section/cards/:id"
+            element={<WmsProofCardEditPage />}
+          />
+          <Route
+            path="/cms/products/wms/proof-section/cards/:id/view"
+            element={<WmsProofCardViewPage />}
+          />
+          <Route
+            path="/cms/products/wms/proof-section/cards/:cardId/slides/:id"
+            element={<WmsProofSlideEditPage />}
+          />
+          <Route
+            path="/cms/products/wms/proof-section/cards/:cardId/slides/:id/view"
+            element={<WmsProofSlideViewPage />}
+          />
+          <Route
+            path="/cms/products/wms/recognition-section/:id"
+            element={<WmsRecognitionCardEditPage />}
+          />
+          <Route
+            path="/cms/products/wms/recognition-section/:id/view"
+            element={<WmsRecognitionCardViewPage />}
+          />
+          <Route
+            path="/cms/products/wms/capabilities-section/:id"
+            element={<WmsCapabilityModuleEditPage />}
+          />
+          <Route
+            path="/cms/products/wms/capabilities-section/:id/view"
+            element={<WmsCapabilityModuleViewPage />}
+          />
+          <Route
+            path="/cms/products/wms/outcomes-section/:id"
+            element={<WmsOutcomeCardEditPage />}
+          />
+          <Route
+            path="/cms/products/wms/outcomes-section/:id/view"
+            element={<WmsOutcomeCardViewPage />}
+          />
+          <Route path="/cms/products/wms/faq-section/:id" element={<WmsFaqEntryEditPage />} />
+          <Route
+            path="/cms/products/wms/faq-section/:id/view"
+            element={<WmsFaqEntryViewPage />}
+          />
+          <Route
+            path="/cms/products/wms/cta-section/trust/:id"
+            element={<WmsCtaTrustItemEditPage />}
+          />
+          <Route
+            path="/cms/products/wms/cta-section/trust/:id/view"
+            element={<WmsCtaTrustItemViewPage />}
+          />
+
+          {/* The Vendor Portal (VMS) page, laid out the same way as the WMS one. */}
+          <Route path="/cms/products/vendor-portal" element={<VendorPortalPageLayout />}>
+            <Route index element={<Navigate to="hero-section" replace />} />
+            <Route path="hero-section" element={<VmsHeroSectionPage />} />
+            <Route path="proof-section" element={<VmsProofSectionPage />} />
+            <Route path="capabilities-section" element={<VmsCapabilitiesSectionPage />} />
+            <Route path="outcomes-section" element={<VmsOutcomesSectionPage />} />
+            <Route path="faq-section" element={<VmsFaqSectionPage />} />
+            <Route path="cta-section" element={<VmsCtaSectionPage />} />
+          </Route>
+          {/* Entry forms sit outside the layout so they get the full width. */}
+          <Route
+            path="/cms/products/vendor-portal/hero-section/:id"
+            element={<VmsHeroSlideEditPage />}
+          />
+          <Route
+            path="/cms/products/vendor-portal/hero-section/:id/view"
+            element={<VmsHeroSlideViewPage />}
+          />
+          <Route
+            path="/cms/products/vendor-portal/proof-section/:id"
+            element={<VmsProofTileEditPage />}
+          />
+          <Route
+            path="/cms/products/vendor-portal/proof-section/:id/view"
+            element={<VmsProofTileViewPage />}
+          />
+          <Route
+            path="/cms/products/vendor-portal/capabilities-section/:id"
+            element={<VmsCapabilityCardEditPage />}
+          />
+          <Route
+            path="/cms/products/vendor-portal/capabilities-section/:id/view"
+            element={<VmsCapabilityCardViewPage />}
+          />
+          <Route
+            path="/cms/products/vendor-portal/outcomes-section/:id"
+            element={<VmsOutcomeVideoEditPage />}
+          />
+          <Route
+            path="/cms/products/vendor-portal/outcomes-section/:id/view"
+            element={<VmsOutcomeVideoViewPage />}
+          />
+          <Route
+            path="/cms/products/vendor-portal/faq-section/:id"
+            element={<VmsFaqEntryEditPage />}
+          />
+          <Route
+            path="/cms/products/vendor-portal/faq-section/:id/view"
+            element={<VmsFaqEntryViewPage />}
           />
 
           {/* The SFA-DMS page, laid out the same way as the ERP one. */}
