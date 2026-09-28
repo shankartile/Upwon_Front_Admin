@@ -182,6 +182,15 @@ export default function FoodProcessingCoverageItemEditPage() {
   const hasErrors =
     Object.values(errors).some(Boolean) || Boolean(form?.imageError) || Boolean(imageProblem);
 
+  /*
+   * The one message for the save bar and the toast. With any text field
+   * invalid it stays generic, so it never points at one problem while the
+   * form shows several; otherwise it names the image problem.
+   */
+  const saveProblem = Object.values(errors).some(Boolean)
+    ? null
+    : (imageProblem ?? form?.imageError ?? null);
+
   if (loadError) {
     return (
       <>
@@ -310,8 +319,10 @@ export default function FoodProcessingCoverageItemEditPage() {
               <Field
                 label={spec.label}
                 required
+                keepHint
                 error={
-                  form.imageError ?? (submitted ? (imageProblem ?? undefined) : undefined)
+                  form.imageError ??
+                  (submitted && imageProblem ? `${spec.label} is required.` : undefined)
                 }
                 hint={spec.hint}
               >
@@ -392,7 +403,7 @@ export default function FoodProcessingCoverageItemEditPage() {
         <div className="flex items-center justify-end gap-3">
           {submitted && hasErrors && (
             <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
-              {imageProblem ?? 'Fix the highlighted fields above to continue.'}
+              {saveProblem ?? 'Fix the highlighted fields above to continue.'}
             </p>
           )}
           <Button
@@ -402,7 +413,7 @@ export default function FoodProcessingCoverageItemEditPage() {
             onClick={() => {
               setSubmitted(true);
               if (hasErrors) {
-                toast.error(imageProblem ?? 'Check the highlighted fields');
+                toast.error(saveProblem ?? 'Fix the highlighted fields above to continue.');
                 return;
               }
               setConfirmOpen(true);

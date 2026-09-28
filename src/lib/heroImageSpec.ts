@@ -220,7 +220,7 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     width: 800,
     height: 1200,
     ratioTolerance: 0.2,
-    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+    hint: 'Portrait crop, at least 800×1200px.',
   },
   bakeryStatIcon: {
     label: 'Icon',
@@ -270,7 +270,7 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     width: 800,
     height: 1200,
     ratioTolerance: 0.2,
-    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+    hint: 'Portrait crop, at least 800×1200px.',
   },
   fmcgPlatformIcon: {
     label: 'Tile icon',
@@ -306,7 +306,7 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     width: 800,
     height: 1200,
     ratioTolerance: 0.2,
-    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+    hint: 'Portrait crop, at least 800×1200px.',
   },
   sweetsPlatformIcon: {
     label: 'Tile icon',
@@ -342,7 +342,7 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     width: 800,
     height: 1200,
     ratioTolerance: 0.2,
-    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+    hint: 'Portrait crop, at least 800×1200px.',
   },
   foodProcessingTrustPanel: {
     label: 'Photograph',
@@ -391,7 +391,7 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     width: 800,
     height: 1200,
     ratioTolerance: 0.2,
-    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+    hint: 'Portrait crop, at least 800×1200px.',
   },
   nonFoodFmcgCapability: {
     label: 'Card illustration',
@@ -441,7 +441,7 @@ export const HERO_IMAGE_SPECS: Record<HeroImageVariant, HeroImageSpec> = {
     width: 800,
     height: 1200,
     ratioTolerance: 0.2,
-    hint: 'Portrait crop, at least 800×1200px. Optional — phones fall back to the desktop image.',
+    hint: 'Portrait crop, at least 800×1200px.',
   },
   dairyTrustStat: {
     label: 'Photograph',

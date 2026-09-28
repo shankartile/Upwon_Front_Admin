@@ -224,6 +224,7 @@ export default function FoodProcessingTrustStatEditPage() {
               <FieldGrid>
                 <Field
                   label={RULES.value.label}
+                  required
                   error={errorFor('value')}
                   hint="Typed exactly as it should read."
                 >
@@ -237,7 +238,7 @@ export default function FoodProcessingTrustStatEditPage() {
                   />
                 </Field>
 
-                <Field label={RULES.label.label} error={errorFor('label')}>
+                <Field label={RULES.label.label} required error={errorFor('label')}>
                   <Input
                     value={form.label}
                     maxLength={RULES.label.max}
@@ -312,7 +313,7 @@ export default function FoodProcessingTrustStatEditPage() {
             onClick={() => {
               setSubmitted(true);
               if (hasErrors) {
-                toast.error('Check the highlighted fields');
+                toast.error('Fix the highlighted fields above to continue.');
                 return;
               }
               setConfirmOpen(true);

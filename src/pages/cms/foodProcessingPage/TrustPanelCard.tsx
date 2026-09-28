@@ -137,6 +137,13 @@ export default function TrustPanelCard() {
 
   const hasErrors = Boolean(altError) || Boolean(form?.imageError) || Boolean(imageProblem);
 
+  /*
+   * The one message for the save bar and the toast. With the alt text
+   * invalid it stays generic, so it never points at one problem while the
+   * form shows several; otherwise it names the image problem.
+   */
+  const saveProblem = altError ? null : (imageProblem ?? form?.imageError ?? null);
+
   const spec = HERO_IMAGE_SPECS.foodProcessingTrustPanel;
   const header = (
     <CardHeader
@@ -253,7 +260,11 @@ export default function TrustPanelCard() {
             <Field
               label={spec.label}
               required
-              error={form.imageError ?? (submitted ? (imageProblem ?? undefined) : undefined)}
+              keepHint
+              error={
+                form.imageError ??
+                (submitted && imageProblem ? `${spec.label} is required.` : undefined)
+              }
               hint={spec.hint}
             >
               <PhotoPicker
@@ -288,7 +299,7 @@ export default function TrustPanelCard() {
           <div className="flex items-center justify-end gap-3 border-t hairline pt-4">
             {submitted && hasErrors && (
               <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
-                {imageProblem ?? 'Fix the highlighted fields above to continue.'}
+                {saveProblem ?? 'Fix the highlighted fields above to continue.'}
               </p>
             )}
             <Button
@@ -298,7 +309,7 @@ export default function TrustPanelCard() {
               onClick={() => {
                 setSubmitted(true);
                 if (hasErrors) {
-                  toast.error(imageProblem ?? 'Check the highlighted fields');
+                  toast.error(saveProblem ?? 'Fix the highlighted fields above to continue.');
                   return;
                 }
                 setConfirmOpen(true);

@@ -179,6 +179,15 @@ export default function SweetsTrustLogoEditPage() {
   const hasErrors =
     Object.values(errors).some(Boolean) || Boolean(form?.imageError) || Boolean(imageProblem);
 
+  /*
+   * The one message for the save bar and the toast. With any text field
+   * invalid it stays generic, so it never points at one problem while the
+   * form shows several; otherwise it names the image problem.
+   */
+  const saveProblem = Object.values(errors).some(Boolean)
+    ? null
+    : (imageProblem ?? form?.imageError ?? null);
+
   if (loadError) {
     return (
       <>
@@ -306,7 +315,16 @@ export default function SweetsTrustLogoEditPage() {
           />
           <CardBody>
             <FieldGrid>
-              <Field label="Brand logo" error={form.imageError ?? undefined} hint={spec.hint}>
+              <Field
+                label="Brand logo"
+                required
+                keepHint
+                error={
+                  form.imageError ??
+                  (submitted && imageProblem ? 'Brand logo is required.' : undefined)
+                }
+                hint={spec.hint}
+              >
                 <LogoPicker
                   preview={form.preview}
                   fileName={form.file?.name ?? null}
@@ -327,6 +345,7 @@ export default function SweetsTrustLogoEditPage() {
 
               <Field
                 label={RULES.alt.label}
+                required
                 error={errorFor('alt')}
                 hint="Required — it is also the alt text a screen reader reads."
               >
@@ -383,7 +402,7 @@ export default function SweetsTrustLogoEditPage() {
         <div className="flex items-center justify-end gap-3">
           {submitted && hasErrors && (
             <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
-              {imageProblem ?? 'Fix the highlighted fields above to continue.'}
+              {saveProblem ?? 'Fix the highlighted fields above to continue.'}
             </p>
           )}
           <Button
@@ -393,7 +412,7 @@ export default function SweetsTrustLogoEditPage() {
             onClick={() => {
               setSubmitted(true);
               if (hasErrors) {
-                toast.error(imageProblem ?? 'Check the highlighted fields');
+                toast.error(saveProblem ?? 'Fix the highlighted fields above to continue.');
                 return;
               }
               setConfirmOpen(true);

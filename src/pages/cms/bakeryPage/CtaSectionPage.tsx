@@ -221,6 +221,15 @@ export default function BakeryCtaSectionPage() {
     Boolean(form?.mobile.error);
 
   /*
+   * The one message for the save bar and the toast. With any text field
+   * invalid it stays generic, so it never points at one problem while the
+   * form shows several; otherwise it names the button or artwork problem.
+   */
+  const saveProblem = Object.values(errors).some(Boolean)
+    ? null
+    : (pairProblem ?? form?.desktop.error ?? form?.mobile.error ?? null);
+
+  /*
    * The copy card and the marks load on their own, so neither waits on - or is
    * hidden by - a failure of the band itself.
    */
@@ -350,7 +359,7 @@ export default function BakeryCtaSectionPage() {
             />
             <CardBody className="space-y-4">
               <FieldGrid>
-                <Field label={RULES.primaryLabel.label} error={errorFor('primaryLabel')}>
+                <Field label={RULES.primaryLabel.label} required error={errorFor('primaryLabel')}>
                   <Input
                     value={form.primaryLabel}
                     maxLength={RULES.primaryLabel.max}
@@ -363,6 +372,7 @@ export default function BakeryCtaSectionPage() {
 
                 <Field
                   label={RULES.primaryHref.label}
+                  required
                   error={errorFor('primaryHref')}
                   hint="A path like /demo, or a full https:// URL."
                 >
@@ -476,7 +486,7 @@ export default function BakeryCtaSectionPage() {
         <div className="flex items-center justify-end gap-3">
           {submitted && hasErrors && (
             <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
-              {pairProblem ?? 'Fix the highlighted fields above to continue.'}
+              {saveProblem ?? 'Fix the highlighted fields above to continue.'}
             </p>
           )}
           <Button
@@ -486,7 +496,7 @@ export default function BakeryCtaSectionPage() {
             onClick={() => {
               setSubmitted(true);
               if (hasErrors) {
-                toast.error(pairProblem ?? 'Check the highlighted fields');
+                toast.error(saveProblem ?? 'Fix the highlighted fields above to continue.');
                 return;
               }
               setConfirmOpen(true);

@@ -194,14 +194,19 @@ export default function DairyPlatformTileEditPage() {
   }, [form]);
 
   /** The rule the table also enforces: a tile row has to carry an icon. */
-  const imageProblem = useMemo(() => {
-    if (!form) return null;
-    const hasImage = Boolean(form.file || form.fileId || form.iconUrl);
-    return hasImage ? null : 'A tile needs an icon — choose one to continue.';
-  }, [form]);
+  const imageMissing = Boolean(form && !(form.file || form.fileId || form.iconUrl));
+  const imageProblem = imageMissing ? 'A tile needs an icon — choose one to continue.' : null;
 
   const hasErrors =
     Object.values(errors).some(Boolean) || Boolean(form?.imageError) || Boolean(imageProblem);
+
+  /*
+   * The one message for the save bar and the toast. With any text field
+   * invalid it stays generic; otherwise it names the image problem.
+   */
+  const saveProblem = Object.values(errors).some(Boolean)
+    ? null
+    : (imageProblem ?? form?.imageError ?? null);
 
   if (loadError) {
     return (
@@ -332,8 +337,10 @@ export default function DairyPlatformTileEditPage() {
               <Field
                 label={spec.label}
                 required
+                keepHint
                 error={
-                  form.imageError ?? (submitted ? (imageProblem ?? undefined) : undefined)
+                  form.imageError ??
+                  (submitted && imageMissing ? `${spec.label} is required.` : undefined)
                 }
                 hint={spec.hint}
               >
@@ -430,7 +437,7 @@ export default function DairyPlatformTileEditPage() {
         <div className="flex items-center justify-end gap-3">
           {submitted && hasErrors && (
             <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
-              {imageProblem ?? 'Fix the highlighted fields above to continue.'}
+              {saveProblem ?? 'Fix the highlighted fields above to continue.'}
             </p>
           )}
           <Button
@@ -440,7 +447,7 @@ export default function DairyPlatformTileEditPage() {
             onClick={() => {
               setSubmitted(true);
               if (hasErrors) {
-                toast.error(imageProblem ?? 'Check the highlighted fields');
+                toast.error(saveProblem ?? 'Fix the highlighted fields above to continue.');
                 return;
               }
               setConfirmOpen(true);

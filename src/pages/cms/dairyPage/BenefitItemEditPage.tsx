@@ -181,7 +181,15 @@ export default function BenefitItemEditPage() {
     return null;
   }, [form, icons]);
 
+  const iconMissing = Boolean(form && !form.icon);
+
   const hasErrors = Object.values(errors).some(Boolean) || Boolean(iconProblem);
+
+  /*
+   * The one message for the save bar and the toast. With any text field
+   * invalid it stays generic; otherwise it names the icon problem.
+   */
+  const saveProblem = Object.values(errors).some(Boolean) ? null : (iconProblem ?? null);
 
   if (loadError) {
     return (
@@ -312,15 +320,24 @@ export default function BenefitItemEditPage() {
           <Card>
             <CardHeader title="Icon" subtitle="Drawn beside the title." />
             <CardBody className="space-y-2">
-              <IconPicker
-                value={form.icon}
-                options={icons}
-                disabled={saving}
-                onChange={(icon) => patch({ icon })}
-              />
-              {submitted && iconProblem && (
-                <p className="text-xs text-orange-700 dark:text-orange-400">{iconProblem}</p>
-              )}
+              <Field
+                label="Icon"
+                required
+                error={
+                  submitted && iconProblem
+                    ? iconMissing
+                      ? 'An icon is required.'
+                      : iconProblem
+                    : undefined
+                }
+              >
+                <IconPicker
+                  value={form.icon}
+                  options={icons}
+                  disabled={saving}
+                  onChange={(icon) => patch({ icon })}
+                />
+              </Field>
             </CardBody>
           </Card>
         </div>
@@ -365,7 +382,7 @@ export default function BenefitItemEditPage() {
         <div className="flex items-center justify-end gap-3">
           {submitted && hasErrors && (
             <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
-              {iconProblem ?? 'Fix the highlighted fields above to continue.'}
+              {saveProblem ?? 'Fix the highlighted fields above to continue.'}
             </p>
           )}
           <Button
@@ -375,7 +392,7 @@ export default function BenefitItemEditPage() {
             onClick={() => {
               setSubmitted(true);
               if (hasErrors) {
-                toast.error(iconProblem ?? 'Check the highlighted fields');
+                toast.error(saveProblem ?? 'Fix the highlighted fields above to continue.');
                 return;
               }
               setConfirmOpen(true);

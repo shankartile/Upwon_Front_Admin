@@ -170,6 +170,13 @@ export default function SweetsTrustStatEditPage() {
 
   const hasErrors = Object.values(errors).some(Boolean) || Boolean(iconProblem);
 
+  /*
+   * The one message for the save bar and the toast. With any text field
+   * invalid it stays generic, so it never points at one problem while the
+   * form shows several; otherwise it names the icon problem.
+   */
+  const saveProblem = Object.values(errors).some(Boolean) ? null : (iconProblem ?? null);
+
   if (loadError) {
     return (
       <>
@@ -257,6 +264,7 @@ export default function SweetsTrustStatEditPage() {
               <FieldGrid>
                 <Field
                   label={RULES.value.label}
+                  required
                   error={errorFor('value')}
                   hint="Typed exactly as it should read."
                 >
@@ -270,7 +278,7 @@ export default function SweetsTrustStatEditPage() {
                   />
                 </Field>
 
-                <Field label={RULES.label.label} error={errorFor('label')}>
+                <Field label={RULES.label.label} required error={errorFor('label')}>
                   <Input
                     value={form.label}
                     maxLength={RULES.label.max}
@@ -300,15 +308,25 @@ export default function SweetsTrustStatEditPage() {
           <Card>
             <CardHeader title="Icon" subtitle="Drawn in the circle above the number." />
             <CardBody className="space-y-2">
-              <IconPicker
-                value={form.icon}
-                options={icons}
-                disabled={saving}
-                onChange={(icon) => patch({ icon })}
-              />
-              {submitted && iconProblem && (
-                <p className="text-xs text-orange-700 dark:text-orange-400">{iconProblem}</p>
-              )}
+              <Field
+                label="Icon"
+                required
+                keepHint
+                error={
+                  submitted && iconProblem
+                    ? form.icon
+                      ? iconProblem
+                      : 'An icon is required.'
+                    : undefined
+                }
+              >
+                <IconPicker
+                  value={form.icon}
+                  options={icons}
+                  disabled={saving}
+                  onChange={(icon) => patch({ icon })}
+                />
+              </Field>
             </CardBody>
           </Card>
         </div>
@@ -353,7 +371,7 @@ export default function SweetsTrustStatEditPage() {
         <div className="flex items-center justify-end gap-3">
           {submitted && hasErrors && (
             <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
-              {iconProblem ?? 'Fix the highlighted fields above to continue.'}
+              {saveProblem ?? 'Fix the highlighted fields above to continue.'}
             </p>
           )}
           <Button
@@ -363,7 +381,7 @@ export default function SweetsTrustStatEditPage() {
             onClick={() => {
               setSubmitted(true);
               if (hasErrors) {
-                toast.error(iconProblem ?? 'Check the highlighted fields');
+                toast.error(saveProblem ?? 'Fix the highlighted fields above to continue.');
                 return;
               }
               setConfirmOpen(true);

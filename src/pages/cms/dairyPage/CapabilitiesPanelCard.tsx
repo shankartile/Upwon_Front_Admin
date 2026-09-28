@@ -141,7 +141,17 @@ export default function CapabilitiesPanelCard() {
     return null;
   }, [form]);
 
+  const imageMissing = Boolean(
+    form && !form.image.file && !form.image.fileId && !form.image.url,
+  );
+
   const hasErrors = Boolean(altError) || Boolean(imageProblem);
+
+  /*
+   * The one message for the save bar and the toast. With the text field
+   * invalid it stays generic; otherwise it names the image problem.
+   */
+  const saveProblem = altError ? null : (imageProblem ?? null);
 
   if (loadError) {
     return (
@@ -246,7 +256,12 @@ export default function CapabilitiesPanelCard() {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr,360px]">
             <Field
               label="Image"
-              error={submitted || form.image.error ? (imageProblem ?? undefined) : undefined}
+              required
+              keepHint
+              error={
+                form.image.error ??
+                (submitted && imageMissing ? 'Image is required.' : undefined)
+              }
               hint={HERO_IMAGE_SPECS.dairyCapabilitiesPanel.hint}
             >
               <PanelPicker
@@ -263,6 +278,7 @@ export default function CapabilitiesPanelCard() {
 
             <Field
               label={ALT_RULE.label}
+              required
               error={shownAltError}
               hint="Read aloud in place of the picture. Describe what it shows."
             >
@@ -282,7 +298,7 @@ export default function CapabilitiesPanelCard() {
           <div className="flex items-center justify-end gap-3 border-t hairline pt-4">
             {submitted && hasErrors && (
               <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
-                {imageProblem ?? 'Fix the highlighted fields above to continue.'}
+                {saveProblem ?? 'Fix the highlighted fields above to continue.'}
               </p>
             )}
             <Button
@@ -292,7 +308,7 @@ export default function CapabilitiesPanelCard() {
               onClick={() => {
                 setSubmitted(true);
                 if (hasErrors) {
-                  toast.error(imageProblem ?? 'Check the highlighted fields');
+                  toast.error(saveProblem ?? 'Fix the highlighted fields above to continue.');
                   return;
                 }
                 setConfirmOpen(true);

@@ -283,7 +283,7 @@ export default function FoodProcessingFaqEntryEditPage() {
             onClick={() => {
               setSubmitted(true);
               if (hasErrors) {
-                toast.error('Check the highlighted fields');
+                toast.error('Fix the highlighted fields above to continue.');
                 return;
               }
               setConfirmOpen(true);

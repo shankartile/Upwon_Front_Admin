@@ -177,6 +177,13 @@ export default function BakeryTrustStatEditPage() {
 
   const hasErrors = Object.values(errors).some(Boolean) || Boolean(form?.imageError);
 
+  /*
+   * The one message for the save bar and the toast. With any text field
+   * invalid it stays generic, so it never points at one problem while the
+   * form shows several; otherwise it names the image problem.
+   */
+  const saveProblem = Object.values(errors).some(Boolean) ? null : (form?.imageError ?? null);
+
   if (loadError) {
     return (
       <>
@@ -311,6 +318,7 @@ export default function BakeryTrustStatEditPage() {
               <FieldGrid>
                 <Field
                   label={RULES.value.label}
+                  required
                   error={errorFor('value')}
                   hint="Typed exactly as it should read."
                 >
@@ -324,7 +332,7 @@ export default function BakeryTrustStatEditPage() {
                   />
                 </Field>
 
-                <Field label={RULES.label.label} error={errorFor('label')}>
+                <Field label={RULES.label.label} required error={errorFor('label')}>
                   <Input
                     value={form.label}
                     maxLength={RULES.label.max}
@@ -452,7 +460,7 @@ export default function BakeryTrustStatEditPage() {
         <div className="flex items-center justify-end gap-3">
           {submitted && hasErrors && (
             <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
-              {form.imageError ?? 'Fix the highlighted fields above to continue.'}
+              {saveProblem ?? 'Fix the highlighted fields above to continue.'}
             </p>
           )}
           <Button
@@ -462,7 +470,7 @@ export default function BakeryTrustStatEditPage() {
             onClick={() => {
               setSubmitted(true);
               if (hasErrors) {
-                toast.error(form.imageError ?? 'Check the highlighted fields');
+                toast.error(saveProblem ?? 'Fix the highlighted fields above to continue.');
                 return;
               }
               setConfirmOpen(true);

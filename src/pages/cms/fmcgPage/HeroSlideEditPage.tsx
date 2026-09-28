@@ -269,10 +269,35 @@ export default function FmcgHeroSlideEditPage() {
     return null;
   }, [form]);
 
+  /** Both images are required: the desktop band and the phone crop. */
+  const desktopMissing = Boolean(form && !(form.file || form.fileId || form.imageUrl));
+  const mobileMissing = Boolean(
+    form && !(form.mobileFile || form.mobileFileId || form.mobileImageUrl),
+  );
+  const imageProblem =
+    desktopMissing && mobileMissing
+      ? 'A desktop image and a mobile image are required — choose both to continue.'
+      : desktopMissing
+        ? 'A desktop image is required — choose one to continue.'
+        : mobileMissing
+          ? 'A mobile image is required — choose one to continue.'
+          : null;
+
   const hasErrors =
     Object.values(errors).some(Boolean) ||
     Boolean(ctaProblem) ||
-    Boolean(form?.imageError);
+    Boolean(imageProblem) ||
+    Boolean(form?.imageError) ||
+    Boolean(form?.mobileImageError);
+
+  /*
+   * The one message for the save bar and the toast. With any text field
+   * invalid it stays generic, so it never points at one problem while the
+   * form shows several; otherwise it names the button or image problem.
+   */
+  const saveProblem = Object.values(errors).some(Boolean)
+    ? null
+    : (ctaProblem ?? imageProblem ?? form?.imageError ?? form?.mobileImageError ?? null);
 
   if (loadError) {
     return (
@@ -577,12 +602,17 @@ export default function FmcgHeroSlideEditPage() {
           <Card>
             <CardHeader
               title="Background"
-              subtitle="Behind this slide. The mobile crop is optional."
+              subtitle="Behind this slide. Both the desktop image and the mobile crop are required."
             />
             <CardBody className="space-y-5">
               <Field
                 label={HERO_IMAGE_SPECS.fmcgHero.label}
-                error={form.imageError ?? undefined}
+                required
+                keepHint
+                error={
+                  form.imageError ??
+                  (submitted && desktopMissing ? 'A desktop image is required.' : undefined)
+                }
                 hint={HERO_IMAGE_SPECS.fmcgHero.hint}
               >
                 <ImagePicker
@@ -604,7 +634,12 @@ export default function FmcgHeroSlideEditPage() {
 
               <Field
                 label={HERO_IMAGE_SPECS.fmcgHeroMobile.label}
-                error={form.mobileImageError ?? undefined}
+                required
+                keepHint
+                error={
+                  form.mobileImageError ??
+                  (submitted && mobileMissing ? 'A mobile image is required.' : undefined)
+                }
                 hint={HERO_IMAGE_SPECS.fmcgHeroMobile.hint}
               >
                 <ImagePicker
@@ -659,7 +694,7 @@ export default function FmcgHeroSlideEditPage() {
         <div className="flex items-center justify-end gap-3">
           {submitted && hasErrors && (
             <p className="mr-auto text-xs text-orange-700 dark:text-orange-400">
-              {ctaProblem ?? form.imageError ?? 'Fix the highlighted fields above to continue.'}
+              {saveProblem ?? 'Fix the highlighted fields above to continue.'}
             </p>
           )}
           <Button
@@ -669,7 +704,7 @@ export default function FmcgHeroSlideEditPage() {
             onClick={() => {
               setSubmitted(true);
               if (hasErrors) {
-                toast.error(ctaProblem ?? form.imageError ?? 'Check the highlighted fields');
+                toast.error(saveProblem ?? 'Fix the highlighted fields above to continue.');
                 return;
               }
               setConfirmOpen(true);

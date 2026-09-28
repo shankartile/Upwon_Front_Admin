@@ -2,10 +2,12 @@ import type { ReactNode } from 'react';
 import { cn } from '../../lib/cn';
 
 export function Field({
-  label, hint, error, required, htmlFor, children, className,
+  label, hint, error, required, htmlFor, children, className, keepHint = false,
 }: {
   label?: ReactNode; hint?: ReactNode; error?: ReactNode; required?: boolean;
   htmlFor?: string; children: ReactNode; className?: string;
+  /** Keep the hint visible above the error instead of replacing it. */
+  keepHint?: boolean;
 }) {
   return (
     <div className={cn('space-y-1.5', className)}>
@@ -15,11 +17,10 @@ export function Field({
         </label>
       )}
       {children}
-      {error ? (
-        <p className="text-xs text-orange-700 dark:text-orange-400">{error}</p>
-      ) : hint ? (
+      {hint && (!error || keepHint) && (
         <p className="text-xs text-charcoal-light dark:text-navy-300">{hint}</p>
-      ) : null}
+      )}
+      {error && <p className="text-xs text-orange-700 dark:text-orange-400">{error}</p>}
     </div>
   );
 }

@@ -230,6 +230,7 @@ export default function FmcgTrustStatEditPage() {
               <FieldGrid>
                 <Field
                   label={RULES.value.label}
+                  required
                   error={errorFor('value')}
                   hint="Typed exactly as it should read."
                 >
@@ -243,7 +244,7 @@ export default function FmcgTrustStatEditPage() {
                   />
                 </Field>
 
-                <Field label={RULES.label.label} error={errorFor('label')}>
+                <Field label={RULES.label.label} required error={errorFor('label')}>
                   <Input
                     value={form.label}
                     maxLength={RULES.label.max}
@@ -257,6 +258,7 @@ export default function FmcgTrustStatEditPage() {
 
               <Field
                 label={RULES.description.label}
+                required
                 error={errorFor('description')}
                 hint="One sentence under the label that says what the number means."
               >
@@ -337,7 +339,7 @@ export default function FmcgTrustStatEditPage() {
             onClick={() => {
               setSubmitted(true);
               if (hasErrors) {
-                toast.error('Check the highlighted fields');
+                toast.error('Fix the highlighted fields above to continue.');
                 return;
               }
               setConfirmOpen(true);
