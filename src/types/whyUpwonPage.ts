@@ -1,6 +1,7 @@
 // src/types/whyUpwonPage.ts
 
 import type { ContentStatus } from './homePage';
+import type { HeadingLine } from '../lib/heading';
 
 /**
  * The Why UpWon page.
@@ -11,8 +12,22 @@ import type { ContentStatus } from './homePage';
 
 // ── the hero ──────────────────────────────────────────────────────────────
 
-export interface WhyUpwonHeroSection {
+/**
+ * One slide of the hero.
+ *
+ * The hero became a slider in migration 082 - it was a single record before
+ * that, and took its words from the section-copy row under
+ * ('why-upwon', 'hero'). A slide now carries its own eyebrow, headline and
+ * subhead, which is why that copy key no longer exists.
+ */
+export interface WhyUpwonHeroSlide {
   id: string;
+  eyebrow: string;
+  /** Authored text with the accent markers intact, for round-tripping. */
+  headline: string;
+  /** The parsed headline, ready to render. Built server-side. */
+  headlineLines: HeadingLine[];
+  subhead: string;
   /** The wide artwork, shown from 1024px up. Exclusive with desktopImageFileId. */
   desktopImageUrl: string | null;
   desktopImageFileId: string | null;
@@ -28,11 +43,16 @@ export interface WhyUpwonHeroSection {
   /** The outlined button beside it. Both halves or neither. */
   secondaryLabel: string | null;
   secondaryHref: string | null;
+  displayOrder: number;
+  status: ContentStatus;
+  createdAt: string;
   updatedAt: string;
 }
 
-/** A full replacement, not a patch - the hero is one small form. */
-export interface UpsertWhyUpwonHeroSectionInput {
+export interface CreateWhyUpwonHeroSlideInput {
+  eyebrow: string;
+  headline: string;
+  subhead: string;
   desktopImageUrl?: string | null;
   desktopImageFileId?: string | null;
   mobileImageUrl?: string | null;
@@ -42,7 +62,11 @@ export interface UpsertWhyUpwonHeroSectionInput {
   primaryHref: string;
   secondaryLabel?: string | null;
   secondaryHref?: string | null;
+  displayOrder?: number;
+  status?: ContentStatus;
 }
+
+export type UpdateWhyUpwonHeroSlideInput = Partial<CreateWhyUpwonHeroSlideInput>;
 
 // ── the industry trust section ────────────────────────────────────────────
 

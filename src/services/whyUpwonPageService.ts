@@ -4,6 +4,7 @@ import { request, requestPaginated, type PaginationMeta } from '../lib/http';
 import type { ContentStatus } from '../types/homePage';
 import type {
   CreateWhyUpwonClientLogoInput,
+  CreateWhyUpwonHeroSlideInput,
   CreateWhyUpwonIndustryInput,
   CreateWhyUpwonProofCalloutInput,
   CreateWhyUpwonResultInput,
@@ -13,14 +14,14 @@ import type {
   UpdateWhyUpwonProofCalloutInput,
   UpdateWhyUpwonResultInput,
   UpdateWhyUpwonTestimonialInput,
+  UpdateWhyUpwonHeroSlideInput,
   UpsertWhyUpwonCtaSectionInput,
-  UpsertWhyUpwonHeroSectionInput,
   UpsertWhyUpwonProofPanelInput,
   UpsertWhyUpwonResultsPanelInput,
   UpsertWhyUpwonTestimonialsPanelInput,
   WhyUpwonClientLogo,
   WhyUpwonCtaSection,
-  WhyUpwonHeroSection,
+  WhyUpwonHeroSlide,
   WhyUpwonIndustry,
   WhyUpwonProofCallout,
   WhyUpwonProofPanel,
@@ -61,16 +62,43 @@ const listQuery = ({ status, search, page = 1, limit = 10 }: ListParams) => ({
 // ── the hero ──────────────────────────────────────────────────────────────
 
 /**
- * One record, read and replaced. The eyebrow, heading and subtext are saved
- * through sectionCopyService under ('why-upwon', 'hero').
+ * The hero's slides.
+ *
+ * A list since migration 082 - it was one record before that, and took its
+ * words from the section-copy row under ('why-upwon', 'hero'). A slide now
+ * carries its own eyebrow, headline and subhead, so this section has no copy
+ * row at all.
  */
 export const heroSection = {
-  /** Null when the hero has never been authored - a normal first-run state. */
-  get: async (): Promise<WhyUpwonHeroSection | null> =>
-    request<WhyUpwonHeroSection | null>(`${BASE}/hero-section`),
+  list: async (
+    params: ListParams = {},
+  ): Promise<{ rows: WhyUpwonHeroSlide[]; meta: PaginationMeta }> =>
+    requestPaginated<WhyUpwonHeroSlide>(`${BASE}/hero-section`, { query: listQuery(params) }),
 
-  save: async (input: UpsertWhyUpwonHeroSectionInput): Promise<WhyUpwonHeroSection> =>
-    request<WhyUpwonHeroSection>(`${BASE}/hero-section`, { method: 'PUT', body: input }),
+  getById: async (id: string): Promise<WhyUpwonHeroSlide> =>
+    request<WhyUpwonHeroSlide>(`${BASE}/hero-section/${id}`),
+
+  create: async (input: CreateWhyUpwonHeroSlideInput): Promise<WhyUpwonHeroSlide> =>
+    request<WhyUpwonHeroSlide>(`${BASE}/hero-section`, { method: 'POST', body: input }),
+
+  update: async (id: string, input: UpdateWhyUpwonHeroSlideInput): Promise<WhyUpwonHeroSlide> =>
+    request<WhyUpwonHeroSlide>(`${BASE}/hero-section/${id}`, { method: 'PUT', body: input }),
+
+  setStatus: async (id: string, status: ContentStatus): Promise<WhyUpwonHeroSlide> =>
+    request<WhyUpwonHeroSlide>(`${BASE}/hero-section/${id}/status`, {
+      method: 'PUT',
+      body: { status },
+    }),
+
+  /** Takes the complete list of ids in their new order, so it is idempotent. */
+  reorder: async (ids: string[]): Promise<WhyUpwonHeroSlide[]> =>
+    request<WhyUpwonHeroSlide[]>(`${BASE}/hero-section/reorder`, {
+      method: 'PUT',
+      body: { ids },
+    }),
+
+  remove: async (id: string): Promise<void> =>
+    request<void>(`${BASE}/hero-section/${id}`, { method: 'DELETE' }),
 };
 
 // ── the industry trust section ────────────────────────────────────────────

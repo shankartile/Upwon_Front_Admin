@@ -12,7 +12,6 @@ import { useEditRequest } from '../../../hooks/useEditRequest';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 import * as socialLinksService from '../../../services/socialLinksService';
 import { toChildStatusFilter, useChildList } from '../about/useChildList';
-import { OrderCell } from '../about/AboutSectionShell';
 import { MAX_SOCIAL_LINKS, platformFor } from './socialMediaLinksForm';
 import { SOCIAL_ICON_EXTRAS } from './socialIcons';
 import { SocialLinkModal } from './SocialLinkModal';
@@ -194,19 +193,18 @@ export default function SocialLinksPage() {
           {
             key: 'srNo',
             header: 'Sr. No.',
-            width: '110px',
-            render: (row) => {
-              const index = links.indexOf(row.id);
-              return (
-                <OrderCell
-                  position={index + 1}
-                  canReorder={links.canReorder}
-                  atTop={index === 0}
-                  atBottom={index === links.rows.length - 1}
-                  onMove={(direction) => void links.move(row.id, direction)}
-                />
-              );
-            },
+            width: '76px',
+            /*
+             * The position on its own - the up/down move controls were taken
+             * out on request. The footer still renders in this order; it is
+             * just fixed by the order the links were added in now, because
+             * nothing else on this screen sets it.
+             */
+            render: (row) => (
+              <span className="tabular-nums text-charcoal-light dark:text-navy-300">
+                {links.indexOf(row.id) + 1}
+              </span>
+            ),
           },
           {
             key: 'icon',

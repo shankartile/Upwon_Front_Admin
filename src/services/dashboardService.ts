@@ -1,44 +1,68 @@
-import { mock } from '../lib/api';
-import { seedLeads, seedPages, seedProducts } from '../data/seed';
+// src/services/dashboardService.ts
 
-export interface DashboardStats {
-  pageViews: number;
-  uniqueVisitors: number;
-  demoRequests: number;
-  newLeads: number;
-  topPages: { path: string; views: number }[];
-  funnel: { stage: string; value: number }[];
+import { request } from '../lib/http';
+
+/**
+ * The dashboard, backed by the real API.
+ *
+ * This replaced a mock that returned invented page views, visitor counts, a
+ * conversion funnel and a list of made-up edits. None of it came from
+ * anywhere - the panel has no analytics wired into it - so the screen looked
+ * informative while telling the reader nothing true.
+ *
+ * Everything below is a count of rows that exist. If a figure cannot be taken
+ * from the database, it is not here.
+ */
+
+/** One of the forms the public site submits into. */
+export interface InboxCounter {
+  key: string;
+  label: string;
+  /** Where the panel links to. */
+  to: string;
+  total: number;
+  last7Days: number;
+  /**
+   * Waiting on someone, where the table can say so - null where it cannot.
+   * Only the careers inbox carries a status, so the rest are null and the
+   * card omits the line rather than showing a zero it cannot stand behind.
+   */
+  needsAttention: number | null;
+}
+
+/** A content area an editor maintains. */
+export interface ContentCounter {
+  key: string;
+  label: string;
+  to: string;
+  total: number;
+  /** Rows the public site is currently showing; null where there is no status. */
+  published: number | null;
+}
+
+export interface ActivityItem {
+  id: number;
+  action: string;
+  module: string;
+  entityType: string | null;
+  entityId: string | null;
+  createdAt: string;
+  actor: {
+    id: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    email: string | null;
+  };
+}
+
+export interface CmsDashboard {
+  inboxes: InboxCounter[];
+  content: ContentCounter[];
+  recentActivity: ActivityItem[];
+  myRecentActivity: ActivityItem[];
+  generatedAt: string;
 }
 
 export const dashboardService = {
-  stats: (): Promise<DashboardStats> =>
-    mock({
-      pageViews: 184_320,
-      uniqueVisitors: 42_870,
-      demoRequests: seedLeads.filter((l) => l.type === 'demo').length,
-      newLeads: seedLeads.filter((l) => l.status === 'new').length,
-      topPages: [
-        { path: '/', views: 38_120 },
-        { path: '/products/upwon-erp', views: 21_540 },
-        { path: '/industries/manufacturing', views: 14_220 },
-        { path: '/pricing', views: 11_460 },
-        { path: '/clients', views: 9_830 },
-      ],
-      funnel: [
-        { stage: 'Visitors', value: 42_870 },
-        { stage: 'Engaged', value: 12_410 },
-        { stage: 'Demo requests', value: seedLeads.filter((l) => l.type === 'demo').length * 12 },
-        { stage: 'Qualified', value: seedLeads.filter((l) => l.status === 'qualified').length * 8 },
-      ],
-    }),
-  recentActivity: () =>
-    mock(
-      [
-        { id: 'a1', label: `Page “${seedPages[0].title}” published`, meta: 'by Priya Shah', at: new Date(Date.now() - 1.2e6).toISOString() },
-        { id: 'a2', label: `Product “${seedProducts[1].name}” updated`, meta: 'by Rahul Iyer', at: new Date(Date.now() - 9e6).toISOString() },
-        { id: 'a3', label: 'New lead — Demo request from Globex', meta: 'auto-assigned to Priya', at: new Date(Date.now() - 2.4e7).toISOString() },
-        { id: 'a4', label: 'Case study “Aurora Mills” drafted', meta: 'by Neha Kapoor', at: new Date(Date.now() - 6.6e7).toISOString() },
-        { id: 'a5', label: 'Announcement bar scheduled', meta: 'Q4 Demo Week', at: new Date(Date.now() - 9.0e7).toISOString() },
-      ],
-    ),
+  get: (): Promise<CmsDashboard> => request<CmsDashboard>('/dashboard/cms'),
 };

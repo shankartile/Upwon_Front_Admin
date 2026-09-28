@@ -272,6 +272,8 @@ import QsrFranchiseFaqEntryViewPage from './pages/cms/qsrFranchisePage/FaqEntryV
 import QsrFranchiseCtaSectionPage from './pages/cms/qsrFranchisePage/CtaSectionPage';
 import WhyUpwonPageLayout from './pages/cms/whyUpwonPage/WhyUpwonPageLayout';
 import WhyUpwonHeroSectionPage from './pages/cms/whyUpwonPage/HeroSectionPage';
+import WhyUpwonHeroSlideEditPage from './pages/cms/whyUpwonPage/HeroSlideEditPage';
+import WhyUpwonHeroSlideViewPage from './pages/cms/whyUpwonPage/HeroSlideViewPage';
 import WhyUpwonIndustriesSectionPage from './pages/cms/whyUpwonPage/IndustriesSectionPage';
 import WhyUpwonIndustryEditPage from './pages/cms/whyUpwonPage/IndustryEditPage';
 import WhyUpwonIndustryViewPage from './pages/cms/whyUpwonPage/IndustryViewPage';
@@ -1868,6 +1870,14 @@ export default function App() {
             <Route path="cta-section" element={<WhyUpwonCtaSectionPage />} />
           </Route>
           {/* Entry forms sit outside the layout so they get the full width. */}
+          <Route
+            path="/cms/why-upwon/hero-section/:id"
+            element={<WhyUpwonHeroSlideEditPage />}
+          />
+          <Route
+            path="/cms/why-upwon/hero-section/:id/view"
+            element={<WhyUpwonHeroSlideViewPage />}
+          />
           <Route
             path="/cms/why-upwon/industries-section/industries/:id"
             element={<WhyUpwonIndustryEditPage />}

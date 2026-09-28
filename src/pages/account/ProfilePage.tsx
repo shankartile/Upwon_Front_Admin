@@ -9,6 +9,7 @@ import { Avatar } from '../../components/ui/Avatar';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { EMAIL_MAX, emailError } from '../../lib/fieldRules';
+import { ChangePasswordCard } from './ChangePasswordCard';
 
 /**
  * The admin's own profile, at /account/profile.
@@ -155,9 +156,10 @@ export default function ProfilePage() {
                 Fix the highlighted fields above to continue.
               </p>
             )}
+            {/* Role alone: the User ID was removed - it is an internal UUID
+                an admin can neither change nor use for anything here. */}
             <FieldGrid>
               <Field label="Role"><Input value={user?.role ?? ''} readOnly /></Field>
-              <Field label="User ID"><Input value={user?.id ?? ''} readOnly /></Field>
             </FieldGrid>
           </CardBody>
         </Card>
@@ -168,6 +170,16 @@ export default function ProfilePage() {
             <p className="text-xs text-charcoal-light">Auto-generated from your name.</p>
           </CardBody>
         </Card>
+
+        {/*
+          Full width under the two cards, and with its own submit button: it
+          posts to /auth/change-password on its own, so putting it behind this
+          page's Save would suggest one action where there are two - and that
+          Save does not touch the password at all.
+        */}
+        <div className="lg:col-span-2">
+          <ChangePasswordCard />
+        </div>
       </div>
     </>
   );

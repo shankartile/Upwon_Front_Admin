@@ -83,8 +83,8 @@
 
 
 import {
-  LayoutDashboard, Boxes, Building2, Trophy, Mail, MessageSquareQuote,
-  HelpCircle, Megaphone, Users, ShieldCheck, Home, Phone, Briefcase, Handshake, Info, Share2,
+  LayoutDashboard, Boxes, Building2, Mail,
+  Megaphone, Users, ShieldCheck, Home, Phone, Briefcase, Handshake, Info, Share2,
   Library, Award,
   type LucideIcon,
 } from 'lucide-react';
@@ -194,7 +194,6 @@ export const navigation: NavGroup[] = [
       { label: 'Industries', icon: Building2, children: INDUSTRY_PAGES },
       // The public /why-upwon page, section by section.
       { label: 'Why UpWon', to: '/cms/why-upwon', icon: Award },
-      { label: 'Case Studies', to: '/cms/case-studies', icon: Trophy },
       // The public /clients page - above Insider, the order the site's header uses.
       { label: 'Clients', to: '/cms/clients', icon: Award },
       // The site still serves it at /newsletter; only the admin name changed.
@@ -224,8 +223,14 @@ export const navigation: NavGroup[] = [
       // pages with admin-driven content so far, and the others join them here
       // as they become editable.
       { label: 'Resource Page', icon: Library, children: RESOURCE_PAGES },
-      { label: 'Testimonials', to: '/cms/testimonials', icon: MessageSquareQuote },
-      { label: 'FAQs', to: '/cms/faqs', icon: HelpCircle },
+      /*
+       * Case Studies, Testimonials and FAQs used to sit here. They were early
+       * scaffold screens backed by the localStorage mock in services/crud.ts
+       * rather than the API, so they showed seed data an editor could change
+       * without anything reaching the site. Removed from the sidebar rather
+       * than deleted: the dashboard still links to two of them, and the pages
+       * are harmless where they are.
+       */
     ],
   },
 ];
