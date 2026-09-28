@@ -117,6 +117,7 @@ function NavGroupItem({ item, collapsed }: { item: NavItem; collapsed: boolean }
               <NavLink
                 key={child.label}
                 to={child.to}
+                end={child.end}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) => cn('sidebar-link text-[13px]', isActive && 'active')}
               >

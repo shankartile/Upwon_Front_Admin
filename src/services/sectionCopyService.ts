@@ -58,10 +58,6 @@ export const PAGE_SECTION_KEYS = {
     'cta',
   ],
   /*
-   * The hero is absent on purpose, as on the other pages: its slides each
-   * carry their own eyebrow, headline and subhead.
-   */
-  /*
    * 'capabilities' heads the module showcase — the nav list whose panel is one
    * composite image. 'lifecycle' heads the card grid below it. They list the
    * same seven stages and are two different sections.
@@ -107,6 +103,15 @@ export const PAGE_SECTION_KEYS = {
   'non-food-fmcg': ['trust', 'capabilities', 'platform', 'benefits', 'coverage', 'faq', 'cta'],
   // The sixth industry page - the same sections as Non-Food FMCG.
   dairy: ['trust', 'capabilities', 'platform', 'benefits', 'coverage', 'faq', 'cta'],
+  /*
+   * The remaining industry pages. The hero is absent here too: its slides each
+   * carry their own copy.
+   */
+  'engineering-manufacturing': ['trust', 'capabilities', 'platform', 'coverage', 'faq', 'cta'],
+  beverage: ['trust', 'capabilities', 'platform', 'coverage', 'faq', 'cta'],
+  'spices-agro': ['trust', 'capabilities', 'platform', 'coverage', 'faq', 'cta'],
+  'qsr-franchise': ['trust', 'capabilities', 'platform', 'coverage', 'faq', 'cta'],
+  'why-upwon': ['hero', 'industries', 'testimonials', 'proof', 'outcomes', 'cta'],
 } as const;
 
 export type PageKey = keyof typeof PAGE_SECTION_KEYS;

@@ -85,7 +85,7 @@
 import {
   LayoutDashboard, Boxes, Building2, Trophy, Mail, MessageSquareQuote,
   HelpCircle, Megaphone, Users, ShieldCheck, Home, Phone, Briefcase, Handshake, Info, Share2,
-  Library,
+  Library, Award,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -115,6 +115,8 @@ export interface NavItem {
 export interface NavChild {
   label: string;
   to?: string;
+  /** Match `to` exactly, so a parent path is not lit while on a sibling below it. */
+  end?: boolean;
 }
 
 export interface NavGroup { label?: string; items: NavItem[] }
@@ -147,16 +149,20 @@ const RESOURCE_PAGES: NavChild[] = [{ label: 'Blog', to: '/cms/resources/blog' }
  * The industry landing pages, in the order the marketing site lists them.
  *
  * Same arrangement as PRODUCT_PAGES: each industry is edited on its own screen
- * of sections. Bakery & Confectionery is the first one built; the rest join
- * this list as their sections are.
+ * of sections. Only the ones with sections built carry a `to`; the rest are
+ * placeholders until their screens exist.
  */
 const INDUSTRY_PAGES: NavChild[] = [
+  { label: 'Engineering & Manufacturing', to: '/cms/industries/engineering-manufacturing' },
   { label: 'Bakery & Confectionery', to: '/cms/industries/bakery-confectionery' },
   { label: 'FMCG Distribution', to: '/cms/industries/fmcg-distribution' },
   { label: 'Sweets & Namkeen', to: '/cms/industries/sweets-namkeen' },
   { label: 'Food Processing', to: '/cms/industries/food-processing' },
   { label: 'Non-Food FMCG', to: '/cms/industries/non-food-fmcg' },
   { label: 'Dairy & Ice Cream', to: '/cms/industries/dairy' },
+  { label: 'QSR & Franchise', to: '/cms/industries/qsr-franchise' },
+  { label: 'Spices & Agro', to: '/cms/industries/spices-agro' },
+  { label: 'Beverage', to: '/cms/industries/beverage' },
 ];
 
 export const navigation: NavGroup[] = [
@@ -168,8 +174,10 @@ export const navigation: NavGroup[] = [
       // No `to`: each product page is edited on its own screen, so the parent
       // opens the list rather than a combined one.
       { label: 'Products', icon: Boxes, children: PRODUCT_PAGES },
-      // A parent like Products: each industry page is its own screen.
+      // Like Products: each industry page is edited on its own screen.
       { label: 'Industries', icon: Building2, children: INDUSTRY_PAGES },
+      // The public /why-upwon page, section by section.
+      { label: 'Why UpWon', to: '/cms/why-upwon', icon: Award },
       { label: 'Case Studies', to: '/cms/case-studies', icon: Trophy },
       // The site still serves it at /newsletter; only the admin name changed.
       { label: 'Insider', to: '/cms/insider', icon: Mail },
