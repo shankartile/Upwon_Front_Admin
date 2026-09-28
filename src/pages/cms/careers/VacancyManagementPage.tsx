@@ -22,8 +22,9 @@ import { MAX_VACANCIES } from './careersForm';
  * Backed by the live API (services/careersVacanciesService). Only the ACTIVE
  * ones reach the Open Roles list on the public /careers page, in the order
  * this table shows them. The advert itself is written on its own page
- * (VacancyEditPage), reached from here; what happens here is the list-level
- * work - ordering, publishing, deleting.
+ * (VacancyEditPage), reached from here; a row, and its eye action, open the
+ * read-only view (VacancyViewPage) first, the way the hero slide list does.
+ * What happens here is the list-level work - ordering, publishing, deleting.
  *
  * The list is unpaginated on the server, deliberately: the reorder arrows move
  * a row against the whole set, so the whole set has to be in hand. Searching,
@@ -38,7 +39,7 @@ type StatusFilter = 'all' | ContentStatus;
 const STATUS_FILTERS: readonly StatusFilter[] = ['all', 'ACTIVE', 'INACTIVE'];
 
 /** Column widths, summed - the table is wider than the card on a laptop. */
-const TABLE_MIN_WIDTH = '1320px';
+const TABLE_MIN_WIDTH = '1355px';
 
 type Pending =
   | { kind: 'delete'; record: CareerVacancy }
@@ -218,9 +219,9 @@ export default function VacancyManagementPage() {
             ? 'Create your first vacancy — Active ones appear in the Open Roles list on /careers.'
             : 'Nothing matches that search or filter.'
         }
-        onRowClick={(r) => navigate(`${EDIT_PATH}/${r.id}`)}
+        onRowClick={(r) => navigate(`${EDIT_PATH}/${r.id}/view`)}
         actionsHeader="Actions"
-        actionsWidth="160px"
+        actionsWidth="195px"
         columns={[
           // The row's position on screen, carried across pages - not the
           // stored display_order, which starts at 0 and is not authored here.
@@ -350,6 +351,7 @@ export default function VacancyManagementPage() {
         ]}
         rowActions={(r) => (
           <RowActions
+            onView={() => navigate(`${EDIT_PATH}/${r.id}/view`)}
             onEdit={() => navigate(`${EDIT_PATH}/${r.id}`)}
             onDelete={() => setPending({ kind: 'delete', record: r })}
             toggle={{

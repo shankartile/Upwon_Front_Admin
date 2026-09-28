@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
@@ -7,6 +8,7 @@ import { IconGlyph } from '../../../components/forms/IconPicker';
 import { DataTable } from '../../../components/table/DataTable';
 import { TableToolbar } from '../../../components/table/TableToolbar';
 import { RowActions } from '../../../components/table/RowActions';
+import { useEditRequest } from '../../../hooks/useEditRequest';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 import * as categoriesService from '../../../services/knowledgebaseCategoriesService';
 import { toChildStatusFilter, useChildList } from '../about/useChildList';
@@ -30,10 +32,17 @@ import type { KnowledgebaseCategory } from '../../../types/knowledgebase';
  * under it is refused by the server (409 KB_CATEGORY_IN_USE); the confirmation
  * says so up front for a row whose count is not zero, rather than letting the
  * admin find out from an error toast.
+ *
+ * A row, and its eye action, open the category's read-only view
+ * (KnowledgebaseCategoryViewPage); that screen's Edit comes back here and opens the dialog
+ * on the same row.
  */
 
 /** Column widths, summed, so the table scrolls sideways rather than cropping. */
 const TABLE_MIN_WIDTH = '1040px';
+
+/** Where a row's read-only view lives - KnowledgebaseCategoryViewPage. */
+const VIEW_PATH = '/cms/resources/knowledgebase/categories';
 
 export default function KnowledgebaseCategoriesPage() {
   const categories = useChildList<KnowledgebaseCategory>({
@@ -45,6 +54,14 @@ export default function KnowledgebaseCategoriesPage() {
 
   /** The dialog, and the category it is about. `category: null` means "add one". */
   const [editor, setEditor] = useState<{ category: KnowledgebaseCategory | null } | null>(null);
+
+  const navigate = useNavigate();
+
+  /** A row, and its eye action, open the category's read-only view (KnowledgebaseCategoryViewPage). */
+  const openView = (row: KnowledgebaseCategory) => navigate(`${VIEW_PATH}/${row.id}/view`);
+
+  // That view's Edit comes back here with the row's id - open the dialog on it.
+  useEditRequest(categories.rows, categories.loading, (row) => setEditor({ category: row }));
 
   /** What an empty table means - three answers, not two. See the table below. */
   const emptyState = (() => {
@@ -136,7 +153,7 @@ export default function KnowledgebaseCategoriesPage() {
         emptyDescription={emptyState.description}
         actionsHeader="Actions"
         actionsWidth="200px"
-        onRowClick={(row) => setEditor({ category: row })}
+        onRowClick={openView}
         toolbar={
           <TableToolbar
             search={categories.search}
@@ -243,6 +260,7 @@ export default function KnowledgebaseCategoriesPage() {
         ]}
         rowActions={(row) => (
           <RowActions
+            onView={() => openView(row)}
             onEdit={() => setEditor({ category: row })}
             onDelete={() => categories.setPending({ kind: 'delete', record: row })}
             toggle={{

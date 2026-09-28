@@ -29,6 +29,9 @@ import type { ContentStatus } from '../../../types/homePage';
  * Sr. No. column (House Rule 4) is therefore just the row's place in that
  * newest-first order, across the whole list rather than the filtered view.
  *
+ * A row, and its eye action, open the post's read-only view (BlogPostViewPage)
+ * first, the way the hero slide list does.
+ *
  * Posts are written on a page of their own (BlogPostEditPage), not in a Modal:
  * a body of up to eighty blocks does not fit in a dialog. Status and delete
  * stay here, behind a confirmation, like every other list in the panel.
@@ -158,6 +161,9 @@ export default function BlogPostsPage() {
   const openEditor = (post: BlogPost | null) =>
     navigate(post ? `/cms/resources/blog/posts/${post.id}` : '/cms/resources/blog/posts/new');
 
+  /** A row, and its eye action, open the post's read-only view (BlogPostViewPage). */
+  const openView = (row: BlogPost) => navigate(`/cms/resources/blog/posts/${row.id}/view`);
+
   return (
     <>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -195,7 +201,7 @@ export default function BlogPostsPage() {
         emptyDescription={emptyState.description}
         actionsHeader="Actions"
         actionsWidth="200px"
-        onRowClick={(row) => openEditor(row)}
+        onRowClick={(row) => openView(row)}
         toolbar={
           <TableToolbar
             search={search}
@@ -309,6 +315,7 @@ export default function BlogPostsPage() {
         ]}
         rowActions={(row) => (
           <RowActions
+            onView={() => openView(row)}
             onEdit={() => openEditor(row)}
             onDelete={() => setPending({ kind: 'delete', record: row })}
             toggle={{

@@ -1,23 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { DataTable } from '../../../components/table/DataTable';
 import { TableToolbar } from '../../../components/table/TableToolbar';
 import { RowActions } from '../../../components/table/RowActions';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
-import { Modal } from '../../../components/ui/Modal';
-import { Skeleton } from '../../../components/ui/Skeleton';
-import { Tag } from '../../../components/ui/Tag';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
-import { Blank, DetailRow, LinkedValue } from '../../../components/common/RecordDetail';
+import { Blank } from '../../../components/common/RecordDetail';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { useToast } from '../../../context/ToastContext';
 import * as enquiriesService from '../../../services/contactEnquiriesService';
 import { errorMessage } from '../../../lib/http';
-import { mailtoHref, telHref } from '../../../lib/contactLinks';
 import { fmtDate } from '../../../lib/formatters';
 import { DEFAULT_PAGE_SIZE } from '../../../config/constants';
-import type { ContactEnquiry, ContactEnquiryDetail } from '../../../types/contactEnquiries';
+import type { ContactEnquiry } from '../../../types/contactEnquiries';
 
 /**
  * Contact -> Contact Management tab: the enquiry inbox.
@@ -26,7 +22,8 @@ import type { ContactEnquiry, ContactEnquiryDetail } from '../../../types/contac
  * one is the opposite direction: every row was written by a stranger filling in
  * the form on the public /contact page, and the only things an admin does here
  * are read one and delete one. So there is no Save, no status toggle, no "New"
- * button, and no edit screen behind a row - a row opens a detail card, not a form.
+ * button, and no edit screen behind a row - a row, and its eye action, open the
+ * enquiry's read-only view (ContactEnquiryViewPage), not a form.
  *
  * Table patterns follow the Insider news list (IssuesPage): Sr. No. first,
  * search in the toolbar, paginated, a confirm dialog before a delete and a
@@ -36,11 +33,9 @@ import type { ContactEnquiry, ContactEnquiryDetail } from '../../../types/contac
  * however many visitors write in.
  *
  * SAFETY: every value on this screen is visitor-controlled text. It is all
- * rendered as text (React escapes it), never as markup, and the only hrefs
- * built from it are the mailto: and tel: from lib/contactLinks. Both fix the
- * scheme AND bound what the rest of the URL may contain - a fixed scheme alone
- * is not enough, because the part after it is still syntax a value could
- * write. A value that fails either check renders as plain text.
+ * rendered as text (React escapes it), never as markup, and no href is built
+ * from it here - the view screen's mailto: and tel: come from lib/contactLinks,
+ * which fix the scheme AND bound what the rest of the URL may contain.
  */
 
 /** The server's own page size cap is 100; the panel's tables use 10. */
@@ -56,8 +51,12 @@ const TABLE_MIN_WIDTH = '1760px';
 /** How many platform chips a row shows before it collapses into "+N". */
 const PLATFORM_CHIPS = 2;
 
+/** Where a row's read-only view lives - ContactEnquiryViewPage. */
+const VIEW_PATH = '/cms/contact/enquiries';
+
 export default function ContactEnquiriesPage() {
   const toast = useToast();
+  const navigate = useNavigate();
 
   const [rows, setRows] = useState<ContactEnquiry[]>([]);
   const [total, setTotal] = useState(0);
@@ -70,16 +69,11 @@ export default function ContactEnquiriesPage() {
   const [searchInput, setSearchInput] = useState('');
   const search = useDebounce(searchInput, 300);
 
-  const [active, setActive] = useState<ContactEnquiry | null>(null);
-  const [detail, setDetail] = useState<ContactEnquiryDetail | null>(null);
-  const [detailError, setDetailError] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<ContactEnquiry | null>(null);
 
-  // Both reads can be overtaken - a search typed faster than the network
-  // answers, a card opened on a second row before the first one loads. The
-  // counters let a stale answer be dropped rather than painted over a newer one.
+  // A search typed faster than the network answers can be overtaken; the
+  // counter lets a stale answer be dropped rather than painted over a newer one.
   const listSeq = useRef(0);
-  const detailSeq = useRef(0);
 
   const reload = useCallback(async () => {
     const seq = ++listSeq.current;
@@ -110,40 +104,13 @@ export default function ContactEnquiriesPage() {
     void reload();
   }, [reload]);
 
-  /**
-   * Opens the detail card for the row that was clicked, then replaces it with the
-   * server's copy.
-   *
-   * The list row already carries every field the card shows, so it opens
-   * filled rather than empty and there is nothing to wait for. The fetch is for
-   * the two triage fields the list deliberately leaves out - and it is also how
-   * the card finds out that the enquiry was deleted in another tab.
-   */
-  const openDetail = useCallback(async (row: ContactEnquiry) => {
-    const seq = ++detailSeq.current;
-    setActive(row);
-    setDetail(null);
-    setDetailError(null);
-    try {
-      const full = await enquiriesService.getById(row.id);
-      if (seq === detailSeq.current) setDetail(full);
-    } catch (error) {
-      if (seq === detailSeq.current) setDetailError(errorMessage(error));
-    }
-  }, []);
-
-  const closeDetail = useCallback(() => {
-    detailSeq.current += 1;
-    setActive(null);
-    setDetail(null);
-    setDetailError(null);
-  }, []);
+  /** Opens a row's read-only view, where the whole enquiry is shown. */
+  const openView = (row: ContactEnquiry) => navigate(`${VIEW_PATH}/${row.id}/view`);
 
   const runDelete = async (record: ContactEnquiry) => {
     try {
       await enquiriesService.remove(record.id);
       toast.success('Enquiry deleted', `${record.fullName}'s enquiry has been removed.`);
-      if (active?.id === record.id) closeDetail();
       await reload();
     } catch (error) {
       toast.error('Could not delete enquiry', errorMessage(error));
@@ -151,9 +118,6 @@ export default function ContactEnquiriesPage() {
   };
 
   const searching = search.trim().length > 0;
-  // What the card renders: the server's copy once it arrives, the clicked row
-  // until then. The submitted fields are identical in both.
-  const shown: ContactEnquiry | null = detail ?? active;
 
   return (
     <>
@@ -207,7 +171,7 @@ export default function ContactEnquiriesPage() {
             ? 'No enquiry matches that name, email or company. Try a shorter search.'
             : 'Nothing has arrived yet. Enquiries submitted through the form on /contact will show up here.'
         }
-        onRowClick={(r) => void openDetail(r)}
+        onRowClick={openView}
         actionsHeader="Actions"
         actionsWidth="90px"
         columns={[
@@ -248,7 +212,7 @@ export default function ContactEnquiriesPage() {
             width: '190px',
             // Compact by design: a visitor can tick all seven, and seven chips
             // would set the row height for every other row in the table. Named
-            // in full in the card, and in this cell's tooltip.
+            // in full on the view screen, and in this cell's tooltip.
             //
             // Text rather than chips here: a chip is inline-flex, so `truncate`
             // clips it mid-letter instead of eliding it. The "+N" stays out of
@@ -285,102 +249,11 @@ export default function ContactEnquiriesPage() {
         ]}
         rowActions={(r) => (
           <RowActions
-            onView={() => void openDetail(r)}
+            onView={() => openView(r)}
             onDelete={() => setPendingDelete(r)}
           />
         )}
       />
-
-      {/*
-        A centred card rather than a side panel: the enquiry is read on its
-        own, not against the table behind it, and the labels and values have
-        room to sit side by side. Capped at 70vh and scrolled inside, so a long
-        "what are you trying to solve?" never pushes the actions off-screen.
-      */}
-      <Modal
-        open={!!shown}
-        onClose={closeDetail}
-        size="xl"
-        title={shown?.fullName ?? 'Enquiry'}
-        description={shown ? `Received ${fmtDate(shown.createdAt, "d MMM yyyy 'at' h:mm a")}` : undefined}
-        footer={
-          <>
-            <Button variant="secondary" onClick={closeDetail}>Close</Button>
-            <Button
-              variant="danger"
-              leftIcon={<Trash2 className="h-4 w-4" />}
-              onClick={() => shown && setPendingDelete(shown)}
-            >
-              Delete
-            </Button>
-          </>
-        }
-      >
-        {shown && (
-          <div className="max-h-[70vh] overflow-y-auto pr-1">
-            <DetailRow label="Full name">{shown.fullName}</DetailRow>
-
-            <DetailRow label="Work email">
-              {/* The one place this value becomes a URL, and only after it has
-                  been re-checked as an address. */}
-              <LinkedValue href={mailtoHref(shown.workEmail)}>{shown.workEmail}</LinkedValue>
-            </DetailRow>
-
-            <DetailRow label="Phone">
-              {shown.phone
-                ? <LinkedValue href={telHref(shown.phone)}>{shown.phone}</LinkedValue>
-                : <Blank />}
-            </DetailRow>
-
-            <DetailRow label="Company">{shown.company}</DetailRow>
-            <DetailRow label="Your role">{shown.role ?? <Blank />}</DetailRow>
-            <DetailRow label="Business type">{shown.businessType}</DetailRow>
-            <DetailRow label="Revenue range">{shown.revenueRange}</DetailRow>
-
-            <DetailRow label="UpWon platforms of interest">
-              {shown.platforms.length === 0 ? <Blank /> : (
-                <div className="flex flex-wrap gap-1.5">
-                  {shown.platforms.map((p) => <Tag key={p} label={p} />)}
-                </div>
-              )}
-            </DetailRow>
-
-            <DetailRow label="What are you trying to solve?">
-              {/* In full and unwrapped-by-hand: whitespace-pre-wrap keeps the
-                  paragraphs the visitor typed. Still text, never markup. */}
-              {shown.message
-                ? <p className="whitespace-pre-wrap">{shown.message}</p>
-                : <Blank />}
-            </DetailRow>
-
-            <DetailRow label="Received">
-              {fmtDate(shown.createdAt, "d MMM yyyy 'at' h:mm a")}
-            </DetailRow>
-
-            {/*
-              Where it came from, for telling a real enquiry from a filed one.
-              Only the detail endpoint returns these two, so they arrive a
-              moment after the card opens - hence the skeleton rather than a
-              blank space, which would read as "unknown".
-            */}
-            <div className="pt-3">
-              <p className="text-xs uppercase tracking-wider text-charcoal-light dark:text-navy-300">
-                Submitted from
-              </p>
-              {detailError ? (
-                <p className="mt-1 text-xs text-orange-700 dark:text-orange-400">{detailError}</p>
-              ) : !detail ? (
-                <Skeleton className="mt-2 h-3 w-48" />
-              ) : (
-                <div className="mt-1 space-y-0.5 text-xs text-charcoal-light dark:text-navy-300">
-                  <p className="break-all">IP: {detail.submittedIp ?? 'not recorded'}</p>
-                  <p className="break-all">Browser: {detail.submittedUserAgent ?? 'not recorded'}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </Modal>
 
       <ConfirmDialog
         open={!!pendingDelete}

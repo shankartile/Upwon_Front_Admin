@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
@@ -11,6 +12,7 @@ import { DataTable } from '../../../components/table/DataTable';
 import { TableToolbar } from '../../../components/table/TableToolbar';
 import { RowActions } from '../../../components/table/RowActions';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
+import { useEditRequest } from '../../../hooks/useEditRequest';
 import { comparisonSection } from '../../../services/vsSapSectionsService';
 import * as capabilitiesService from '../../../services/vsSapCapabilitiesService';
 import {
@@ -59,10 +61,17 @@ import type {
  * ratings in the website's own code, so nothing saved here reaches them. The
  * legend under the table and its "Capability" and product headers are fixed in
  * that component too.
+ *
+ * A row, and its eye action, open the capability's read-only view
+ * (VsSapCapabilityViewPage); that screen's Edit comes back here and opens the
+ * dialog on the same row.
  */
 
 /** Column widths, summed, so the table scrolls sideways rather than cropping. */
 const TABLE_MIN_WIDTH = '1140px';
+
+/** Where a row's read-only view lives - VsSapCapabilityViewPage. */
+const VIEW_PATH = '/cms/resources/upwon-vs-sap/comparison';
 
 const toDraft = (section: VsSapComparisonSection | null) => ({
   eyebrow: section?.eyebrow ?? '',
@@ -127,6 +136,16 @@ export default function VsSapComparisonPage() {
 
   /** The dialog, and the row it is about. `capability: null` means "add one". */
   const [editor, setEditor] = useState<{ capability: VsSapCapability | null } | null>(null);
+
+  const navigate = useNavigate();
+
+  /** A row, and its eye action, open the capability's read-only view (VsSapCapabilityViewPage). */
+  const openView = (row: VsSapCapability) => navigate(`${VIEW_PATH}/${row.id}/view`);
+
+  // That view's Edit comes back here with the row's id - open the dialog on it.
+  useEditRequest(capabilities.rows, capabilities.loading, (row) =>
+    setEditor({ capability: row }),
+  );
 
   const { errorFor, hasErrors, patch, saving, section, submitted, touch } = form;
   const draft = form.form;
@@ -390,7 +409,7 @@ export default function VsSapComparisonPage() {
           emptyDescription={emptyState.description}
           actionsHeader="Actions"
           actionsWidth="200px"
-          onRowClick={(row) => setEditor({ capability: row })}
+          onRowClick={openView}
           toolbar={
             <TableToolbar
               search={capabilities.search}
@@ -466,6 +485,7 @@ export default function VsSapComparisonPage() {
           ]}
           rowActions={(row) => (
             <RowActions
+              onView={() => openView(row)}
               onEdit={() => setEditor({ capability: row })}
               onDelete={() => capabilities.setPending({ kind: 'delete', record: row })}
               toggle={{

@@ -142,10 +142,9 @@ export default function HeroSectionPage({
   /**
    * Opens a row.
    *
-   * The read-only view where the carousel has one, otherwise the form: the
-   * Insider, Blog, Free Audit, Knowledgebase and UpWon vs SAP heroes have no
-   * /view route, so linking one would land on a blank route rather than on the
-   * slide.
+   * The read-only view where the carousel has one (every carousel does now -
+   * see hasViewPage), otherwise the form, so a row is never linked to a /view
+   * route that is not there.
    */
   const openRow = (id: string) =>
     navigate(hasViewPage ? `${basePath}/${id}/view` : `${basePath}/${id}`);
@@ -186,7 +185,7 @@ export default function HeroSectionPage({
             : `Add the first slide to start the ${carousel}.`
         }
         actionsHeader="Actions"
-        actionsWidth="140px"
+        actionsWidth="170px"
         pagination={{
           page,
           pageSize,

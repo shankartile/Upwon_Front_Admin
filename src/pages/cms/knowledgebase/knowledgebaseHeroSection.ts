@@ -6,7 +6,8 @@ import type { HeroSectionConfig, HeroSlideBody } from '../homePage/heroSectionCo
 
 /**
  * The Knowledgebase page hero, as a config for the shared hero screens
- * (homePage/HeroSectionPage and HeroSlideEditPage - see heroSectionConfig.ts).
+ * (homePage/HeroSectionPage, HeroSlideEditPage and HeroSlideViewPage - see
+ * heroSectionConfig.ts).
  *
  * The Blog hero's twin - the site renders both through HeroSlider, at the same
  * height - so everything below is the Blog config with this page's copy:
@@ -49,8 +50,8 @@ export const KNOWLEDGEBASE_HERO_SECTION: HeroSectionConfig = {
   entityType: 'kb_hero_slide',
   // MAX_KB_HERO_SLIDES on the server.
   maxSlides: 12,
-  // No /view route under /cms/resources/knowledgebase/hero-section, like the Blog hero.
-  hasViewPage: false,
+  // Read-only view at /cms/resources/knowledgebase/hero-section/:id/view (HeroSlideViewPage).
+  hasViewPage: true,
   imageSpecs: {
     desktop: {
       ...INSIDER_HERO_IMAGE_SPECS.desktop,

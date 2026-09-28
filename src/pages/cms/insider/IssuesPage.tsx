@@ -21,8 +21,9 @@ import type { ContentStatus, InsiderIssue } from '../../../types/insiderPage';
  * Backed by the live API (services/insiderIssuesService, whose records the
  * backend still calls issues - this screen is the same data under the name the
  * admin reads). A news item's stories are edited on its own page
- * (IssueEditPage), reached from here. It renders inside InsiderPageLayout,
- * which owns the page header.
+ * (IssueEditPage), reached from here; a row, and its eye action, open the
+ * read-only view (IssueViewPage) first, the way the hero slide list does. It
+ * renders inside InsiderPageLayout, which owns the page header.
  */
 
 const EDIT_PATH = '/cms/insider/news';
@@ -184,9 +185,9 @@ export default function IssuesPage() {
         sort={{ key: t.state.sortKey, dir: t.state.sortDir, onChange: t.setSort }}
         emptyTitle="No news yet"
         emptyDescription="Create your first news item and add stories to it."
-        onRowClick={(r) => navigate(`${EDIT_PATH}/${r.id}`)}
+        onRowClick={(r) => navigate(`${EDIT_PATH}/${r.id}/view`)}
         actionsHeader="Actions"
-        actionsWidth="200px"
+        actionsWidth="230px"
         columns={[
           // The row's position in the list, not the stored number: the number
           // is the site's own 'ISSUE 5' label and is not authored here.
@@ -237,6 +238,7 @@ export default function IssuesPage() {
               <Star className={`h-4 w-4 ${r.isCurrent ? 'fill-current' : ''}`} />
             </button>
             <RowActions
+              onView={() => navigate(`${EDIT_PATH}/${r.id}/view`)}
               onEdit={() => navigate(`${EDIT_PATH}/${r.id}`)}
               onDelete={() => setPending({ kind: 'delete', record: r })}
               toggle={{

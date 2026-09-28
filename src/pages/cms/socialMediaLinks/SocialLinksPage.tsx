@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
@@ -7,6 +8,7 @@ import { IconGlyph } from '../../../components/forms/IconPicker';
 import { DataTable } from '../../../components/table/DataTable';
 import { TableToolbar } from '../../../components/table/TableToolbar';
 import { RowActions } from '../../../components/table/RowActions';
+import { useEditRequest } from '../../../hooks/useEditRequest';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 import * as socialLinksService from '../../../services/socialLinksService';
 import { toChildStatusFilter, useChildList } from '../about/useChildList';
@@ -28,10 +30,16 @@ import type { SocialLink } from '../../../types/socialMediaLinks';
  * shows. If every row is deleted the site falls back to drawing those two
  * built-in buttons again; while any link exists, only the Active ones are
  * drawn - and none at all if every one is switched off.
+ *
+ * A row, and its eye action, open the link's read-only view (SocialLinkViewPage);
+ * that screen's Edit comes back here and opens the dialog on the same row.
  */
 
 /** Column widths, summed, so the table scrolls sideways rather than cropping. */
 const TABLE_MIN_WIDTH = '980px';
+
+/** Where a row's read-only view lives - SocialLinkViewPage. */
+const VIEW_PATH = '/cms/social-media-links/social-links';
 
 export default function SocialLinksPage() {
   const links = useChildList<SocialLink>({
@@ -43,6 +51,14 @@ export default function SocialLinksPage() {
 
   /** The dialog, and the link it is about. `link: null` means "add one". */
   const [editor, setEditor] = useState<{ link: SocialLink | null } | null>(null);
+
+  const navigate = useNavigate();
+
+  /** A row, and its eye action, open the link's read-only view (SocialLinkViewPage). */
+  const openView = (row: SocialLink) => navigate(`${VIEW_PATH}/${row.id}/view`);
+
+  // That view's Edit comes back here with the row's id - open the dialog on it.
+  useEditRequest(links.rows, links.loading, (row) => setEditor({ link: row }));
 
   /** What an empty table means - three answers, not two. See the table below. */
   const emptyState = (() => {
@@ -151,7 +167,7 @@ export default function SocialLinksPage() {
         emptyDescription={emptyState.description}
         actionsHeader="Actions"
         actionsWidth="200px"
-        onRowClick={(row) => setEditor({ link: row })}
+        onRowClick={openView}
         toolbar={
           <TableToolbar
             search={links.search}
@@ -243,6 +259,7 @@ export default function SocialLinksPage() {
         ]}
         rowActions={(row) => (
           <RowActions
+            onView={() => openView(row)}
             onEdit={() => setEditor({ link: row })}
             onDelete={() => links.setPending({ kind: 'delete', record: row })}
             toggle={{

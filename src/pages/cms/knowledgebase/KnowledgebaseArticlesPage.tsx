@@ -27,6 +27,9 @@ import type { ContentStatus } from '../../../types/homePage';
  * place in that newest-first order, across the whole list rather than the
  * filtered view.
  *
+ * A row, and its eye action, open the article's read-only view
+ * (KnowledgebaseArticleViewPage) first, the way the hero slide list does.
+ *
  * Articles are written on a page of their own (KnowledgebaseArticleEditPage),
  * not in a Modal: a body of up to eighty blocks and twenty FAQs does not fit in
  * a dialog. Status and delete stay here, behind a confirmation, like every
@@ -162,6 +165,10 @@ export default function KnowledgebaseArticlesPage() {
         : '/cms/resources/knowledgebase/articles/new',
     );
 
+  /** A row, and its eye action, open the article's read-only view (KnowledgebaseArticleViewPage). */
+  const openView = (row: KnowledgebaseArticle) =>
+    navigate(`/cms/resources/knowledgebase/articles/${row.id}/view`);
+
   return (
     <>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -203,7 +210,7 @@ export default function KnowledgebaseArticlesPage() {
         emptyDescription={emptyState.description}
         actionsHeader="Actions"
         actionsWidth="200px"
-        onRowClick={(row) => openEditor(row)}
+        onRowClick={(row) => openView(row)}
         toolbar={
           <TableToolbar
             search={search}
@@ -315,6 +322,7 @@ export default function KnowledgebaseArticlesPage() {
         ]}
         rowActions={(row) => (
           <RowActions
+            onView={() => openView(row)}
             onEdit={() => openEditor(row)}
             onDelete={() => setPending({ kind: 'delete', record: row })}
             toggle={{

@@ -1,24 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { DataTable } from '../../../components/table/DataTable';
 import { TableToolbar } from '../../../components/table/TableToolbar';
 import { RowActions } from '../../../components/table/RowActions';
 import { Button } from '../../../components/ui/Button';
-import { Modal } from '../../../components/ui/Modal';
-import { Skeleton } from '../../../components/ui/Skeleton';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
-import { Blank, DetailRow, LinkedValue } from '../../../components/common/RecordDetail';
+import { Blank } from '../../../components/common/RecordDetail';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { useToast } from '../../../context/ToastContext';
 import * as applicationsService from '../../../services/partnerProgramApplicationsService';
 import { errorMessage } from '../../../lib/http';
-import { mailtoHref, telHref } from '../../../lib/contactLinks';
 import { fmtDate } from '../../../lib/formatters';
 import { DEFAULT_PAGE_SIZE } from '../../../config/constants';
-import type {
-  PartnerApplication,
-  PartnerApplicationDetail,
-} from '../../../types/partnerProgram';
+import type { PartnerApplication } from '../../../types/partnerProgram';
 
 /**
  * Partner Program -> Partner Program Applications tab: the inbox.
@@ -27,14 +21,15 @@ import type {
  * was written by somebody filling in the application form on the public /partners
  * page, and the only things an admin does here are read one and delete one. So
  * there is no Save, no status control, no "New" button and no edit screen behind
- * a row - a row opens a detail card, not a form. The delete is there because an
+ * a row - a row, and its eye action, open its read-only view
+ * (PartnerApplicationViewPage), not a form. The delete is there because an
  * open form on a public page collects spam, and this is the only way to clear it.
  *
  * Table patterns follow ContactEnquiriesPage, the panel's other delete-able
  * inbox: Sr. No. first, searching and paging on the SERVER rather than in
  * hooks/useTable (this list grows with however many people apply, so it can never
- * be fetched whole), a centred Modal for the detail, a confirm dialog before a
- * delete and a toast after it.
+ * be fetched whole), a view screen of its own for the detail, a confirm dialog
+ * before a delete and a toast after it.
  *
  * SAFETY: every value on this screen is visitor-controlled text. It is all
  * rendered as text (React escapes it), never as markup, and the only hrefs built
@@ -55,8 +50,12 @@ const PAGE_SIZE = DEFAULT_PAGE_SIZE;
  */
 const TABLE_MIN_WIDTH = '1330px';
 
+/** Where a row's read-only view lives - PartnerApplicationViewPage. */
+const VIEW_PATH = '/cms/partner-program/applications';
+
 export default function PartnerProgramApplicationsPage() {
   const toast = useToast();
+  const navigate = useNavigate();
 
   const [rows, setRows] = useState<PartnerApplication[]>([]);
   const [total, setTotal] = useState(0);
@@ -69,16 +68,11 @@ export default function PartnerProgramApplicationsPage() {
   const [searchInput, setSearchInput] = useState('');
   const search = useDebounce(searchInput, 300);
 
-  const [active, setActive] = useState<PartnerApplication | null>(null);
-  const [detail, setDetail] = useState<PartnerApplicationDetail | null>(null);
-  const [detailError, setDetailError] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<PartnerApplication | null>(null);
 
-  // Both reads can be overtaken - a search typed faster than the network
-  // answers, a card opened on a second row before the first one loads. The
-  // counters let a stale answer be dropped rather than painted over a newer one.
+  // A search typed faster than the network answers can be overtaken; the
+  // counter lets a stale answer be dropped rather than painted over a newer one.
   const listSeq = useRef(0);
-  const detailSeq = useRef(0);
 
   const reload = useCallback(async () => {
     const seq = ++listSeq.current;
@@ -109,40 +103,13 @@ export default function PartnerProgramApplicationsPage() {
     void reload();
   }, [reload]);
 
-  /**
-   * Opens the detail card for the row that was clicked, then replaces it with the
-   * server's copy.
-   *
-   * The list row already carries every field the visitor filled in, so the card
-   * opens filled rather than empty and there is nothing to wait for. The fetch is
-   * for the two triage fields the list deliberately leaves out - and it is also
-   * how the card finds out that the application was deleted in another tab.
-   */
-  const openDetail = useCallback(async (row: PartnerApplication) => {
-    const seq = ++detailSeq.current;
-    setActive(row);
-    setDetail(null);
-    setDetailError(null);
-    try {
-      const full = await applicationsService.getById(row.id);
-      if (seq === detailSeq.current) setDetail(full);
-    } catch (error) {
-      if (seq === detailSeq.current) setDetailError(errorMessage(error));
-    }
-  }, []);
-
-  const closeDetail = useCallback(() => {
-    detailSeq.current += 1;
-    setActive(null);
-    setDetail(null);
-    setDetailError(null);
-  }, []);
+  /** Opens a row's read-only view, where the whole submission is shown. */
+  const openView = (row: PartnerApplication) => navigate(`${VIEW_PATH}/${row.id}/view`);
 
   const runDelete = async (record: PartnerApplication) => {
     try {
       await applicationsService.remove(record.id);
       toast.success('Application deleted', `${record.fullName}'s application has been removed.`);
-      if (active?.id === record.id) closeDetail();
       await reload();
     } catch (error) {
       toast.error('Could not delete application', errorMessage(error));
@@ -186,10 +153,6 @@ export default function PartnerProgramApplicationsPage() {
         'Nothing has arrived yet. Applications submitted through the form on /partners will show up here.',
     };
   })();
-
-  // What the card renders: the server's copy once it arrives, the clicked row
-  // until then. The submitted fields are identical in both.
-  const shown: PartnerApplication | null = detail ?? active;
 
   return (
     <>
@@ -247,7 +210,7 @@ export default function PartnerProgramApplicationsPage() {
          */
         emptyTitle={emptyState.title}
         emptyDescription={emptyState.description}
-        onRowClick={(r) => void openDetail(r)}
+        onRowClick={openView}
         actionsHeader="Actions"
         actionsWidth="90px"
         columns={[
@@ -349,95 +312,9 @@ export default function PartnerProgramApplicationsPage() {
           },
         ]}
         rowActions={(r) => (
-          <RowActions onView={() => void openDetail(r)} onDelete={() => setPendingDelete(r)} />
+          <RowActions onView={() => openView(r)} onDelete={() => setPendingDelete(r)} />
         )}
       />
-
-      {/*
-        A centred card rather than a side panel, matching the other two inboxes:
-        the application is read on its own, not against the table behind it, and
-        the labels and values have room to sit side by side. Capped at 70vh and
-        scrolled inside, so a long answer never pushes the actions off-screen.
-      */}
-      <Modal
-        open={!!shown}
-        onClose={closeDetail}
-        size="xl"
-        title={shown?.fullName ?? 'Application'}
-        description={
-          shown ? `Received ${fmtDate(shown.createdAt, "d MMM yyyy 'at' h:mm a")}` : undefined
-        }
-        footer={
-          <>
-            <Button variant="secondary" onClick={closeDetail}>
-              Close
-            </Button>
-            <Button
-              variant="danger"
-              leftIcon={<Trash2 className="h-4 w-4" />}
-              onClick={() => shown && setPendingDelete(shown)}
-            >
-              Delete
-            </Button>
-          </>
-        }
-      >
-        {shown && (
-          <div className="max-h-[70vh] overflow-y-auto pr-1">
-            <DetailRow label="Full name">{shown.fullName}</DetailRow>
-            <DetailRow label="Company">{shown.company}</DetailRow>
-            <DetailRow label="Your role">{shown.role ?? <Blank />}</DetailRow>
-
-            <DetailRow label="Background">
-              {/* In full and unwrapped-by-hand: whitespace-pre-wrap keeps whatever
-                  the visitor typed. Still text, never markup. */}
-              {shown.background ? (
-                <p className="whitespace-pre-wrap">{shown.background}</p>
-              ) : (
-                <Blank />
-              )}
-            </DetailRow>
-
-            <DetailRow label="Mobile">
-              <LinkedValue href={telHref(shown.mobile)}>{shown.mobile}</LinkedValue>
-            </DetailRow>
-
-            <DetailRow label="Work email">
-              {/* The one place this value becomes a URL, and only after it has
-                  been re-checked as an address. */}
-              <LinkedValue href={mailtoHref(shown.workEmail)}>{shown.workEmail}</LinkedValue>
-            </DetailRow>
-
-            <DetailRow label="Received">
-              {fmtDate(shown.createdAt, "d MMM yyyy 'at' h:mm a")}
-            </DetailRow>
-
-            {/*
-              Where it came from, for telling a real application from a filed one.
-              Only the detail endpoint returns these two, so they arrive a moment
-              after the card opens - hence the skeleton rather than a blank space,
-              which would read as "unknown".
-            */}
-            <div className="pt-3">
-              <p className="text-xs uppercase tracking-wider text-charcoal-light dark:text-navy-300">
-                Submitted from
-              </p>
-              {detailError ? (
-                <p className="mt-1 text-xs text-orange-700 dark:text-orange-400">{detailError}</p>
-              ) : !detail ? (
-                <Skeleton className="mt-2 h-3 w-48" />
-              ) : (
-                <div className="mt-1 space-y-0.5 text-xs text-charcoal-light dark:text-navy-300">
-                  <p className="break-all">IP: {detail.submittedIp ?? 'not recorded'}</p>
-                  <p className="break-all">
-                    Browser: {detail.submittedUserAgent ?? 'not recorded'}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </Modal>
 
       <ConfirmDialog
         open={!!pendingDelete}

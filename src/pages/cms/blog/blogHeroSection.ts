@@ -6,7 +6,8 @@ import type { HeroSectionConfig, HeroSlideBody } from '../homePage/heroSectionCo
 
 /**
  * The Blog page hero, as a config for the shared hero screens
- * (homePage/HeroSectionPage and HeroSlideEditPage - see heroSectionConfig.ts).
+ * (homePage/HeroSectionPage, HeroSlideEditPage and HeroSlideViewPage - see
+ * heroSectionConfig.ts).
  *
  * The Insider hero's twin - the site renders both through HeroSlider - except:
  *
@@ -47,8 +48,8 @@ export const BLOG_HERO_SECTION: HeroSectionConfig = {
   entityType: 'blog_hero_slide',
   // MAX_BLOG_HERO_SLIDES on the server.
   maxSlides: 12,
-  // No /view route under /cms/resources/blog/hero-section, like the Insider hero.
-  hasViewPage: false,
+  // Read-only view at /cms/resources/blog/hero-section/:id/view (HeroSlideViewPage).
+  hasViewPage: true,
   imageSpecs: {
     desktop: {
       ...INSIDER_HERO_IMAGE_SPECS.desktop,

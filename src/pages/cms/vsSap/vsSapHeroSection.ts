@@ -6,7 +6,8 @@ import type { HeroSectionConfig, HeroSlideBody } from '../homePage/heroSectionCo
 
 /**
  * The UpWon vs SAP page hero, as a config for the shared hero screens
- * (homePage/HeroSectionPage and HeroSlideEditPage - see heroSectionConfig.ts).
+ * (homePage/HeroSectionPage, HeroSlideEditPage and HeroSlideViewPage - see
+ * heroSectionConfig.ts).
  *
  * The Free Audit hero's twin - the site renders both through HeroSlider, at the
  * same height - so everything below is the Free Audit config with this page's
@@ -50,8 +51,8 @@ export const VS_SAP_HERO_SECTION: HeroSectionConfig = {
   entityType: 'vs_sap_hero_slide',
   // MAX_VS_SAP_HERO_SLIDES on the server.
   maxSlides: 12,
-  // No /view route under /cms/resources/upwon-vs-sap/hero-section, like the Free Audit hero.
-  hasViewPage: false,
+  // Read-only view at /cms/resources/upwon-vs-sap/hero-section/:id/view (HeroSlideViewPage).
+  hasViewPage: true,
   imageSpecs: {
     desktop: {
       ...INSIDER_HERO_IMAGE_SPECS.desktop,

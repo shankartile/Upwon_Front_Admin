@@ -28,10 +28,10 @@ import { Tabs } from '../../../components/ui/Tabs';
  * free_audit.read - so an admin without that permission sees the tab's own
  * refusal rather than the records.
  *
- * A hero slide's form (/cms/resources/free-audit/hero-section/new and /:id) sits
- * outside this layout, the way the Blog hero's does; a request opens a detail
- * card rather than a page, so there is no route matching
- * /cms/resources/free-audit/applications/:id.
+ * A hero slide's form (/cms/resources/free-audit/hero-section/new and /:id) and
+ * its read-only view (…/:id/view) sit outside this layout, the way the Blog
+ * hero's do; so does a request's read-only view,
+ * /cms/resources/free-audit/applications/:id/view.
  */
 
 const SECTIONS = [
