@@ -179,6 +179,8 @@ export const navigation: NavGroup[] = [
       // The public /why-upwon page, section by section.
       { label: 'Why UpWon', to: '/cms/why-upwon', icon: Award },
       { label: 'Case Studies', to: '/cms/case-studies', icon: Trophy },
+      // The public /clients page - above Insider, the order the site's header uses.
+      { label: 'Clients', to: '/cms/clients', icon: Award },
       // The site still serves it at /newsletter; only the admin name changed.
       { label: 'Insider', to: '/cms/insider', icon: Mail },
       // The public /contact page, section by section.

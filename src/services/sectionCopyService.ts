@@ -112,6 +112,12 @@ export const PAGE_SECTION_KEYS = {
   'spices-agro': ['trust', 'capabilities', 'platform', 'coverage', 'faq', 'cta'],
   'qsr-franchise': ['trust', 'capabilities', 'platform', 'coverage', 'faq', 'cta'],
   'why-upwon': ['hero', 'industries', 'testimonials', 'proof', 'outcomes', 'cta'],
+  /*
+   * The Clients page. Its hero slides each carry their own copy; 'outcomes'
+   * heads the featured case study cards, 'trust' the roster's logo marquee,
+   * 'network' the operational network map and 'testimonials' the quote marquee.
+   */
+  clients: ['outcomes', 'trust', 'network', 'testimonials'],
 } as const;
 
 export type PageKey = keyof typeof PAGE_SECTION_KEYS;
