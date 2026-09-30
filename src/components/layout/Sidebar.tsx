@@ -1,13 +1,20 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ChevronDown, ChevronsLeft, ChevronsRight, LogOut } from 'lucide-react';
 import { Logo } from '../common/Logo';
 import { navigation, type NavItem } from '../../config/navigation';
 import { useSidebar } from '../../context/SidebarContext';
+import { useSignOut } from '../../hooks/useSignOut';
 import { cn } from '../../lib/cn';
 
 export function Sidebar() {
   const { collapsed, toggle, mobileOpen, setMobileOpen } = useSidebar();
+
+  /*
+   * The drawer closes as the dialog opens, so on a phone the confirmation is
+   * not asked from behind the sidebar it was pressed in.
+   */
+  const { requestSignOut, dialog } = useSignOut({ onRequest: () => setMobileOpen(false) });
   return (
     <>
       {mobileOpen && (
@@ -60,7 +67,28 @@ export function Sidebar() {
             </div>
           ))}
         </nav>
+
+        {/*
+          Outside the scrolling nav, so it stays put at the foot of the rail
+          however long the page list grows. It is also in the avatar menu up
+          in the topbar - the same action in the place people look for it.
+        */}
+        <div className="border-t border-navy-800 p-2">
+          <button
+            type="button"
+            onClick={requestSignOut}
+            title={collapsed ? 'Log out' : undefined}
+            className={cn(
+              'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-navy-300 transition-colors hover:bg-navy-800 hover:text-orange-300',
+              collapsed && 'justify-center px-2',
+            )}
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            {!collapsed && <span className="truncate">Log out</span>}
+          </button>
+        </div>
       </aside>
+      {dialog}
     </>
   );
 }

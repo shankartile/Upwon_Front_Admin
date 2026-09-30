@@ -1,6 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, FileText, Inbox, PenLine, Plus, RefreshCw, Users } from 'lucide-react';
+import {
+  BookOpen,
+  Briefcase,
+  ClipboardCheck,
+  FileText,
+  Handshake,
+  Inbox,
+  Mail,
+  MessageSquareQuote,
+  Newspaper,
+  PenLine,
+  Phone,
+  Plus,
+  RefreshCw,
+  Trophy,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -14,9 +31,67 @@ import {
   type ContentCounter,
   type InboxCounter,
 } from '../services/dashboardService';
+import { DailyAreaChart } from '../components/charts/DailyAreaChart';
 import { useAuth } from '../context/AuthContext';
 import { errorMessage } from '../lib/http';
 import { relativeTime } from '../lib/formatters';
+
+/**
+ * The series colour, one step for both light and dark.
+ *
+ * orange-500, the panel's accent. Checked with the palette validator against
+ * both surfaces - white and navy-950 - and it passes the lightness band,
+ * chroma floor and 3:1 contrast on each. The lighter steps that instinct
+ * reaches for in dark mode (orange-400, orange-300) FAIL the dark lightness
+ * band, so the same step is deliberately used in both rather than flipped.
+ *
+ * One hue, not a categorical slot: each chart draws a single series, so the
+ * card's title carries the identity and no legend is needed.
+ */
+const SERIES_COLOR = '#E85D26';
+
+/**
+ * The cards wear the brand orange, and identity comes from the icon.
+ *
+ * One hue across all eleven tiles rather than a colour each: eleven hues would
+ * be past the point where any two are reliably distinguishable, and - worse -
+ * the colour would encode nothing, so the one tile that needs attention
+ * ("4 not live") would be no louder than the ten that do not. The shape
+ * carries which card it is; the orange is the panel's accent, not a value.
+ *
+ * Keyed on the `key` the server sends, so adding a counter server-side does
+ * not need a change here - an unmapped key falls back to a generic icon
+ * rather than crashing.
+ */
+const CARD_ICONS: Record<string, LucideIcon> = {
+  // Inboxes
+  contactEnquiries: Mail,
+  freeAuditApplications: ClipboardCheck,
+  careerApplications: Briefcase,
+  partnerApplications: Handshake,
+  discoveryCalls: Phone,
+  // Content
+  blogPosts: PenLine,
+  kbArticles: BookOpen,
+  caseStudies: Trophy,
+  testimonials: MessageSquareQuote,
+  vacancies: Users,
+  insiderIssues: Newspaper,
+};
+
+/**
+ * The card's own surface and its icon chip.
+ *
+ * orange-600 on orange-100 clears 3:1, which is the bar for an icon. It does
+ * NOT clear 4.5:1, so no orange *text* uses this step - the emphasised lines
+ * below use orange-700 (5.75:1 on the tint) and orange-300 in dark mode.
+ */
+const CARD_SURFACE =
+  'border-orange-100 bg-gradient-to-br from-orange-50 to-white dark:border-orange-900/25 dark:from-navy-950/60 dark:to-navy-950/30';
+const ICON_CHIP =
+  'grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-900/25 dark:text-orange-300';
+/** Emphasis on the one line worth noticing. Both steps clear 4.5:1. */
+const NOTE_STRONG = 'text-orange-700 dark:text-orange-300';
 
 /**
  * The admin panel's home screen.
@@ -120,6 +195,66 @@ export default function DashboardPage() {
             : data?.inboxes.map((inbox) => <InboxTile key={inbox.key} inbox={inbox} />)}
         </div>
       </section>
+
+      {/* ── Charts ──────────────────────────────────────────────────────── */}
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader
+            title="Changes per day"
+            subtitle={
+              data ? `Every edit anyone made, last ${data.periodDays} days.` : 'Last 30 days.'
+            }
+          />
+          <CardBody>
+            {loading && !data ? (
+              <Skeleton className="h-[180px] rounded-xl" />
+            ) : data ? (
+              <DailyAreaChart
+                points={data.series.map((d) => ({ day: d.day, value: d.edits }))}
+                unit="changes"
+                color={SERIES_COLOR}
+              />
+            ) : null}
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="Submissions per day"
+            subtitle={
+              data
+                ? `Across all five forms, last ${data.periodDays} days.`
+                : 'Across all five forms.'
+            }
+          />
+          <CardBody>
+            {loading && !data ? (
+              <Skeleton className="h-[180px] rounded-xl" />
+            ) : data && data.series.some((d) => d.submissions > 0) ? (
+              <DailyAreaChart
+                points={data.series.map((d) => ({ day: d.day, value: d.submissions }))}
+                unit="submissions"
+                color={SERIES_COLOR}
+              />
+            ) : (
+              /*
+                A flat line along zero for thirty days is a chart that says
+                nothing the tiles above have not already said. Until a form is
+                submitted this states the fact plainly instead.
+              */
+              <div className="flex h-[180px] flex-col items-center justify-center gap-1 text-center">
+                <Inbox className="h-6 w-6 text-cream-400 dark:text-navy-700" />
+                <p className="text-sm text-charcoal-light dark:text-navy-300">
+                  No submissions yet
+                </p>
+                <p className="max-w-[28ch] text-xs text-charcoal-light dark:text-navy-300">
+                  This fills in as the site’s forms are used.
+                </p>
+              </div>
+            )}
+          </CardBody>
+        </Card>
+      </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr,360px]">
         {/* ── Activity ──────────────────────────────────────────────────── */}
@@ -225,18 +360,6 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {data && (
-        <p className="mt-6 flex items-center gap-1 text-xs text-charcoal-light dark:text-navy-300">
-          Counted {relativeTime(data.generatedAt)}.
-          <button
-            type="button"
-            onClick={() => void load()}
-            className="inline-flex items-center gap-1 font-semibold text-orange-600 hover:underline dark:text-orange-400"
-          >
-            Refresh <ArrowRight className="h-3 w-3" />
-          </button>
-        </p>
-      )}
     </>
   );
 }
@@ -267,27 +390,40 @@ function readableModule(module: string): string {
 }
 
 function InboxTile({ inbox }: { inbox: InboxCounter }) {
+  const Icon = CARD_ICONS[inbox.key] ?? Inbox;
+  const arrived = inbox.last7Days > 0;
+
   return (
     <Link
       to={inbox.to}
-      className="rounded-2xl border border-cream-300 bg-white p-4 transition-shadow hover:shadow-md dark:border-navy-800 dark:bg-navy-950/40"
+      className={`rounded-2xl border p-4 transition-shadow hover:shadow-md ${CARD_SURFACE}`}
     >
-      <p className="truncate text-xs font-medium text-charcoal-light dark:text-navy-300">
-        {inbox.label}
-      </p>
-      <p className="mt-1.5 text-2xl font-bold leading-none tabular-nums text-charcoal dark:text-cream-100">
-        {inbox.total}
-      </p>
-      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+      <div className="flex items-start justify-between gap-2">
+        <span className={ICON_CHIP}>
+          <Icon className="h-[18px] w-[18px]" />
+        </span>
         {/* Only the careers inbox tracks a status, so the others omit this
             rather than showing a zero that would read as "nothing waiting". */}
         {inbox.needsAttention !== null && inbox.needsAttention > 0 && (
           <Badge tone="orange">{inbox.needsAttention} new</Badge>
         )}
-        <span className="text-xs text-charcoal-light dark:text-navy-300">
-          {inbox.last7Days > 0 ? `+${inbox.last7Days} this week` : 'None this week'}
-        </span>
       </div>
+
+      <p className="mt-3 truncate text-xs font-medium text-charcoal-light dark:text-navy-300">
+        {inbox.label}
+      </p>
+      {/* The value stays in ink: the orange is the panel's accent, not a
+          reading of this number. */}
+      <p className="mt-1 text-2xl font-bold leading-none text-charcoal dark:text-cream-100">
+        {inbox.total}
+      </p>
+      <p
+        className={`mt-1.5 text-xs ${
+          arrived ? `font-medium ${NOTE_STRONG}` : 'text-charcoal-light dark:text-navy-300'
+        }`}
+      >
+        {arrived ? `+${inbox.last7Days} this week` : 'None this week'}
+      </p>
     </Link>
   );
 }
@@ -300,20 +436,36 @@ function ContentTile({ area }: { area: ContentCounter }) {
   const hidden =
     area.published !== null && area.published < area.total ? area.total - area.published : 0;
 
+  const Icon = CARD_ICONS[area.key] ?? FileText;
+
   return (
     <Link
       to={area.to}
-      className="flex items-center justify-between gap-3 rounded-2xl border border-cream-300 bg-white p-4 transition-shadow hover:shadow-md dark:border-navy-800 dark:bg-navy-950/40"
+      className={`flex items-center gap-3 rounded-2xl border p-4 transition-shadow hover:shadow-md ${CARD_SURFACE}`}
     >
-      <div className="min-w-0">
+      <span className={ICON_CHIP}>
+        <Icon className="h-[18px] w-[18px]" />
+      </span>
+
+      <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-charcoal dark:text-cream-100">
           {area.label}
         </p>
-        <p className="mt-0.5 text-xs text-charcoal-light dark:text-navy-300">
+        {/*
+          "N not live" is the one line here worth noticing, so it carries the
+          emphasis while "All live" stays quiet - the point of the colour is
+          that it means something.
+        */}
+        <p
+          className={`mt-0.5 text-xs ${
+            hidden > 0 ? `font-medium ${NOTE_STRONG}` : 'text-charcoal-light dark:text-navy-300'
+          }`}
+        >
           {area.total === 0 ? 'Nothing yet' : hidden > 0 ? `${hidden} not live` : 'All live'}
         </p>
       </div>
-      <span className="shrink-0 text-2xl font-bold leading-none tabular-nums text-charcoal dark:text-cream-100">
+
+      <span className="shrink-0 text-2xl font-bold leading-none text-charcoal dark:text-cream-100">
         {area.total}
       </span>
     </Link>

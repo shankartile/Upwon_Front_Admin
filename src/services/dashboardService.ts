@@ -55,9 +55,28 @@ export interface ActivityItem {
   };
 }
 
+/**
+ * One day on the charts.
+ *
+ * The axis is complete - the server fills quiet days with 0 - so this can be
+ * plotted straight, with no gap-filling on the client.
+ */
+export interface DailyPoint {
+  /** ISO `YYYY-MM-DD`, in the database's timezone. */
+  day: string;
+  /** Audit-log entries written that day. */
+  edits: number;
+  /** Submissions across all five of the site's forms. */
+  submissions: number;
+}
+
 export interface CmsDashboard {
   inboxes: InboxCounter[];
   content: ContentCounter[];
+  /** How many days `series` covers. */
+  periodDays: number;
+  /** One row per day, oldest first, no gaps. */
+  series: DailyPoint[];
   recentActivity: ActivityItem[];
   myRecentActivity: ActivityItem[];
   generatedAt: string;

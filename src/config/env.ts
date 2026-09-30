@@ -20,6 +20,20 @@ export const env = {
    * Unset in a build, the path is left alone and requested from this origin,
    * exactly as it was before these helpers existed.
    */
+  /**
+   * Google reCAPTCHA v2 site key for the sign-in form.
+   *
+   * A site key is public by design - it is handed to the browser and is
+   * visible in the page source, which is why it is the half that lives here.
+   * Its pair, the secret key, must never appear in a VITE_* variable: Vite
+   * inlines these into the built bundle, so a secret would ship to every
+   * visitor and anyone holding it could forge a verification. The secret
+   * lives in the backend .env as RECAPTCHA_SECRET_KEY.
+   *
+   * Empty means the widget is not rendered and the form submits without a
+   * token, which the backend accepts only while its own secret is unset too.
+   */
+  recaptchaSiteKey: (import.meta.env.VITE_RECAPTCHA_SITE_KEY ?? '').trim(),
   siteBaseUrl:
     import.meta.env.VITE_SITE_BASE_URL ?? (import.meta.env.DEV ? 'http://localhost:5174' : ''),
 };

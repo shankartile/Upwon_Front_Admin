@@ -19,7 +19,7 @@ import { request, setAccessToken } from '../lib/http';
 interface AuthState {
   user: AdminUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, recaptchaToken?: string | null) => Promise<void>;
   logout: () => void;
 }
 
@@ -128,11 +128,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
+  /**
+   * `recaptchaToken` is optional so the offline demo login and any caller
+   * without a widget still compile. The backend strips the field before its
+   * own validator runs, and only rejects a missing token while its secret is
+   * configured - so omitting it is a working state, not a broken one.
+   */
+  const login = useCallback(
+    async (email: string, password: string, recaptchaToken?: string | null) => {
     if (!env.useMocks) {
       const result = await request<LoginResultDto>('/auth/login', {
         method: 'POST',
-        body: { email: email.trim().toLowerCase(), password },
+        body: {
+          email: email.trim().toLowerCase(),
+          password,
+          ...(recaptchaToken ? { recaptchaToken } : {}),
+        },
       });
       setAccessToken(result.accessToken);
       const mapped = toAdminUser(result.admin);
@@ -153,7 +164,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const u = seedUsers[0];
     setUser(u);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
-  }, []);
+    },
+    [],
+  );
 
   const logout = useCallback(() => {
     // Cleared locally first: the session must end in this tab even if the

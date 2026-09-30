@@ -6,12 +6,17 @@ import { useTheme } from '../../context/ThemeContext';
 import { Avatar } from '../ui/Avatar';
 import { Dropdown } from '../ui/Dropdown';
 import { useHotkey } from '../../hooks/useHotkey';
+import { useSignOut } from '../../hooks/useSignOut';
 
 export function Topbar() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { setMobileOpen } = useSidebar();
   const { theme, toggle } = useTheme();
   const navigate = useNavigate();
+
+  /* The same confirmation the sidebar's button asks - one hook, so the two
+     cannot drift apart. */
+  const { requestSignOut, dialog } = useSignOut();
 
   useHotkey('mod+shift+l', (e) => {
     e.preventDefault();
@@ -70,14 +75,12 @@ export function Topbar() {
               label: 'Logout',
               icon: <LogOut className="h-4 w-4" />,
               destructive: true,
-              onClick: () => {
-                logout();
-                navigate('/login');
-              },
+              onClick: requestSignOut,
             },
           ]}
         />
       </div>
+      {dialog}
     </header>
   );
 }

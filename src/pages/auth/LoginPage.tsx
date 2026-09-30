@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Field } from '../../components/forms/Field';
 import { Logo } from '../../components/common/Logo';
+import { Recaptcha } from '../../components/common/Recaptcha';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { DEMO_CREDS } from '../../config/constants';
@@ -82,6 +83,20 @@ export default function LoginPage() {
   const [submitted, setSubmitted] = useState(false);
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
 
+  /*
+   * The captcha token, and a counter that clears it.
+   *
+   * A reCAPTCHA token is spent the moment the server checks it and expires
+   * two minutes after it is issued, so a failed sign-in has to discard the
+   * one it just used - otherwise a visitor who mistypes their password is
+   * told the captcha failed on their second, correct attempt. Bumping
+   * captchaNonce is what resets the widget back to an unticked box.
+   */
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaNonce, setCaptchaNonce] = useState(0);
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const captchaRequired = env.recaptchaSiteKey !== '';
+
   useEffect(() => { if (user) navigate(next, { replace: true }); }, [user, navigate, next]);
 
   /*
@@ -121,7 +136,7 @@ export default function LoginPage() {
     setServerErrors({});
     setLoading(true);
     try {
-      await login(em, pw);
+      await login(em, pw, captchaToken);
       toast.success('Welcome back!');
       navigate(next, { replace: true });
     } catch (err) {
@@ -130,6 +145,10 @@ export default function LoginPage() {
       const fields = serverFieldErrors(err);
       setServerErrors(fields);
       setError(loginBanner(err, fields));
+      // The token is spent, whatever went wrong. Ticking again is part of
+      // retrying - without this, a mistyped password would be followed by a
+      // captcha failure on the second, correct attempt.
+      if (captchaRequired) setCaptchaNonce((n) => n + 1);
     } finally {
       setLoading(false);
     }
@@ -142,6 +161,13 @@ export default function LoginPage() {
       setError('Fix the highlighted fields to continue.');
       return;
     }
+    // Checked here rather than by disabling the button: a disabled control
+    // gives no reason, and "why can I not sign in" is the whole question.
+    if (captchaRequired && !captchaToken) {
+      setCaptchaError('Please confirm you are not a robot.');
+      return;
+    }
+    setCaptchaError(null);
     void doLogin(email, password);
   };
 
@@ -313,6 +339,20 @@ export default function LoginPage() {
                 />
                 Keep me signed in on this device
               </label>
+
+              {/*
+                Above the error banner and the button, so the control that can
+                block the submit is the last thing read before pressing it.
+                Renders nothing at all when no site key is configured.
+              */}
+              <Recaptcha
+                resetKey={captchaNonce}
+                error={captchaError}
+                onChange={(token) => {
+                  setCaptchaToken(token);
+                  if (token) setCaptchaError(null);
+                }}
+              />
 
               {error && (
                 <div className="flex items-start gap-2 rounded-lg bg-orange-50 border border-orange-100 px-3 py-2 animate-fade-up">
